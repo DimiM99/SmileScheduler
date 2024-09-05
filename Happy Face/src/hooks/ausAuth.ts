@@ -3,9 +3,9 @@ import {AuthContext} from "@/contexts/AuthContext.tsx";
 import {AuthContextType} from "@/models/auth/AuthContextType.ts";
 
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+    const context = useContext (AuthContext);
+    if (context === undefined) {
+        throw new Error ('useAuth must be used within an AuthProvider');
+    }
+    return context;
 };
