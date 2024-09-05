@@ -1,7 +1,7 @@
 import React from 'react';
 import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom';
 import Login from '../pages/Login';
-import ResDashbaorad from "../pages/ResDashboard.tsx";
+import RecDashbaorad from "../pages/RecDashboard.tsx";
 import DocDashbaorad from "../pages/DocDashboard.tsx";
 import AppointmentView from "../pages/AppointmentView.tsx";
 import ProtectedRoute from './ProtectedRoute';
@@ -12,9 +12,9 @@ const AppRouter: React.FC = () => {
         <Router>
             <Routes>
                 <Route path="/login" element={<Login/>}/>
-                <Route path="/patient-dashboard" element={
+                <Route path="/receptionist-dashboard" element={
                     <ProtectedRoute>
-                        <ResDashbaorad/>
+                        <RecDashbaorad/>
                     </ProtectedRoute>
                 }/>
                 <Route path="/doctor-dashboard" element={

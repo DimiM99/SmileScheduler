@@ -3,7 +3,7 @@ import {fetchAppointments} from '../services/api';
 import {Appointment} from '@/models';
 import {useAuth} from "@/hooks/ausAuth.ts";
 
-const ResDashbaorad: React.FC = () => {
+const RecDashbaorad: React.FC = () => {
     const {user} = useAuth ();
     const [appointments, setAppointments] = useState<Appointment[]> ([]);
 
