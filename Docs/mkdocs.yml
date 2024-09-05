@@ -2,3 +2,9 @@ site_name: Smile Scheduler Docs
 
 theme:
   name: readthedocs
+
+nav:
+  - Home: index.md
+  - Mockups: mockups.md
+  - Frontend: frontend.md
+  - Backend: backend.md
