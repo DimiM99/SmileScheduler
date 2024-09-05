@@ -8,3 +8,4 @@ nav:
   - Mockups: mockups.md
   - Frontend: frontend.md
   - Backend: backend.md
+  - Entity Models: entity-models.md
