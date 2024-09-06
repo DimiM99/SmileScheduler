@@ -1,0 +1,3 @@
+POSTGRES_USER=set_me_up
+POSTGRES_PASSWORD=set_me_up
+POSTGRES_DB=set_me_up
