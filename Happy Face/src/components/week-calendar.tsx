@@ -51,8 +51,8 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
         const height = duration * 64
 
         return {
-            top: `${startY}px`,
-            height: `${height}px`,
+            top: `${startY.toString()}px`,
+            height: `${height.toString()}px`,
             left: '4px',
             right: '4px',
         }
@@ -87,11 +87,11 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
             </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => navigateWeek ('prev')}>
+                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('prev'); }}>
                             <ChevronLeft className="h-4 w-4"/>
                             <span className="sr-only">Previous week</span>
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => navigateWeek ('next')}>
+                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('next'); }}>
                             <ChevronRight className="h-4 w-4"/>
                             <span className="sr-only">Next week</span>
                         </Button>
@@ -145,7 +145,7 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
                                             "absolute left-0 right-0",
                                             index % 2 === 0 ? "border-t border-border" : "border-t border-border border-dashed"
                                         )}
-                                        style={{top: `${index * 32}px`}}
+                                        style={{top: `${(index * 32).toString()}px`}}
                                     ></div>
                                 ))}
                                 {events
@@ -161,8 +161,8 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
                                                 transition: 'opacity 0.3s ease',
                                                 cursor: 'pointer',
                                             }}
-                                            onMouseEnter={() => setHoveredEvent (event.id)}
-                                            onMouseLeave={() => setHoveredEvent (null)}
+                                            onMouseEnter={() => { setHoveredEvent (event.id); }}
+                                            onMouseLeave={() => { setHoveredEvent (null); }}
                                         >
                                             <div className="font-semibold text-foreground">{event.title}</div>
                                             <div
@@ -197,7 +197,7 @@ function formatTime(time: number): string {
     const minutes = Math.round ((time - hours) * 60)
     const ampm = hours >= 12 ? 'PM' : 'AM'
     const formattedHours = hours % 12 || 12
-    return `${formattedHours}:${minutes.toString ().padStart (2, '0')} ${ampm}`
+    return `${formattedHours.toString()}:${minutes.toString().padStart(2, '0')} ${ampm}`
 }
 
 function getWeekNumber(date: Date): number {
