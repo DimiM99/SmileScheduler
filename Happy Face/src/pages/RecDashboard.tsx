@@ -2,8 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {fetchAppointments} from '../services/api';
 import {Appointment} from '@/models';
 import {useAuth} from "@/hooks/ausAuth.ts";
+import Layout from "@/components/layout.tsx";
 
-const ResDashbaorad: React.FC = () => {
+const RecDashboard: React.FC = () => {
     const {user} = useAuth ();
     const [appointments, setAppointments] = useState<Appointment[]> ([]);
 
@@ -25,11 +26,24 @@ const ResDashbaorad: React.FC = () => {
     }, [user]);
 
     return (
-        <div>
-            <h1>Patient Dashboard</h1>
-            {/* Render appointments and other patient-specific content */}
-        </div>
+        <Layout
+            top={<header>This is the Navbar</header>}
+            left={
+                <div>
+                    <h2>Week Preview</h2>
+                    <p>This is the content for the left section.</p>
+                </div>
+            }
+            right={
+                <div>
+                    <h2>Appointment Configuration</h2>
+                    <p>This is the content for the right section.</p>
+                </div>
+            }
+            leftWeight={3}
+            rightWeight={2}
+        />
     );
 };
 
-export default ResDashbaorad;
+export default RecDashboard;
