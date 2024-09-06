@@ -1,26 +1,21 @@
 import {useState} from "react"
-import {Card} from "@/components/ui/card"
+import {Card, CardContent} from "@/components/ui/card"
 import {Button} from "@/components/ui/button"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Calendar} from "@/components/ui/calendar"
 import {ChevronLeft, ChevronRight, Calendar as CalendarIcon} from "lucide-react"
+import {cn} from "@/lib/utils"
+import {DraftEvent} from "@/models/week-calendar/DraftEvent.ts";
+import {Event} from "@/models/week-calendar/Event.ts"
 
 const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
-interface Event {
-    id: string
-    title: string
-    day: number // 0-4 (Monday-Friday)
-    start: number // 24-hour format float (e.g., 9.5 for 9:30 AM)
-    end: number // 24-hour format float (e.g., 17 for 5:00 PM)
-    color: string
-}
-
 interface WeekCalendarProps {
     events?: Event[]
+    draftEvent?: DraftEvent
 }
 
-export default function WeekCal({events = []}: WeekCalendarProps) {
+export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProps) {
     const [currentDate, setCurrentDate] = useState (new Date ())
     const [hoveredEvent, setHoveredEvent] = useState<string | null> (null)
 
@@ -50,7 +45,7 @@ export default function WeekCal({events = []}: WeekCalendarProps) {
         setCurrentDate (new Date ())
     }
 
-    const calculateEventStyle = (event: Event) => {
+    const calculateEventStyle = (event: Event | DraftEvent) => {
         const startY = (event.start - 8) * 64 // 32px per half hour, 2 half hours per hour
         const duration = event.end - event.start
         const height = duration * 64
@@ -69,100 +64,130 @@ export default function WeekCal({events = []}: WeekCalendarProps) {
         }
     }
 
+    const isOverlapping = (event1: Event | DraftEvent, event2: Event | DraftEvent) => {
+        return event1.day === event2.day &&
+            ((event1.start < event2.end && event1.start >= event2.start) ||
+                (event1.end > event2.start && event1.end <= event2.end) ||
+                (event1.start <= event2.start && event1.end >= event2.end))
+    }
+
+    const isDraftEventValid = () => {
+        if (!draftEvent) return true
+        return !events.some (event => isOverlapping (event, draftEvent))
+    }
+
     return (
-        <Card className="p-4 w-full max-w-4xl mx-auto overflow-x-auto">
-            <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5"/>
-                    <span className="font-semibold">
-            {monthName} - Week {weekNumber}
-          </span>
+        <Card className="w-full max-w-4xl mx-auto">
+            <CardContent className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex items-center gap-2">
+                        <CalendarIcon className="h-5 w-5 text-muted-foreground"/>
+                        <span className="font-semibold text-foreground">
+              {monthName} - Week {weekNumber}
+            </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" onClick={() => navigateWeek ('prev')}>
+                            <ChevronLeft className="h-4 w-4"/>
+                            <span className="sr-only">Previous week</span>
+                        </Button>
+                        <Button variant="outline" size="icon" onClick={() => navigateWeek ('next')}>
+                            <ChevronRight className="h-4 w-4"/>
+                            <span className="sr-only">Next week</span>
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={goToToday}>
+                            Today
+                        </Button>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" size="icon">
+                                    <CalendarIcon className="h-4 w-4"/>
+                                    <span className="sr-only">Open calendar</span>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={currentDate}
+                                    onSelect={handleSelectWeek}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={() => navigateWeek ('prev')}>
-                        <ChevronLeft className="h-4 w-4"/>
-                        <span className="sr-only">Previous week</span>
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={() => navigateWeek ('next')}>
-                        <ChevronRight className="h-4 w-4"/>
-                        <span className="sr-only">Next week</span>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={goToToday}>
-                        Today
-                    </Button>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <CalendarIcon className="h-4 w-4"/>
-                                <span className="sr-only">Open calendar</span>
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="end">
-                            <Calendar
-                                mode="single"
-                                selected={currentDate}
-                                onSelect={handleSelectWeek}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
-                </div>
-            </div>
-            <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr] gap-4 min-w-[600px]">
-                <div className="sticky left-0 bg-background z-20">
-                    <div className="h-14"></div>
-                    {Array.from ({length: 19}, (_, i) => i / 2 + 8).map ((time, index) => (
-                        <div key={time}
-                             className="h-8 flex items-center justify-end pr-2 text-sm text-muted-foreground">
-                            {index % 2 === 0 && (
-                                <span>{Math.floor (time) % 12 || 12}{Math.floor (time) >= 12 ? 'pm' : 'am'}</span>
-                            )}
+                <div className="grid grid-cols-[auto,1fr,1fr,1fr,1fr,1fr] gap-4 min-w-[600px] overflow-x-auto">
+                    <div className="sticky left-0 bg-background z-20">
+                        <div className="h-14"></div>
+                        {Array.from ({length: 19}, (_, i) => i / 2 + 8).map ((time, index) => (
+                            <div key={time}
+                                 className="h-8 flex items-center justify-end pr-2 text-sm text-muted-foreground">
+                                {index % 2 === 0 && (
+                                    <span>{Math.floor (time) % 12 || 12}{Math.floor (time) >= 12 ? 'pm' : 'am'}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    {weekDays.map ((day, dayIndex) => (
+                        <div key={day} className="relative">
+                            <div
+                                className="sticky top-0 bg-background z-10 h-14 flex flex-col items-center justify-center font-semibold border-b border-border">
+                                <div className="text-foreground">{day}</div>
+                                <div className="text-sm text-muted-foreground">
+                                    {weekDates[dayIndex].getDate ()}
+                                </div>
+                            </div>
+                            <div className="relative h-[608px]">
+                                {Array.from ({length: 19}, (_, i) => i / 2 + 8).map ((time, index) => (
+                                    <div
+                                        key={time}
+                                        className={cn (
+                                            "absolute left-0 right-0",
+                                            index % 2 === 0 ? "border-t border-border" : "border-t border-border border-dashed"
+                                        )}
+                                        style={{top: `${index * 32}px`}}
+                                    ></div>
+                                ))}
+                                {events
+                                    .filter (event => event.day === dayIndex)
+                                    .map (event => (
+                                        <div
+                                            key={event.id}
+                                            className="absolute rounded-md p-1 text-xs overflow-hidden"
+                                            style={{
+                                                ...calculateEventStyle (event),
+                                                backgroundColor: event.color,
+                                                opacity: hoveredEvent === event.id ? 0.8 : 1,
+                                                transition: 'opacity 0.3s ease',
+                                                cursor: 'pointer',
+                                            }}
+                                            onMouseEnter={() => setHoveredEvent (event.id)}
+                                            onMouseLeave={() => setHoveredEvent (null)}
+                                        >
+                                            <div className="font-semibold text-foreground">{event.title}</div>
+                                            <div
+                                                className="text-muted-foreground">{`${formatTime (event.start)} - ${formatTime (event.end)}`}</div>
+                                        </div>
+                                    ))}
+                                {draftEvent && draftEvent.day === dayIndex && (
+                                    <div
+                                        className="absolute rounded-md p-1 text-xs overflow-hidden border-2 border-dashed"
+                                        style={{
+                                            ...calculateEventStyle (draftEvent),
+                                            backgroundColor: isDraftEventValid () ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
+                                            borderColor: isDraftEventValid () ? 'green' : 'red',
+                                        }}
+                                    >
+                                        <div className="font-semibold text-foreground">{draftEvent.title}</div>
+                                        <div
+                                            className="text-muted-foreground">{`${formatTime (draftEvent.start)} - ${formatTime (draftEvent.end)}`}</div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
-                {weekDays.map ((day, dayIndex) => (
-                    <div key={day} className="relative">
-                        <div
-                            className="sticky top-0 bg-background z-10 h-14 flex flex-col items-center justify-center font-semibold border-b">
-                            <div>{day}</div>
-                            <div className="text-sm text-muted-foreground">
-                                {weekDates[dayIndex].getDate ()}
-                            </div>
-                        </div>
-                        <div className="relative h-[608px]">
-                            {Array.from ({length: 19}, (_, i) => i / 2 + 8).map ((time, index) => (
-                                <div
-                                    key={time}
-                                    className={`absolute left-0 right-0 ${
-                                        index % 2 === 0 ? 'border-t border-border' : 'border-t border-border border-dashed'
-                                    }`}
-                                    style={{top: `${index * 32}px`}}
-                                ></div>
-                            ))}
-                            {events
-                                .filter (event => event.day === dayIndex)
-                                .map (event => (
-                                    <div
-                                        key={event.id}
-                                        className="absolute rounded-md p-1 text-xs overflow-hidden"
-                                        style={{
-                                            ...calculateEventStyle (event),
-                                            backgroundColor: event.color,
-                                            opacity: hoveredEvent === event.id ? 0.8 : 1,
-                                            transition: 'opacity 0.3s ease',
-                                            cursor: 'pointer',
-                                        }}
-                                        onMouseEnter={() => setHoveredEvent (event.id)}
-                                        onMouseLeave={() => setHoveredEvent (null)}
-                                    >
-                                        <div className="font-semibold">{event.title}</div>
-                                        <div>{`${formatTime (event.start)} - ${formatTime (event.end)}`}</div>
-                                    </div>
-                                ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
+            </CardContent>
         </Card>
     )
 }
