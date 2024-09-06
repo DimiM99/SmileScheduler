@@ -45,14 +45,19 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
         setCurrentDate (new Date ())
     }
 
-    const calculateEventStyle = (event: Event | DraftEvent) => {
-        const startY = (event.start - 8) * 64 // 32px per half hour, 2 half hours per hour
-        const duration = event.end - event.start
-        const height = duration * 64
+    const calculateEventStyle = (event: Event | DraftEvent, dayDate: Date) => {
+        const startTime = new Date (event.start)
+        startTime.setFullYear (dayDate.getFullYear (), dayDate.getMonth (), dayDate.getDate ())
+        const endTime = new Date (event.end)
+        endTime.setFullYear (dayDate.getFullYear (), dayDate.getMonth (), dayDate.getDate ())
+
+        const startY = (startTime.getHours () + startTime.getMinutes () / 60 - 8) * 64
+        const endY = (endTime.getHours () + endTime.getMinutes () / 60 - 8) * 64
+        const height = endY - startY
 
         return {
-            top: `${startY.toString()}px`,
-            height: `${height.toString()}px`,
+            top: `${startY.toString ()}px`,
+            height: `${height.toString ()}px`,
             left: '4px',
             right: '4px',
         }
@@ -65,15 +70,31 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
     }
 
     const isOverlapping = (event1: Event | DraftEvent, event2: Event | DraftEvent) => {
-        return event1.day === event2.day &&
-            ((event1.start < event2.end && event1.start >= event2.start) ||
-                (event1.end > event2.start && event1.end <= event2.end) ||
-                (event1.start <= event2.start && event1.end >= event2.end))
+        return event1.start < event2.end && event2.start < event1.end
     }
 
-    const isDraftEventValid = () => {
+    const isDraftEventValid = (dayDate: Date) => {
         if (!draftEvent) return true
-        return !events.some (event => isOverlapping (event, draftEvent))
+        const draftStart = new Date (draftEvent.start)
+        draftStart.setFullYear (dayDate.getFullYear (), dayDate.getMonth (), dayDate.getDate ())
+        const draftEnd = new Date (draftEvent.end)
+        draftEnd.setFullYear (dayDate.getFullYear (), dayDate.getMonth (), dayDate.getDate ())
+
+        return !events.some (event =>
+            isSameDay (event.start, dayDate) &&
+            isOverlapping (event, {
+                id: "",
+                title: "",
+                start: draftStart,
+                end: draftEnd
+            })
+        )
+    }
+
+    const isSameDay = (date1: Date, date2: Date) => {
+        return date1.getFullYear () === date2.getFullYear () &&
+            date1.getMonth () === date2.getMonth () &&
+            date1.getDate () === date2.getDate ()
     }
 
     return (
@@ -87,11 +108,15 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
             </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('prev'); }}>
+                        <Button variant="outline" size="icon" onClick={() => {
+                            navigateWeek ('prev');
+                        }}>
                             <ChevronLeft className="h-4 w-4"/>
                             <span className="sr-only">Previous week</span>
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('next'); }}>
+                        <Button variant="outline" size="icon" onClick={() => {
+                            navigateWeek ('next');
+                        }}>
                             <ChevronRight className="h-4 w-4"/>
                             <span className="sr-only">Next week</span>
                         </Button>
@@ -128,13 +153,13 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
                             </div>
                         ))}
                     </div>
-                    {weekDays.map ((day, dayIndex) => (
-                        <div key={day} className="relative">
+                    {weekDates.map ((dayDate, dayIndex) => (
+                        <div key={dayDate.toISOString ()} className="relative">
                             <div
                                 className="sticky top-0 bg-background z-10 h-14 flex flex-col items-center justify-center font-semibold border-b border-border">
-                                <div className="text-foreground">{day}</div>
+                                <div className="text-foreground">{weekDays[dayIndex]}</div>
                                 <div className="text-sm text-muted-foreground">
-                                    {weekDates[dayIndex].getDate ()}
+                                    {dayDate.getDate ()}
                                 </div>
                             </div>
                             <div className="relative h-[608px]">
@@ -145,42 +170,48 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
                                             "absolute left-0 right-0",
                                             index % 2 === 0 ? "border-t border-border" : "border-t border-border border-dashed"
                                         )}
-                                        style={{top: `${(index * 32).toString()}px`}}
+                                        style={{top: `${(index * 32).toString ()}px`}}
                                     ></div>
                                 ))}
                                 {events
-                                    .filter (event => event.day === dayIndex)
+                                    .filter (event => isSameDay (new Date (event.start), dayDate))
                                     .map (event => (
                                         <div
                                             key={event.id}
                                             className="absolute rounded-md p-1 text-xs overflow-hidden"
                                             style={{
-                                                ...calculateEventStyle (event),
+                                                ...calculateEventStyle (event, dayDate),
                                                 backgroundColor: event.color,
                                                 opacity: hoveredEvent === event.id ? 0.8 : 1,
                                                 transition: 'opacity 0.3s ease',
                                                 cursor: 'pointer',
                                             }}
-                                            onMouseEnter={() => { setHoveredEvent (event.id); }}
-                                            onMouseLeave={() => { setHoveredEvent (null); }}
+                                            onMouseEnter={() => {
+                                                setHoveredEvent (event.id);
+                                            }}
+                                            onMouseLeave={() => {
+                                                setHoveredEvent (null);
+                                            }}
                                         >
                                             <div className="font-semibold text-foreground">{event.title}</div>
-                                            <div
-                                                className="text-muted-foreground">{`${formatTime (event.start)} - ${formatTime (event.end)}`}</div>
+                                            <div className="text-muted-foreground">
+                                                {`${formatTime (new Date (event.start))} - ${formatTime (new Date (event.end))}`}
+                                            </div>
                                         </div>
                                     ))}
-                                {draftEvent && draftEvent.day === dayIndex && (
+                                {draftEvent && isSameDay (new Date (draftEvent.start), dayDate) && (
                                     <div
                                         className="absolute rounded-md p-1 text-xs overflow-hidden border-2 border-dashed"
                                         style={{
-                                            ...calculateEventStyle (draftEvent),
-                                            backgroundColor: isDraftEventValid () ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
-                                            borderColor: isDraftEventValid () ? 'green' : 'red',
+                                            ...calculateEventStyle (draftEvent, dayDate),
+                                            backgroundColor: isDraftEventValid (dayDate) ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
+                                            borderColor: isDraftEventValid (dayDate) ? 'green' : 'red',
                                         }}
                                     >
                                         <div className="font-semibold text-foreground">{draftEvent.title}</div>
-                                        <div
-                                            className="text-muted-foreground">{`${formatTime (draftEvent.start)} - ${formatTime (draftEvent.end)}`}</div>
+                                        <div className="text-muted-foreground">
+                                            {`${formatTime (new Date (draftEvent.start))} - ${formatTime (new Date (draftEvent.end))}`}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -192,12 +223,8 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
     )
 }
 
-function formatTime(time: number): string {
-    const hours = Math.floor (time)
-    const minutes = Math.round ((time - hours) * 60)
-    const ampm = hours >= 12 ? 'PM' : 'AM'
-    const formattedHours = hours % 12 || 12
-    return `${formattedHours.toString()}:${minutes.toString().padStart(2, '0')} ${ampm}`
+function formatTime(date: Date): string {
+    return date.toLocaleTimeString ([], {hour: '2-digit', minute: '2-digit'})
 }
 
 function getWeekNumber(date: Date): number {
