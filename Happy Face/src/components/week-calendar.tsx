@@ -6,6 +6,15 @@ import {Calendar} from "@/components/ui/calendar"
 import {ChevronLeft, ChevronRight, Calendar as CalendarIcon} from "lucide-react"
 import {cn} from "@/lib/utils"
 import {Event} from "@/models/week-calendar/Event.ts"
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
@@ -81,15 +90,25 @@ export default function WeekCalendar({events, isBookingMode}: WeekCalendarProps)
                     <div className="flex items-center gap-2">
                         <CalendarIcon className="h-5 w-5 text-muted-foreground"/>
                         <span className="font-semibold text-foreground">
-              {monthName} - Week {weekNumber}
-            </span>
+                            {monthName} - Week {weekNumber}
+                        </span>
+                    </div>
+                    <div>
+                        <DoctorAppointmentSelector doctors={
+                            ['Dr. John Doe', 'Dr. Jane Doe', 'Dr. Foo Bar', 'Dr. Baz Qux']
+                        }>
+                        </DoctorAppointmentSelector>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('prev'); }}>
+                        <Button variant="outline" size="icon" onClick={() => {
+                            navigateWeek ('prev');
+                        }}>
                             <ChevronLeft className="h-4 w-4"/>
                             <span className="sr-only">Previous week</span>
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('next'); }}>
+                        <Button variant="outline" size="icon" onClick={() => {
+                            navigateWeek ('next');
+                        }}>
                             <ChevronRight className="h-4 w-4"/>
                             <span className="sr-only">Next week</span>
                         </Button>
@@ -162,8 +181,12 @@ export default function WeekCalendar({events, isBookingMode}: WeekCalendarProps)
                                                 transition: 'opacity 0.3s ease',
                                                 cursor: 'pointer',
                                             }}
-                                            onMouseEnter={() => { setHoveredEvent (event.id); }}
-                                            onMouseLeave={() => { setHoveredEvent (null); }}
+                                            onMouseEnter={() => {
+                                                setHoveredEvent (event.id);
+                                            }}
+                                            onMouseLeave={() => {
+                                                setHoveredEvent (null);
+                                            }}
                                         >
                                             <div className="font-semibold text-foreground">{event.title}</div>
                                             <div className="text-muted-foreground">
@@ -190,4 +213,36 @@ function getWeekNumber(date: Date): number {
     d.setUTCDate (d.getUTCDate () + 4 - dayNum)
     const yearStart = new Date (Date.UTC (d.getUTCFullYear (), 0, 1))
     return Math.ceil ((((d.getTime () - yearStart.getTime ()) / 86400000) + 1) / 7)
+}
+
+
+interface DoctorAppointmentSelectorProps {
+    doctors: string[]
+}
+
+function DoctorAppointmentSelector({ doctors }: DoctorAppointmentSelectorProps) {
+
+    if (doctors.length === 0) {
+        return null
+    } else {
+        return (
+            <Select>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder={doctors[0]}/>
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        <SelectLabel>Doctors</SelectLabel>
+                        {
+                            doctors.map((doctor, index) => (
+                                <SelectItem key={index} value={doctor}>
+                                    {doctor}
+                                </SelectItem>
+                            ))
+                        }
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        )
+    }
 }
