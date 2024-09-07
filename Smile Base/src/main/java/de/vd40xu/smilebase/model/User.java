@@ -36,7 +36,15 @@ public class User {
     @Setter
     private boolean active;
 
-    public User() {
-        throw new UnsupportedOperationException();
+    public User() { }
+
+    public User(Long id, String username, String password, String name, String email, UserRole role, boolean active) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+        this.role = role;
+        this.active = active;
     }
 }
