@@ -37,6 +37,9 @@ public class AuthService implements IAuthService {
         userRepository.save(User.builder()
                 .username(userDto.getUsername())
                 .password(passwordEncoder.encode(userDto.getPassword()))
+                .name(userDto.getName())
+                .email(userDto.getEmail())
+                .role(userDto.getRole())
                 .active(true)
                 .build());
     }
