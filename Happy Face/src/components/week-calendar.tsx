@@ -5,17 +5,16 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Calendar} from "@/components/ui/calendar"
 import {ChevronLeft, ChevronRight, Calendar as CalendarIcon} from "lucide-react"
 import {cn} from "@/lib/utils"
-import {DraftEvent} from "@/models/week-calendar/DraftEvent.ts";
 import {Event} from "@/models/week-calendar/Event.ts"
 
 const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
 interface WeekCalendarProps {
-    events?: Event[]
-    draftEvent?: DraftEvent
+    events: Event[]
+    isBookingMode: boolean
 }
 
-export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProps) {
+export default function WeekCalendar({events, isBookingMode}: WeekCalendarProps) {
     const [currentDate, setCurrentDate] = useState (new Date ())
     const [hoveredEvent, setHoveredEvent] = useState<string | null> (null)
 
@@ -45,7 +44,7 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
         setCurrentDate (new Date ())
     }
 
-    const calculateEventStyle = (event: Event | DraftEvent, dayDate: Date) => {
+    const calculateEventStyle = (event: Event, dayDate: Date) => {
         const startTime = new Date (event.start)
         startTime.setFullYear (dayDate.getFullYear (), dayDate.getMonth (), dayDate.getDate ())
         const endTime = new Date (event.end)
@@ -69,28 +68,6 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
         }
     }
 
-    const isOverlapping = (event1: Event | DraftEvent, event2: Event | DraftEvent) => {
-        return event1.start < event2.end && event2.start < event1.end
-    }
-
-    const isDraftEventValid = (dayDate: Date) => {
-        if (!draftEvent) return true
-        const draftStart = new Date (draftEvent.start)
-        draftStart.setFullYear (dayDate.getFullYear (), dayDate.getMonth (), dayDate.getDate ())
-        const draftEnd = new Date (draftEvent.end)
-        draftEnd.setFullYear (dayDate.getFullYear (), dayDate.getMonth (), dayDate.getDate ())
-
-        return !events.some (event =>
-            isSameDay (event.start, dayDate) &&
-            isOverlapping (event, {
-                id: "",
-                title: "",
-                start: draftStart,
-                end: draftEnd
-            })
-        )
-    }
-
     const isSameDay = (date1: Date, date2: Date) => {
         return date1.getFullYear () === date2.getFullYear () &&
             date1.getMonth () === date2.getMonth () &&
@@ -108,15 +85,11 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
             </span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => {
-                            navigateWeek ('prev');
-                        }}>
+                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('prev'); }}>
                             <ChevronLeft className="h-4 w-4"/>
                             <span className="sr-only">Previous week</span>
                         </Button>
-                        <Button variant="outline" size="icon" onClick={() => {
-                            navigateWeek ('next');
-                        }}>
+                        <Button variant="outline" size="icon" onClick={() => { navigateWeek ('next'); }}>
                             <ChevronRight className="h-4 w-4"/>
                             <span className="sr-only">Next week</span>
                         </Button>
@@ -178,20 +151,19 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
                                     .map (event => (
                                         <div
                                             key={event.id}
-                                            className="absolute rounded-md p-1 text-xs overflow-hidden"
+                                            className={cn (
+                                                "absolute rounded-md p-1 text-xs overflow-hidden",
+                                                isBookingMode ? "border border-dotted border-green-500" : "border border-solid border-blue-500"
+                                            )}
                                             style={{
                                                 ...calculateEventStyle (event, dayDate),
-                                                backgroundColor: event.color,
+                                                backgroundColor: isBookingMode ? 'rgba(0, 255, 0, 0.1)' : 'rgba(59, 130, 246, 0.5)',
                                                 opacity: hoveredEvent === event.id ? 0.8 : 1,
                                                 transition: 'opacity 0.3s ease',
                                                 cursor: 'pointer',
                                             }}
-                                            onMouseEnter={() => {
-                                                setHoveredEvent (event.id);
-                                            }}
-                                            onMouseLeave={() => {
-                                                setHoveredEvent (null);
-                                            }}
+                                            onMouseEnter={() => { setHoveredEvent (event.id); }}
+                                            onMouseLeave={() => { setHoveredEvent (null); }}
                                         >
                                             <div className="font-semibold text-foreground">{event.title}</div>
                                             <div className="text-muted-foreground">
@@ -199,21 +171,6 @@ export default function WeekCalendar({events = [], draftEvent}: WeekCalendarProp
                                             </div>
                                         </div>
                                     ))}
-                                {draftEvent && isSameDay (new Date (draftEvent.start), dayDate) && (
-                                    <div
-                                        className="absolute rounded-md p-1 text-xs overflow-hidden border-2 border-dashed"
-                                        style={{
-                                            ...calculateEventStyle (draftEvent, dayDate),
-                                            backgroundColor: isDraftEventValid (dayDate) ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
-                                            borderColor: isDraftEventValid (dayDate) ? 'green' : 'red',
-                                        }}
-                                    >
-                                        <div className="font-semibold text-foreground">{draftEvent.title}</div>
-                                        <div className="text-muted-foreground">
-                                            {`${formatTime (new Date (draftEvent.start))} - ${formatTime (new Date (draftEvent.end))}`}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     ))}
