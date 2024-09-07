@@ -14,13 +14,13 @@ services:
       context: ./Smile\ Base
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - ${BE_PORT}:${BE_PORT}
   database:
     env_file:
       - .env
     image: postgres:15.8
     ports:
-      - "5432:5432"
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
