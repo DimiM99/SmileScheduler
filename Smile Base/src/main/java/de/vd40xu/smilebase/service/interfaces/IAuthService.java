@@ -5,5 +5,5 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public interface IAuthService {
     void registerUser(UserDTO userDto);
-    UserDetails loginUser(UserDTO userDto);
+    UserDetails loginUser(UserDTO userDto) throws IllegalAccessException;
 }
