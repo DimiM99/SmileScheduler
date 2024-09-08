@@ -3,7 +3,7 @@ services:
     env_file:
       - .env
     build:
-      context: ./Happy\ Face
+      context: "./Happy Face"
       dockerfile: Dockerfile
     ports:
       - "5173:5173"
@@ -11,7 +11,7 @@ services:
     env_file:
       - .env
     build:
-      context: ./Smile\ Base
+      context: "./Smile Base"
       dockerfile: Dockerfile
     ports:
       - ${BE_PORT}:${BE_PORT}
