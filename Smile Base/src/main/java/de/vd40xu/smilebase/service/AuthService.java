@@ -51,8 +51,8 @@ public class AuthService implements IAuthService {
         }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
-                        user.getPassword()
+                        userDto.getUsername(),
+                        userDto.getPassword()
                 )
         );
         return user;
