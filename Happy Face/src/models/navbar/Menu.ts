@@ -1,3 +1,4 @@
+
 export interface MenuItem {
     label: string;
     shortcut?: string;
@@ -8,3 +9,4 @@ export interface Menu {
     name: string;
     items: (MenuItem | "separator")[];
 }
+
