@@ -1,0 +1,22 @@
+############# universal ignore #############
+
+# IntelliJ/WebStorm specific
+.idea
+
+# Visual Studio Code
+.history
+.vscode
+.vs
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Envirionment files
+.env
+
+
+################# Frontend #################
+
+# ignore node dependencies
+node_modules
