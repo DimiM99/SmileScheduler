@@ -1,7 +1,9 @@
 import React from 'react';
+import {User} from '@/models/User.ts';
+import {Navbar} from "@/components/navbar.tsx";
 
 interface LayoutProps {
-    top: React.ReactNode;
+    user: User;
     left: React.ReactNode;
     right: React.ReactNode;
     leftWeight?: number;
@@ -9,7 +11,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({
-                                           top,
+                                           user,
                                            left,
                                            right,
                                            leftWeight = 1,
@@ -18,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({
     return (
         <div className="flex flex-col h-screen">
             <div className="flex-none">
-                {top}
+                <Navbar user={user}/>
             </div>
             <div className="flex flex-1 overflow-hidden">
                 <div
