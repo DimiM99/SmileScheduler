@@ -15,7 +15,7 @@ import {
     AvatarImage,
 } from "@/components/ui/avatar"
 import {User} from "@/models";
-import {MenuGenerator} from "@/ustils/navbar/MenuGenerator.ts";
+import {MenuGenerator} from "@/helpers/navbar/MenuGenerator.ts";
 import {Menu} from "@/models/navbar/Menu.ts";
 
 
