@@ -1,0 +1,29 @@
+############# universal ignore #############
+
+# IntelliJ/WebStorm specific
+.idea
+
+# Visual Studio Code
+.history
+.vscode
+.vs
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Envirionment files
+.env
+
+
+################## Backend ##################
+
+# Ignore all files in the root directory
+*
+# Include the src directory
+!src/
+# Include the gralde settings and build files
+!build.gradle.kts
+!settings.gradle.kts
+# Exclude the target directory and its contents
+target/
