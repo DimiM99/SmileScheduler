@@ -3,24 +3,17 @@ package de.vd40xu.smilebase.repository.integraton;
 import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.UserRole;
 import de.vd40xu.smilebase.repository.UserRepository;
-import jakarta.persistence.EntityManager;
+import de.vd40xu.smilebase.repository.config.IntegrationRepositoryTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
-class UserRepositoryTest {
+class UserRepositoryTest extends IntegrationRepositoryTest {
 
     @Autowired private UserRepository userRepository;
-
-    @Autowired EntityManager entityManager;
 
     User testUser = User.builder()
                         .id(1L)
