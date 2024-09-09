@@ -15,7 +15,7 @@ import {
     AvatarImage,
 } from "@/components/ui/avatar"
 import {User} from "@/models";
-import {MenuGenerator} from "@/helpers/navbar/MenuGenerator.ts";
+import {RoleBasedMenuBuilder} from "@/helpers/navbar/RoleBasedMenuBuilder.ts";
 import {Menu} from "@/models/navbar/Menu.ts";
 
 
@@ -26,7 +26,7 @@ interface NavbarProps {
 // Dynamic Navbar Component
 export const Navbar: React.FC<NavbarProps> = ({ user }) => {
 
-    const menus: Menu[] = MenuGenerator(user.role);
+    const menus: Menu[] = RoleBasedMenuBuilder(user.role);
 
     return (
         <div className="flex justify-between items-center w-full p-4">

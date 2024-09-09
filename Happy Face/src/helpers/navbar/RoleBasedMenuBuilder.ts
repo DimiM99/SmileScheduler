@@ -17,7 +17,7 @@ const handleDeleteAppointment = () => {
 
 //Generate menus based on user role
 type MenuGeneratorType = (role: string) => Menu[];
-export const MenuGenerator: MenuGeneratorType = (role: string): Menu[] => {
+export const RoleBasedMenuBuilder: MenuGeneratorType = (role: string): Menu[] => {
     switch (role) {
         case 'RECEPTIONIST':
             return [
