@@ -22,6 +22,8 @@ public class PostgresqlTestContainerExtension implements BeforeAllCallback, Afte
             System.setProperty("spring.datasource.url", postgreSQLContainer.getJdbcUrl());
             System.setProperty("spring.datasource.username", postgreSQLContainer.getUsername());
             System.setProperty("spring.datasource.password", postgreSQLContainer.getPassword());
+            System.setProperty("spring.datasource.driver-class-name", postgreSQLContainer.getDriverClassName());
+            System.setProperty("spring.jpa.database-platform", "org.hibernate.dialect.PostgreSQLDialect");
         }
     }
 
