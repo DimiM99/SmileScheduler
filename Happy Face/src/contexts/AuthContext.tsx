@@ -11,8 +11,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({children}) => {
     const login = async (username: string, password: string): Promise<void> => {
     };
 
-    const register = async (user: User): Promise<void> => {
-
     const logout = (): void => {
         setUser (null);
     };
