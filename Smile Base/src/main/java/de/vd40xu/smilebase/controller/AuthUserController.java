@@ -38,18 +38,6 @@ public class AuthUserController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/auth/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserDTO userDto) {
-        try {
-            authService.registerUser(userDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already taken. Please try again");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getMessage());
-        }
-    }
-
     @PostMapping("/auth/login")
     public ResponseEntity<Object> loginUser(@RequestBody UserDTO userDto) {
         UserDetails authenticatedUser;
