@@ -27,7 +27,7 @@ const AppointmentView: React.FC = () => {
     }, [token]);
     return (
         <div>
-            <h1>Patient Dashboard</h1>
+            <h1>Appointment View</h1>
             {/* Render appointments and other patient-specific content */}
         </div>
     );

@@ -1,3 +1,4 @@
+import {Role} from "@/models/enums/Role.ts";
 
 export interface MenuItem {
     label: string;
@@ -6,7 +7,7 @@ export interface MenuItem {
 }
 
 export interface Menu {
-    name: string;
+    name: Role;
     items: (MenuItem | "separator")[];
 }
 

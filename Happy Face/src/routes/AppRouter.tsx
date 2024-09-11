@@ -1,8 +1,8 @@
 import React from 'react';
 import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom';
 import Login from '../pages/Login';
-import RecDashbaorad from "../pages/RecDashboard.tsx";
-import DocDashbaorad from "../pages/DocDashboard.tsx";
+import RecDashboard from "../pages/RecDashboard.tsx";
+import DocDashboard from "../pages/DocDashboard.tsx";
 import AppointmentView from "../pages/AppointmentView.tsx";
 import ProtectedRoute from './ProtectedRoute';
 import TokenProtectedRoute from './TokenProtectedRoute';
@@ -12,14 +12,15 @@ const AppRouter: React.FC = () => {
         <Router>
             <Routes>
                 <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Register/>}/>
                 <Route path="/receptionist-dashboard" element={
                     <ProtectedRoute>
-                        <RecDashbaorad/>
+                        <RecDashboard/>
                     </ProtectedRoute>
                 }/>
                 <Route path="/doctor-dashboard" element={
                     <ProtectedRoute>
-                        <DocDashbaorad/>
+                        <DocDashboard/>
                     </ProtectedRoute>
                 }/>
                 <Route path="/appointments" element={
