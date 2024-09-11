@@ -8,7 +8,6 @@ import de.vd40xu.smilebase.model.emuns.UserRole;
 import de.vd40xu.smilebase.service.AuthService;
 import de.vd40xu.smilebase.service.UserService;
 import de.vd40xu.smilebase.service.utility.JwtService;
-import jakarta.transaction.TransactionalException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,47 +77,8 @@ class AuthUserControllerTest {
     }
 
     @Test
-    @DisplayName("Unit > test \"/auth/register\" endpoint with a new user")
-    void test1() throws Exception {
-        doNothing().when(authService).registerUser(testUserDTO);
-
-        mockMvc.perform(post("/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testUserDTO)))
-                .andExpect(status().isCreated());
-
-        verify(authService, times(1)).registerUser(any(UserDTO.class));
-    }
-
-    @Test
-    @DisplayName("Unit > test \"/auth/register\" endpoint with an existing user")
-    void test2() throws Exception {
-        doThrow(IllegalArgumentException.class).when(authService).registerUser(any(UserDTO.class));
-
-        mockMvc.perform(post("/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(testUserDTO)))
-                .andExpect(status().isConflict());
-
-        verify(authService, times(1)).registerUser(any(UserDTO.class));
-    }
-
-    @Test
-    @DisplayName("Unit > test \"/auth/register\" endpoint with wrong data")
-    void test3() throws Exception {
-        doThrow(TransactionalException.class).when(authService).registerUser(any(UserDTO.class));
-
-        mockMvc.perform(post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new UserDTO())))
-                .andExpect(status().isInternalServerError());
-
-        verify(authService, times(1)).registerUser(any(UserDTO.class));
-    }
-
-    @Test
     @DisplayName("Unit > test \"/auth/login\" endpoint with valid credentials")
-    void test4() throws Exception {
+    void test1() throws Exception {
         when(authService.loginUser(any(UserDTO.class))).thenReturn(testUserDetails);
         when(jwtService.generateToken(any(UserDetails.class))).thenReturn("testToken");
 
@@ -133,7 +93,7 @@ class AuthUserControllerTest {
 
     @Test
     @DisplayName("Unit > test \"/auth/login\" endpoint with valid credentials but user inactive")
-    void test5() throws Exception {
+    void test2() throws Exception {
         doThrow(IllegalAccessException.class).when(authService).loginUser(any(UserDTO.class));
 
         mockMvc.perform(post("/auth/login")
@@ -147,7 +107,7 @@ class AuthUserControllerTest {
 
     @Test
     @DisplayName("Unit > test \"/auth/login\" endpoint with invalid credentials")
-    void test6() throws Exception {
+    void test3() throws Exception {
         when(authService.loginUser(any(UserDTO.class))).thenThrow(UsernameNotFoundException.class);
 
         mockMvc.perform(post("/auth/login")
@@ -160,7 +120,7 @@ class AuthUserControllerTest {
 
     @Test
     @DisplayName("Unit > test \"/user\" endpoint with a valid token")
-    void test7() throws Exception {
+    void test4() throws Exception {
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Authentication authentication = Mockito.mock(Authentication.class);
 
@@ -184,7 +144,7 @@ class AuthUserControllerTest {
 
     @Test
     @DisplayName("Unit > test \"/user\" endpoint with an invalid token")
-    void test8() throws Exception {
+    void test5() throws Exception {
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
         Authentication authentication = Mockito.mock(Authentication.class);
 

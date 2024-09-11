@@ -16,8 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +35,7 @@ class AuthServiceTest extends AuthContextConfiguration {
 
     @BeforeAll
     public void setUp() {
-        authService = new AuthService(userRepository, authenticationManager, passwordEncoder, userService);
+        authService = new AuthService(authenticationManager, userService);
     }
 
     @BeforeEach
@@ -54,36 +52,18 @@ class AuthServiceTest extends AuthContextConfiguration {
                 .role(testUserDTO.getRole())
                 .active(true)
                 .build();
-    }
-
-    @Test
-    @DisplayName("Integration > Register User")
-    public void test1() {
-        authService.registerUser(testUserDTO);
-
-        Optional<User> user = userRepository.findByUsername(testUserDTO.getUsername());
-
-        assertTrue(user.isPresent());
-        assertEquals(user.get().getUsername(), testUserDTO.getUsername());
-        assertEquals(user.get().getPassword(), testUser.getPassword());
-        assertEquals(user.get().getName(), testUserDTO.getName());
-    }
-
-    @Test
-    @DisplayName("Integration > try to register a user with an existing username")
-    public void test2() {
-        assertThrows(IllegalArgumentException.class, () -> authService.registerUser(testUserDTO));
+        userRepository.save(testUser);
     }
 
     @Test
     @DisplayName("Integration > Login User")
-    public void test3() {
+    public void test1() {
         assertDoesNotThrow(() -> authService.loginUser(testUserDTO));
     }
 
     @Test
     @DisplayName("Integration > try to login an inactive user")
-    public void test4() {
+    public void test2() {
         testUser.setActive(false);
         userRepository.save(testUser);
         assertThrows(IllegalAccessException.class, () -> authService.loginUser(testUserDTO));
@@ -91,7 +71,7 @@ class AuthServiceTest extends AuthContextConfiguration {
 
     @Test
     @DisplayName("Integration > try to login with non-existing user")
-    public void test5() {
+    public void test3() {
         userRepository.delete(testUser);
         assertThrows(UsernameNotFoundException.class, () -> authService.loginUser(testUserDTO));
     }

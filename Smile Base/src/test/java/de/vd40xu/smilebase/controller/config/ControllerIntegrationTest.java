@@ -2,6 +2,7 @@ package de.vd40xu.smilebase.controller.config;
 
 import de.vd40xu.smilebase.SmileBaseApplication;
 import de.vd40xu.smilebase.dto.UserDTO;
+import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.UserRole;
 import de.vd40xu.smilebase.repository.UserRepository;
 import de.vd40xu.smilebase.service.AuthService;
@@ -53,7 +54,17 @@ public abstract class ControllerIntegrationTest {
         ReflectionTestUtils.setField(jwtService, "secretKey", secret);
         ReflectionTestUtils.setField(jwtService, "jwtExpiration", 36000L);
 
-        authService.registerUser(testUserDTO);
+        userRepository.save(
+                User.builder()
+                        .id(testUserDTO.getId())
+                        .username(testUserDTO.getUsername())
+                        .password(passwordEncoder.encode(testUserDTO.getPassword()))
+                        .name(testUserDTO.getName())
+                        .email(testUserDTO.getEmail())
+                        .role(testUserDTO.getRole())
+                        .active(true)
+                        .build()
+        );
 
         UserDetails authenticatedUser = authService.loginUser(testUserDTO);
         Authentication authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.getAuthorities());
