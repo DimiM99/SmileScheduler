@@ -4,6 +4,8 @@ import de.vd40xu.smilebase.dto.UserDTO;
 import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.service.AMService;
 import de.vd40xu.smilebase.service.interfaces.IAccountManagement;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,8 +39,10 @@ public class AccountManagementController {
     }
 
     @DeleteMapping("/account-management/user")
-    public String deleteUser(UserDTO user) throws IllegalAccessException {
+    public ResponseEntity<String> deleteUser(UserDTO user) throws IllegalAccessException {
         User res = accountManagementService.deleteUser(user);
-        return res != null ? "User deleted" : "User not found";
+        return res != null ?
+                ResponseEntity.status(HttpStatus.GONE).body("User deleted") :
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
 }
