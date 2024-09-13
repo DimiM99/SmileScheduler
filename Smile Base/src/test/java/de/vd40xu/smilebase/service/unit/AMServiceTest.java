@@ -10,6 +10,7 @@ import de.vd40xu.smilebase.service.config.AuthContextConfiguration;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -121,13 +122,24 @@ class AMServiceTest extends AuthContextConfiguration {
     public void test6() {
         mockAuthorisedUser();
         when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.empty());
-        assertDoesNotThrow(() -> amService.createOrUpdateUser(testUserDTO, false));
+        assertThrows(UsernameNotFoundException.class, () -> amService.createOrUpdateUser(testUserDTO, false));
     }
 
     @Test
     @DisplayName("Unit > update user without password change")
     public void test7() {
         mockAuthorisedUser();
+        when(userRepository.findByUsername(any())).thenReturn(
+                Optional.of(
+                        User.builder()
+                                .username(testUserDTO.getUsername())
+                                .password(testUserDTO.getPassword())
+                                .name(testUserDTO.getName())
+                                .email(testUserDTO.getEmail())
+                                .role(testUserDTO.getRole())
+                                .build()
+                )
+        );
         testUserDTO.setPassword(null);
         assertDoesNotThrow(() -> amService.createOrUpdateUser(testUserDTO, false));
         verify(passwordEncoder, times(0)).encode(any());
@@ -137,6 +149,17 @@ class AMServiceTest extends AuthContextConfiguration {
     @DisplayName("Unit > update user without email change")
     public void test8() {
         mockAuthorisedUser();
+        when(userRepository.findByUsername(any())).thenReturn(
+                Optional.of(
+                        User.builder()
+                                .username(testUserDTO.getUsername())
+                                .password(testUserDTO.getPassword())
+                                .name(testUserDTO.getName())
+                                .email(testUserDTO.getEmail())
+                                .role(testUserDTO.getRole())
+                                .build()
+                )
+        );
         testUserDTO.setEmail(null);
         assertDoesNotThrow(() -> amService.createOrUpdateUser(testUserDTO, false));
     }
@@ -154,6 +177,6 @@ class AMServiceTest extends AuthContextConfiguration {
     public void test10() {
         mockAuthorisedUser();
         when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.empty());
-        assertDoesNotThrow(() -> amService.deleteUser(testUserDTO));
+        assertThrows(UsernameNotFoundException.class, () -> amService.deleteUser(testUserDTO));
     }
 }
