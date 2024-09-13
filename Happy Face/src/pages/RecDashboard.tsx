@@ -13,7 +13,7 @@ const RecDashboard: React.FC = () => {
         const loadAppointments = async (): Promise<void> => {
             if (user) {
                 try {
-                    const fetchedAppointments = await fetchAppointments(user.id);
+                    const fetchedAppointments = await fetchAppointments(user.username);
                     setAppointments(fetchedAppointments);
                 } catch (error) {
                     console.error('Failed to fetch appointments:', error);
