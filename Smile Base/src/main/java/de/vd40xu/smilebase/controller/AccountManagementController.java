@@ -6,6 +6,7 @@ import de.vd40xu.smilebase.service.AMService;
 import de.vd40xu.smilebase.service.interfaces.IAccountManagement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,25 +22,43 @@ public class AccountManagementController {
     }
 
     @GetMapping("/account-management/users")
-    public ResponseEntity<List<User>> getUsers() throws IllegalAccessException {
-        return ResponseEntity.ok(accountManagementService.getAllUsers());
+    public ResponseEntity<List<User>> getUsers() {
+        try {
+            return ResponseEntity.ok(accountManagementService.getAllUsers());
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
     }
 
     @PostMapping("/account-management/user")
-    public ResponseEntity<User> createUser(@RequestBody UserDTO user) throws IllegalAccessException {
-        return ResponseEntity.ok(accountManagementService.createOrUpdateUser(user, true));
+    public ResponseEntity<Object> createUser(@RequestBody UserDTO user) {
+        try {
+            return ResponseEntity.ok(accountManagementService.createOrUpdateUser(user, true));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
     @PutMapping("/account-management/user")
-    public ResponseEntity<User> updateUser(@RequestBody UserDTO user) throws IllegalAccessException {
-        return ResponseEntity.ok(accountManagementService.createOrUpdateUser(user, false));
+    public ResponseEntity<Object> updateUser(@RequestBody UserDTO user) {
+        try {
+            return ResponseEntity.ok(accountManagementService.createOrUpdateUser(user, false));
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/account-management/user")
-    public ResponseEntity<String> deleteUser(@RequestBody UserDTO user) throws IllegalAccessException {
-        User res = accountManagementService.deleteUser(user);
-        return res != null ?
-                ResponseEntity.status(HttpStatus.GONE).body("User deleted") :
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    public ResponseEntity<String> deleteUser(@RequestBody UserDTO user) {
+        try {
+            accountManagementService.deleteUser(user);
+        } catch (IllegalAccessException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+        return ResponseEntity.ok("User deleted");
     }
 }

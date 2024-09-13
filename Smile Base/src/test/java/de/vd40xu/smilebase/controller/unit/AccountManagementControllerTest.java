@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 
@@ -59,9 +60,21 @@ class AccountManagementControllerTest {
     @Test
     @DisplayName("Unit > test deleting user (not existing)")
     void test5() throws IllegalAccessException {
-        when(accountManagementService.deleteUser(any())).thenReturn(null);
+        when(accountManagementService.deleteUser(any())).thenThrow(new IllegalAccessException("User not found"));
         assertEquals("User not found", accountManagementController.deleteUser(null).getBody());
         verify(accountManagementService, times(1)).deleteUser(null);
+    }
+
+    @Test
+    @DisplayName("Unit > try accessing anything without being an admin")
+    void test6() throws IllegalAccessException {
+        when(accountManagementService.getAllUsers()).thenThrow(new IllegalAccessException("You are not authorized to perform this action"));
+        when(accountManagementService.createOrUpdateUser(any(), anyBoolean())).thenThrow(new IllegalAccessException("You are not authorized to perform this action"));
+        when(accountManagementService.deleteUser(any())).thenThrow(new IllegalAccessException("You are not authorized to perform this action"));
+        assertEquals(HttpStatus.FORBIDDEN, accountManagementController.getUsers().getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, accountManagementController.createUser(null).getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, accountManagementController.updateUser(null).getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN, accountManagementController.deleteUser(null).getStatusCode());
     }
 
 }
