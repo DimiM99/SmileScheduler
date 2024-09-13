@@ -7,10 +7,7 @@ import de.vd40xu.smilebase.service.interfaces.IAccountManagement;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,22 +21,22 @@ public class AccountManagementController {
     }
 
     @GetMapping("/account-management/users")
-    public List<User> getUsers() throws IllegalAccessException {
-        return accountManagementService.getAllUsers();
+    public ResponseEntity<List<User>> getUsers() throws IllegalAccessException {
+        return ResponseEntity.ok(accountManagementService.getAllUsers());
     }
 
     @PostMapping("/account-management/user")
-    public User createUser(UserDTO user) throws IllegalAccessException {
-        return accountManagementService.createOrUpdateUser(user, true);
+    public ResponseEntity<User> createUser(@RequestBody UserDTO user) throws IllegalAccessException {
+        return ResponseEntity.ok(accountManagementService.createOrUpdateUser(user, true));
     }
 
     @PutMapping("/account-management/user")
-    public User updateUser(UserDTO user) throws IllegalAccessException {
-        return accountManagementService.createOrUpdateUser(user, false);
+    public ResponseEntity<User> updateUser(@RequestBody UserDTO user) throws IllegalAccessException {
+        return ResponseEntity.ok(accountManagementService.createOrUpdateUser(user, false));
     }
 
     @DeleteMapping("/account-management/user")
-    public ResponseEntity<String> deleteUser(UserDTO user) throws IllegalAccessException {
+    public ResponseEntity<String> deleteUser(@RequestBody UserDTO user) throws IllegalAccessException {
         User res = accountManagementService.deleteUser(user);
         return res != null ?
                 ResponseEntity.status(HttpStatus.GONE).body("User deleted") :
