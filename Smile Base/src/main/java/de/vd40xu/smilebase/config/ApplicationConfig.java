@@ -38,7 +38,7 @@ public class ApplicationConfig {
 
     // TODO: make this configurable via application.properties
     private void createTheAdminUser() {
-        if(userRepository.findByUsername("admin").isPresent()){
+        if(userRepository.findByUsername("adminUser").isPresent()){
             return;
         }
         User admin = User.builder()
