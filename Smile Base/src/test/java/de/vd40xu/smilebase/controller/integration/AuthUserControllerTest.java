@@ -32,8 +32,22 @@ public class AuthUserControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Integration > try logging in with the registered user")
+    @DisplayName("Integration > try getting registered user")
     void test3() throws Exception {
+        String requestToken = getRequestTokenForTest(testUserDTO);
+        mockMvc.perform(get("/user")
+                .header("Authorization", "Bearer " + requestToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.username").isString())
+                .andExpect(jsonPath("$.name").isString())
+                .andExpect(jsonPath("$.email").isString())
+                .andExpect(jsonPath("$.role").isString());
+    }
+
+    @Test
+    @DisplayName("Integration > try logging in with the registered user")
+    void test4() throws Exception {
         mockMvc.perform(post("/auth/login")
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(testUserDTO)))
@@ -44,7 +58,7 @@ public class AuthUserControllerTest extends ControllerIntegrationTest {
 
     @Test
     @DisplayName("Integration > try logging in with a non-existing user")
-    void test4() throws Exception {
+    void test5() throws Exception {
         UserDTO invalidUserDTO = new UserDTO(
                 2L,
                 "invalidUserName",
@@ -62,7 +76,7 @@ public class AuthUserControllerTest extends ControllerIntegrationTest {
 
     @Test
     @DisplayName("Integration > try logging in with an invalid password")
-    void test5() throws Exception {
+    void test6() throws Exception {
         testUserDTO.setPassword("invalidPassword");
 
         mockMvc.perform(post("/auth/login")
