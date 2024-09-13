@@ -5,6 +5,7 @@ import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.UserRole;
 import de.vd40xu.smilebase.repository.UserRepository;
 import de.vd40xu.smilebase.service.interfaces.IAccountManagement;
+import de.vd40xu.smilebase.service.interfaces.IUserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import java.util.Optional;
 @Service
 public class AMService implements IAccountManagement {
 
-    private final UserService userService;
+    private final IUserService userService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
