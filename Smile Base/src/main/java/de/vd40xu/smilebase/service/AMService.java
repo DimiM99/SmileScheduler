@@ -7,6 +7,7 @@ import de.vd40xu.smilebase.repository.UserRepository;
 import de.vd40xu.smilebase.service.interfaces.IAccountManagement;
 import de.vd40xu.smilebase.service.interfaces.IUserService;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,10 @@ public class AMService implements IAccountManagement {
         return Boolean.TRUE.equals(create) ? handleCreateUser(user) : handleUpdateUser(user);
     }
 
-    private User handleCreateUser(UserDTO user) {
+    private User handleCreateUser(UserDTO user) throws IllegalAccessException {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalAccessException("User already exists");
+        }
         User userToCreate = User.builder()
                            .username(user.getUsername())
                            .password(passwordEncoder.encode(user.getPassword()))
@@ -61,7 +65,7 @@ public class AMService implements IAccountManagement {
     private User handleUpdateUser(UserDTO user) {
         Optional<User> currentUser = userRepository.findByUsername(user.getUsername());
         if (currentUser.isEmpty()) {
-            return null;
+            throw new UsernameNotFoundException("User not found");
         }
         User userToUpdate = currentUser.get();
         if (user.getPassword() != null) {
@@ -78,7 +82,7 @@ public class AMService implements IAccountManagement {
         isAuthorized();
         Optional<User> userToDelete = userRepository.findByUsername(user.getUsername());
         if (userToDelete.isEmpty()) {
-            return null;
+            throw new UsernameNotFoundException("User not found");
         }
         userRepository.delete(userToDelete.get());
         return userToDelete.get();
