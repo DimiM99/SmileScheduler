@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,7 +29,7 @@ class AccountManagementControllerTest {
     @DisplayName("Unit > test getting all users")
     void test1() throws IllegalAccessException {
         when(accountManagementService.getAllUsers()).thenReturn(new ArrayList<>());
-        assertEquals(0, accountManagementController.getUsers().size());
+        assertEquals(0, accountManagementController.getUsers().getBody().size());
         verify(accountManagementService, times(1)).getAllUsers();
     }
 
@@ -36,7 +37,7 @@ class AccountManagementControllerTest {
     @DisplayName("Unit > test creating user")
     void test2() throws IllegalAccessException {
         when(accountManagementService.createOrUpdateUser(any(), eq(true))).thenReturn(null);
-        assertEquals(null, accountManagementController.createUser(null));
+        assertNull(accountManagementController.createUser(null).getBody());
         verify(accountManagementService, times(1)).createOrUpdateUser(null, true);
     }
 
@@ -44,7 +45,7 @@ class AccountManagementControllerTest {
     @DisplayName("Unit > test updating user")
     void test3() throws IllegalAccessException {
         when(accountManagementService.createOrUpdateUser(any(), eq(false))).thenReturn(null);
-        assertEquals(null, accountManagementController.updateUser(null));
+        assertNull(accountManagementController.updateUser(null).getBody());
         verify(accountManagementService, times(1)).createOrUpdateUser(null, false);
     }
 
