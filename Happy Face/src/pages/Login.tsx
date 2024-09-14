@@ -1,17 +1,19 @@
 import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {useAuth} from "@/hooks/ausAuth.ts";
+import {useAuth} from "@/hooks/useAuth.ts";
+import {AuthService} from "@/services/authService.ts";
+import {LoginRequest} from "@/models/services/requests/LoginRequest.ts";
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string> ('');
     const [password, setPassword] = useState<string> ('');
-    const {login} = useAuth ();
+    //const {login} = useAuth ();
     const navigate = useNavigate ();
-
+    const service = new AuthService ();
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault ();
         try {
-            await login (username, password);
+            await service.login ({username, password} as LoginRequest);
             navigate ('/dashboard');
         } catch (error) {
             console.error ('Login failed:', error);
