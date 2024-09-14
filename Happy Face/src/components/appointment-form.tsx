@@ -30,7 +30,12 @@ const formSchema = z.object ({
         .regex (/^[a-zA-Z]+(\s[a-zA-Z]+)+$/, "Name must contain at least two words, each with 2 or more letters"),
     email: z.string ()
         .email ("Invalid email address"),
-    insurance: z.string ()
+    birthdate: z.date ({
+        required_error: "Birthdate is required",
+    }).max (new Date (), "Birthdate cannot be in the future"),
+    insuranceProvider: z.string ()
+        .min (2, "Insurance provider name must be at least 2 characters"),
+    insuranceNumber: z.string ()
         .regex (/^\d{6,}$/, "Insurance number must contain at least 6 digits"),
 })
 
@@ -46,7 +51,9 @@ export function AppointmentFormComponent() {
             appointmentType: "",
             name: "",
             email: "",
-            insurance: "",
+            birthdate: undefined,
+            insuranceProvider: "",
+            insuranceNumber: "",
         },
     })
 
@@ -81,7 +88,7 @@ export function AppointmentFormComponent() {
                                                             className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"}`}
                                                         >
                                                             <CalendarIcon className="mr-2 h-4 w-4"/>
-                                                            {(field.value as Date | undefined) ? format(field.value, "PPP") : "Pick a date"}
+                                                            {(field.value as Date | undefined) ? format (field.value, "PPP") : "Pick a date"}
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
@@ -191,6 +198,40 @@ export function AppointmentFormComponent() {
                                 />
                                 <FormField
                                     control={form.control}
+                                    name="birthdate"
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>Birthdate</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition,@typescript-eslint/restrict-template-expressions */
+                                                            className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                                                        >
+                                                            <CalendarIcon className="mr-2 h-4 w-4"/>
+                                                            {(field.value as Date | undefined) ? format (field.value, "PPP") :
+                                                                <span>Pick a date</span>}
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) => date > new Date ()}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
                                     name="email"
                                     render={({field}) => (
                                         <FormItem>
@@ -204,12 +245,25 @@ export function AppointmentFormComponent() {
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="insurance"
+                                    name="insuranceNumber"
                                     render={({field}) => (
-                                        <FormItem className="md:col-span-2">
+                                        <FormItem>
                                             <FormLabel>Insurance Number</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="Insurance number" {...field} />
+                                            </FormControl>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="insuranceProvider"
+                                    render={({field}) => (
+                                        <FormItem className="md:col-span-2">
+                                            <FormLabel>Insurance Provider</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Insurance Provider Name" {...field} />
                                             </FormControl>
                                             <FormMessage/>
                                         </FormItem>
