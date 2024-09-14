@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={void handleSubmit}>
             <input
                 type="text"
                 value={username}
