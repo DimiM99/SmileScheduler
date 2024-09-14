@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/avatar"
 import {User} from "@/models";
 import {RoleBasedMenuBuilder} from "@/helpers/navbar/RoleBasedMenuBuilder.ts";
-import {Menu} from "@/models/navbar/Menu.ts";
+import {Menu} from "@/models/components/navbar/Menu.ts";
 
 
 interface NavbarProps {

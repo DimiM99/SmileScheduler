@@ -1,5 +1,5 @@
 import React, {createContext, useState, ReactNode} from 'react';
-import {TokenAuthContextType} from "@/models/auth/TokenAuthContextType.ts";
+import {TokenAuthContextType} from "@/models/components/auth/TokenAuthContextType.ts";
 
 export const TokenAuthContext = createContext<TokenAuthContextType | undefined> (undefined);
 

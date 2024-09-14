@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {fetchAppointments} from '../services/api';
 import {Appointment} from '@/models';
-import {useAuth} from "@/hooks/ausAuth.ts";
+import {useAuth} from "@/hooks/useAuth.ts";
 import Layout from "@/components/layout.tsx";
 
 const RecDashboard: React.FC = () => {

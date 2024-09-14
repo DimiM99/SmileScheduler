@@ -5,7 +5,7 @@ import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Calendar} from "@/components/ui/calendar"
 import {ChevronLeft, ChevronRight, Calendar as CalendarIcon} from "lucide-react"
 import {cn} from "@/lib/utils"
-import {Event} from "@/models/week-calendar/Event.ts"
+import {Event} from "@/models/components/weekCalender/Event.ts"
 import {
     Select,
     SelectContent,
