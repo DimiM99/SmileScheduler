@@ -45,4 +45,11 @@ public class Appointment {
     @JoinColumn(name = "patient_id", nullable = false)
     @Setter
     private Patient patient;
+
+    public Appointment(String title, LocalDateTime start, AppointmentType appointmentType) {
+        this.title = title;
+        this.start = start;
+        this.appointmentType = appointmentType;
+        this.end = start.plusMinutes(appointmentType.getDuration());
+    }
 }
