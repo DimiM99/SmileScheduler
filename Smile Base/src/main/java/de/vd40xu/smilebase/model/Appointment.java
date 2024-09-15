@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "appointments")
@@ -26,15 +26,15 @@ public class Appointment {
 
     @Column(nullable = false)
     @Setter
-    private Date start;
+    private LocalDateTime start;
 
     @Column(nullable = false)
     @Setter
     private AppointmentType appointmentType;
 
-    @Column(nullable = false)
+    @Column(name = "`end`", nullable = false)
     @Setter
-    private Date end;
+    private LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
