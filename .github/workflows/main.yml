@@ -64,3 +64,49 @@ jobs:
     - name: Build backend
       working-directory: ./Smile Base
       run: ./gradlew build -x test
+
+  add-labels:
+    name: Add Labels
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const frontend_status = '${{ needs.frontend.result }}';
+          const backend_status = '${{ needs.backend.result }}';
+          let labels_to_add = [];
+          let labels_to_remove = [];
+          if (frontend_status === 'success') {
+            labels_to_add.push('CI - Frontend Checks Pass');
+            labels_to_remove.push('CI - Frontend Checks Failed');
+          } else {
+            labels_to_add.push('CI - Frontend Checks Failed');
+            labels_to_remove.push('CI - Frontend Checks Pass');
+          }
+          if (backend_status === 'success') {
+            labels_to_add.push('CI - Backend Checks Pass');
+            labels_to_remove.push('CI - Backend Checks Failed');
+          } else {
+            labels_to_add.push('CI - Backend Checks Failed');
+            labels_to_remove.push('CI - Backend Checks Pass');
+          }
+          for (const label of labels_to_remove) {
+            try {
+              await github.rest.issues.removeLabel({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label
+              });
+            } catch (e) {}
+          }
+          await github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: labels_to_add
+          });
