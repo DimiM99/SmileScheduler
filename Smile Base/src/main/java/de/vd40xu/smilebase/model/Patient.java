@@ -1,11 +1,11 @@
 package de.vd40xu.smilebase.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -35,6 +35,7 @@ public class Patient {
     @Setter
     private String insuranceProvider;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
 
