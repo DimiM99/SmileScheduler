@@ -6,33 +6,33 @@ on:
     branches: [ main ]
 
 jobs:
-  # frontend:
-  #   name: Frontend - Test, Lint, and Build
-  #   runs-on: ubuntu-latest
+  frontend:
+    name: Frontend - Test, Lint, and Build
+    runs-on: ubuntu-latest
     
-  #   steps:
-  #   - uses: actions/checkout@v3
+    steps:
+    - uses: actions/checkout@v3
     
-  #   - name: Set up Node.js
-  #     uses: actions/setup-node@v3
-  #     with:
-  #       node-version: '18'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
         
-  #   - name: Install dependencies
-  #     working-directory: ./Happy Face
-  #     run: npm ci
+    - name: Install dependencies
+      working-directory: ./Happy Face
+      run: npm ci
       
-  #   - name: Run linting
-  #     working-directory: ./Happy Face
-  #     run: npm run lint
+    - name: Run linting
+      working-directory: ./Happy Face
+      run: npm run lint
       
-  #   - name: Run tests
-  #     working-directory: ./Happy Face
-  #     run: npm test
+    - name: Run tests
+      working-directory: ./Happy Face
+      run: npm test
       
-  #   - name: Build frontend
-  #     working-directory: ./Happy Face
-  #     run: npm run build
+    - name: Build frontend
+      working-directory: ./Happy Face
+      run: npm run build
 
   backend:
     name: Backend - Test and Build
