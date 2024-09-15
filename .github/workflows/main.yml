@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   frontend:
-    name: Frontend - Test, Lint, and Build
+    name: Frontend Checks - Test, Lint, and Build
     runs-on: ubuntu-latest
     
     steps:
@@ -39,7 +39,7 @@ jobs:
       run: npm run build
 
   backend:
-    name: Backend - Test and Build
+    name: Backend Checks - Test and Build
     runs-on: ubuntu-latest
     
     steps:
@@ -70,7 +70,7 @@ jobs:
       run: ./gradlew build -x test
 
   add-labels:
-    name: Add Labels
+    name: Report CI Workflow Result
     needs: [frontend, backend]
     runs-on: ubuntu-latest
     if: always()
