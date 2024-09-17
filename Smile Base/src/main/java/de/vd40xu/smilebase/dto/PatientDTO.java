@@ -1,8 +1,12 @@
 package de.vd40xu.smilebase.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 @AllArgsConstructor
+@Getter
+@Setter
 public class PatientDTO {
 
     private Long id;
