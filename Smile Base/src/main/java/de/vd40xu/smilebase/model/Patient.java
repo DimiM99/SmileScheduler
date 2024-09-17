@@ -35,6 +35,10 @@ public class Patient {
     @Setter
     private String insuranceProvider;
 
+    @Column(nullable = false)
+    @Setter
+    private String email;
+
     @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
