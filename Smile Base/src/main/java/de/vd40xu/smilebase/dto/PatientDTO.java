@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @Getter
 @Setter
@@ -11,6 +13,7 @@ public class PatientDTO {
 
     private Long id;
     private String name;
+    private LocalDate birthdate;
     private String insuranceNumber;
     private String insuranceProvider;
     private String email;
@@ -18,10 +21,12 @@ public class PatientDTO {
     PatientDTO(
             String name,
             String insuranceNumber,
+            LocalDate birthdate,
             String insuranceProvider,
             String email
     ) {
         this.name = name;
+        this.birthdate = birthdate;
         this.insuranceNumber = insuranceNumber;
         this.insuranceProvider = insuranceProvider;
         this.email = email;

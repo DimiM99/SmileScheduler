@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +25,7 @@ public class Patient {
     private String name;
 
     @Column(nullable = false)
-    private Date birthdate;
+    private LocalDate birthdate;
 
     @Column(nullable = false)
     @Setter
@@ -55,14 +55,16 @@ public class Patient {
 
     public Patient(
         String name,
-        Date birthdate,
+        LocalDate birthdate,
         String insuranceNumber,
-        String insuranceProvider
+        String insuranceProvider,
+        String email
     ) {
         this.name = name;
         this.birthdate = birthdate;
         this.insuranceNumber = insuranceNumber;
         this.insuranceProvider = insuranceProvider;
+        this.email = email;
     }
 
 }
