@@ -11,6 +11,7 @@ import de.vd40xu.smilebase.repository.PatientRepository;
 import de.vd40xu.smilebase.repository.UserRepository;
 import de.vd40xu.smilebase.service.interfaces.IAppointmentService;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import static de.vd40xu.smilebase.service.utility.AppointmentServiceUtils.getFreeSlots;
 
+@Service
 public class AppointmentService implements IAppointmentService {
 
     private final LocalTime clinicOpenTime = LocalTime.of(8, 0);
