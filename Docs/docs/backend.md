@@ -37,31 +37,14 @@ Addiditionally, the testcontainers will be used to cover integration tests with 
     * `JWTService` **`(100%/100%/100%)`**
 
 
-#### Register User (open)
-**This endpoint will be removed in the future and user management will be done by an admin user via a separate dashboard/endpoint**
+#### Register User (open) (**Removed**) 
 
-* Method: POST
-* URL: `/auth/register`
-* Request Body: UserDTO object
+* <del>Method: POST<del>
+* <del>URL: `/auth/register`<del>
+* <del>Request Body: UserDTO object<del>
 
-Request Body Schema (UserDTO)
-```json
-{
-    "username": "string",
-    "password": "string",
-    "name": "string",
-    "email": "string",
-    "role": "enum (UserRole)" // RECEPTIONIST, DOCTOR
-}
-```
+> **The user registration functionality has been moved to accounnt management endpoint (adding new users stricly as admin)**
 
-* Responses:
-    * **201 Created** 
-        * Body: User registered successfully
-    * **409 Confilct** 
-        * Body: Username already taken. Please try again
-    * **500 Internal Server Error** 
-        * Body: `Error message`
 
 #### Login User (open)
 
@@ -116,3 +99,123 @@ Response Body Schema (User)
     "active": "boolean"
 }
 ```
+
+### Account Management
+
+**Overview and current code coverage** **`(class/method/line)`**
+
+* Controller: `AccountManagementController`  **`(100%/100%/100%)`**
+* Services: 
+    * `AMService` via Interface `IAccountManagement` **`(100%/100%/100%)`**
+        * `UserRepository` extends `JpaRepository`  **`(100%/100%/100%)`**
+        * `PasswordEncoder` (BCryptPasswordEncoder managed by Spring as a bean)
+        * `UserService` via Interface `IUserService` **`(100%/100%/100%)`**
+
+#### Create User (protected)
+
+* Method: POST
+* URL: `/account-management/user`
+* Request Body: UserDTO object
+
+Request Body Schema (UserDTO)
+```json
+{
+    "username": "string",
+    "password": "string",
+    "name": "string",
+    "email": "string",
+    "role": "enum (UserRole)", // RECEPTIONIST, DOCTOR
+    "active": "boolean"
+}
+```
+
+* Responses:
+    * **201 Created**:
+        * Body: User object
+    * **403 Fobidden**:
+        * Body: `Error message`
+
+Response Body Schema (User)
+```json
+{
+    "id": "long",
+    "username": "string",
+    "name": "string",
+    "email": "string",
+    "role": "enum (UserRole)", // RECEPTIONIST, DOCTOR
+    "active": "boolean"
+}
+```
+
+#### Edit a User (protected)
+
+* Method: PUT
+* URL: `/account-management/user`
+* Request Body: UserDTO object
+
+Request Body Schema (UserDTO)
+```json
+{
+    "id": "long",
+    "username": "string",
+    "password": "string",
+    "name": "string",
+    "email": "string",
+    "role": "enum (UserRole)", // RECEPTIONIST, DOCTOR
+    "active": "boolean"
+}
+```
+
+* Responses:
+    * **200 OK**:
+        * Body: User object
+    * **403 Fobidden**:
+        * Body: `Error message`
+
+Response Body Schema (User)
+```json
+{
+    "id": "long",
+    "username": "string",
+    "name": "string",
+    "email": "string",
+    "role": "enum (UserRole)", // RECEPTIONIST, DOCTOR
+    "active": "boolean"
+}
+```
+
+#### Delete a User (protected)
+
+* Method: DELETE
+* URL: `/account-management/user`
+* Request Body: UserDTO object
+
+Request Body Schema (UserDTO)
+```json
+{
+    "id": "long",
+    "username": "string",
+    "password": "string",
+    "name": "string",
+    "email": "string",
+    "role": "enum (UserRole)", // RECEPTIONIST, DOCTOR
+    "active": "boolean"
+}
+```
+
+* Responses:
+    * **200 OK**:
+        * Body: "User deleted"
+    * **403 Fobidden**:
+        * Body: `Error message`
+
+#### Get All Users (protected)
+
+* Method: GET
+* URL: `/account-management/users`
+
+* Responses:
+    * **200 OK**:
+        * Body: List<User> object
+    * **403 Fobidden**:
+        * Body: `Error message`
