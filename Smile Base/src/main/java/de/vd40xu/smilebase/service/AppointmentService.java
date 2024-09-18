@@ -62,7 +62,7 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
-    public Appointment scheduleAppointment(NewAppointmentDTO appointmentDTO) {
+    public Appointment scheduleAppointment(NewAppointmentDTO appointmentDTO) throws IllegalArgumentException {
         Appointment appointment = new Appointment(
                 appointmentDTO.getTitle(),
                 appointmentDTO.getStart(),
@@ -80,7 +80,14 @@ public class AppointmentService implements IAppointmentService {
                     throw new IllegalArgumentException("Doctor not found");
                 }
         );
-        appointment.setPatient(
+        if (appointmentDTO.getPatient().getId() != null) {
+            appointment.setPatient(
+                    patientRepository.findById(appointmentDTO.getPatient().getId()).orElseThrow(
+                            () -> new IllegalArgumentException("Patient not found")
+                    )
+            );
+        } else {
+            appointment.setPatient(
             patientRepository.save(
                 new Patient(
                         appointmentDTO.getPatient().getName(),
@@ -91,6 +98,7 @@ public class AppointmentService implements IAppointmentService {
                 )
             )
         );
+        }
         return appointmentRepository.save(appointment);
     }
 
