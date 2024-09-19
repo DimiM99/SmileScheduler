@@ -10,6 +10,7 @@ import de.vd40xu.smilebase.service.PatientService;
 import de.vd40xu.smilebase.service.interfaces.IAppointmentService;
 import de.vd40xu.smilebase.service.interfaces.IPatientService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Controller
@@ -40,33 +42,59 @@ public class AppointmentController {
     }
 
     @GetMapping("/appointments/free-slots")
-    public ResponseEntity<List<LocalDateTime>> getFreeSlots(
+    public ResponseEntity<Object> getFreeSlots(
             @RequestParam Long doctorId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(defaultValue = "false") boolean weekView,
             @RequestParam AppointmentType appointmentType
             ) {
-        List<LocalDateTime> freeSlots = appointmentService.getAvailableAppointments(doctorId, date, appointmentType, weekView);
-        return ResponseEntity.ok(freeSlots);
+        try {
+            List<LocalDateTime> freeSlots = appointmentService.getAvailableAppointments(doctorId, date, appointmentType, weekView);
+            return ResponseEntity.ok(freeSlots);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(List.of());
+        }
     }
 
     @PostMapping("/appointments")
-    public ResponseEntity<Appointment> scheduleAppointment(@RequestBody NewAppointmentDTO appointmentDTO) {
-        Appointment appointment = appointmentService.scheduleAppointment(appointmentDTO);
-        return ResponseEntity.ok(appointment);
+    public ResponseEntity<Object> scheduleAppointment(@RequestBody NewAppointmentDTO appointmentDTO) {
+        try {
+            Appointment appointment = appointmentService.scheduleAppointment(appointmentDTO);
+            return ResponseEntity.ok(appointment);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("An error occurred while scheduling the appointment");
+        }
     }
 
-    @GetMapping("/appointments/{appointmentId}")
-    public ResponseEntity<Appointment> getAppointmentDetails(@PathVariable Long appointmentId) {
-        Appointment appointment = appointmentService.getAppointmentById(appointmentId);
-        return appointment != null ? ResponseEntity.ok(appointment) : ResponseEntity.notFound().build();
+    @GetMapping("/appointments")
+    public ResponseEntity<Object> getAppointmentDetails(@RequestParam Long appointmentId) {
+        try {
+            Appointment appointment = appointmentService.getAppointmentById(appointmentId);
+            return ResponseEntity.ok(appointment);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The appointment with the provided id does not exist");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("An error occurred while fetching the appointment details");
+        }
     }
 
     @PutMapping("/appointments")
-    public ResponseEntity<Appointment> changeAppointment(
+    public ResponseEntity<Object> changeAppointment(
             @RequestBody AppointmentDTO appointmentDTO) {
-        Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
-        return ResponseEntity.ok(updatedAppointment);
+        try {
+            Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
+            return ResponseEntity.ok(updatedAppointment);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("the appointment does not exist");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("An error occurred while updating the appointment");
+        }
     }
 
     @DeleteMapping("/appointments/{appointmentId}")
