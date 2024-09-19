@@ -4,6 +4,7 @@ import de.vd40xu.smilebase.dto.AppointmentDTO;
 import de.vd40xu.smilebase.dto.NewAppointmentDTO;
 import de.vd40xu.smilebase.model.Appointment;
 import de.vd40xu.smilebase.model.Patient;
+import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
 import de.vd40xu.smilebase.model.emuns.UserRole;
 import de.vd40xu.smilebase.repository.AppointmentRepository;
@@ -57,7 +58,8 @@ public class AppointmentService implements IAppointmentService {
                                                 refDates.startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
             refDates.endDate = refDates.startDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
         }
-        var appointments = appointmentRepository.findByDoctorIdAndStartBetween(doctorId, refDates.startDate, refDates.endDate);
+        User doc = userRepository.findById(doctorId).orElseThrow(() -> new IllegalArgumentException("The id provided is not a doctor id"));
+        var appointments = appointmentRepository.findByDoctorIdAndStartBetween(doc.getId(), refDates.startDate, refDates.endDate);
         return getFreeSlots(appointments, appointmentType.getDuration(), refDates.startDate, refDates.endDate);
     }
 
