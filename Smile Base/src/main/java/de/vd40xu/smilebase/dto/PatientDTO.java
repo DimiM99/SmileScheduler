@@ -20,7 +20,7 @@ public class PatientDTO {
     private String insuranceProvider;
     private String email;
 
-    PatientDTO(
+    public PatientDTO(
             String name,
             String insuranceNumber,
             LocalDate birthdate,
