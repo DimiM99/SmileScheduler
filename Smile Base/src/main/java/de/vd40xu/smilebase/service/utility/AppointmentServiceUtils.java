@@ -4,6 +4,7 @@ import de.vd40xu.smilebase.model.Appointment;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,12 @@ public class AppointmentServiceUtils {
         LocalDateTime currentSlot = startDate;
 
         while (currentSlot.plusMinutes(duration).isBefore(endDate) || currentSlot.plusMinutes(duration).isEqual(endDate)) {
-            if (currentSlot.getDayOfWeek() != DayOfWeek.SATURDAY && currentSlot.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                allPossibleSlots.add(currentSlot);
-            }
+            if (currentSlot.getDayOfWeek() != DayOfWeek.SATURDAY && currentSlot.getDayOfWeek() != DayOfWeek.SUNDAY
+                // TODO: Add limiting mechanisms to service to avoid booking outside working hours
+                && currentSlot.toLocalTime().isAfter(LocalTime.of(7, 59))
+                && currentSlot.toLocalTime().isBefore(LocalTime.of(17, 0))) {
+            allPossibleSlots.add(currentSlot);
+        }
             currentSlot = currentSlot.plusMinutes(30);
         }
 
