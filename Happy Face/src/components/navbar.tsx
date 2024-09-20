@@ -14,14 +14,14 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import {User} from "@/models";
 import {RoleBasedMenuBuilder} from "@/helpers/navbar/RoleBasedMenuBuilder.ts";
 import {Menu} from "@/models/components/navbar/Menu.ts";
 import {useAuth} from "@/hooks/useAuth.ts";
+import {GetUserResponse} from "@/models/services/responses/GetUserResponse.ts";
 
 
 interface NavbarProps {
-    user: User;
+    user: GetUserResponse;
 }
 
 // Dynamic Navbar Component
