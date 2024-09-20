@@ -8,6 +8,6 @@ export interface IAuthService {
     saveToken(loginResponse: LoginResponse): void;
     clearToken(): void;
     refreshToken(): Promise<void>;
-    getDecryptedToken(): string | null;
+    getDecryptedToken(): Promise<string | null>;
     isLoggedIn(): boolean;
 }

@@ -3,34 +3,31 @@ import { api } from './apiConfig';
 import { handleApiError } from './errorHandler';
 import {LoginResponse} from "@/models/services/responses/LoginResponse.ts";
 import {GetUserResponse} from "@/models/services/responses/GetUserResponse.ts";
-import * from 'crypto-js';
-import { LoginRequest } from '@/models/services/responses/LoginRequest.ts';
+import CryptoJS from 'crypto-js';
+import { LoginRequest } from '@/models/services/requests/LoginRequest.ts';
 import {IAuthService} from "@/models/services/IAuthService.ts";
 
 
 export class AuthService implements IAuthService {
+    private secret = import.meta.env.VITE_CRYPTO_SECRET || "default";
 
     async login(req: LoginRequest): Promise<LoginResponse> {
         try {
 
-            console.log(req)
-            const encryptedCredentials = CryptoJS.AES.encrypt(JSON.stringify(req), process.env.REACT_APP_CRYPTO_SECRET);
+            const encryptedCredentials = CryptoJS.AES.encrypt(JSON.stringify(req), this.secret);
             sessionStorage.setItem('credentials', encryptedCredentials.toString());
-            console.log('ha')
             const response: AxiosResponse<LoginResponse> = await api.post('/auth/login', req);
             this.saveToken(response.data);
-            console.log(response)
             return response.data;
         } catch (error) {
-            console.log(error)
             throw handleApiError(error);
         }
     }
 
     async getUser(): Promise<GetUserResponse> {
         try {
-            const token = this.getDecryptedToken();
-            if (!token) throw new Error('Token not found');
+            const token = await this.getDecryptedToken();
+            if (token === null) throw new Error('Token not found');
             const response: AxiosResponse<GetUserResponse> = await api.get('/user', {
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -40,8 +37,8 @@ export class AuthService implements IAuthService {
         }
     }
 
-    private saveToken = (loginResponse: LoginResponse): void => {
-        const encryptedToken = CryptoJS.AES.encrypt(loginResponse.token, process.env.REACT_APP_CRYPTO_SECRET);
+    saveToken = (loginResponse: LoginResponse): void => {
+        const encryptedToken = CryptoJS.AES.encrypt(loginResponse.token, this.secret);
         sessionStorage.setItem('token', encryptedToken.toString());
         const expiryDate = new Date().getTime() + loginResponse.expiresIn;
         localStorage.setItem('tokenExpiry', expiryDate.toString());
@@ -57,7 +54,7 @@ export class AuthService implements IAuthService {
             const credentials = sessionStorage.getItem('credentials');
             if (!credentials) return;
 
-            const decryptedCredentials = CryptoJS.AES.decrypt(credentials, process.env.REACT_APP_CRYPTO_SECRET);
+            const decryptedCredentials = CryptoJS.AES.decrypt(credentials, this.secret);
             const parsedCredentials: LoginRequest = JSON.parse(decryptedCredentials.toString(CryptoJS.enc.Utf8)) as LoginRequest;
 
 
@@ -74,7 +71,7 @@ export class AuthService implements IAuthService {
         const expiryDateString = localStorage.getItem('tokenExpiry');
         if (!encryptedToken || !expiryDateString) return null;
 
-        const decryptedTokenBytes = CryptoJS.AES.decrypt(encryptedToken, process.env.REACT_APP_CRYPTO_SECRET);
+        const decryptedTokenBytes = CryptoJS.AES.decrypt(encryptedToken, this.secret);
         const decryptedToken = decryptedTokenBytes.toString(CryptoJS.enc.Utf8);
 
         const expiryDate = parseInt(expiryDateString);
@@ -82,7 +79,7 @@ export class AuthService implements IAuthService {
             await this.refreshToken();
             return await this.getDecryptedToken();  // Ensure the function returns the refreshed token
         }
-        return decryptedToken as string;
+        return decryptedToken;
 
     }
 
