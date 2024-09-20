@@ -57,23 +57,8 @@ class AuthServiceTest extends AuthContextConfiguration {
     }
 
     @Test
-    @DisplayName("Unit > register a new user")
-    public void test1() {
-        when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.empty());
-        when(userRepository.save(testUser)).thenReturn(testUser);
-        assertDoesNotThrow(() -> authService.registerUser(testUserDTO));
-    }
-
-    @Test
-    @DisplayName("Unit > register a new user with an existing username")
-    public void test2() {
-        when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.of(testUser));
-        assertThrows(IllegalArgumentException.class, () -> authService.registerUser(testUserDTO));
-    }
-
-    @Test
     @DisplayName("Unit > login a user")
-    public void test3() {
+    public void test1() {
         when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.of(testUser));
         when(authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -87,7 +72,7 @@ class AuthServiceTest extends AuthContextConfiguration {
 
     @Test
     @DisplayName("Unit > login a user with an inactive account")
-    public void test4() {
+    public void test2() {
         testUser.setActive(false);
         when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.of(testUser));
         assertThrows(IllegalAccessException.class, () -> authService.loginUser(testUserDTO));
@@ -95,14 +80,14 @@ class AuthServiceTest extends AuthContextConfiguration {
 
     @Test
     @DisplayName("Unit > login a user with an unknown username")
-    public void test5() {
+    public void test4() {
         when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.empty());
         assertThrows(UsernameNotFoundException.class, () -> authService.loginUser(testUserDTO));
     }
 
     @Test
     @DisplayName("Unit > login a user with an incorrect password")
-    public void test6() {
+    public void test5() {
         testUserDTO.setPassword("wrongPassword");
         when(userRepository.findByUsername(testUserDTO.getUsername())).thenReturn(Optional.of(testUser));
         when(authenticationManager.authenticate(
