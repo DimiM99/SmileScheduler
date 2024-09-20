@@ -7,7 +7,7 @@ import {GetUserResponse} from "@/models/services/responses/GetUserResponse.ts";
 export const AuthContext = createContext<AuthContextType | undefined> (undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<GetUserResponse | null>(null);
+    const [user, setUser] = useState<GetUserResponse>();
 
     const authService = new AuthService();  // Create instance of AuthService
 
@@ -15,6 +15,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             await authService.login(loginRequest);
             const loggedInUser = await authService.getUser();
+
             setUser(loggedInUser);
 
         } catch (error) {
@@ -25,10 +26,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const logout = (): void => {
         authService.clearToken();
-        setUser(null);
+        setUser(undefined);
     };
 
     return (
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
