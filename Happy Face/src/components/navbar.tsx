@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Menubar,
     MenubarContent,
@@ -17,6 +17,7 @@ import {
 import {User} from "@/models";
 import {RoleBasedMenuBuilder} from "@/helpers/navbar/RoleBasedMenuBuilder.ts";
 import {Menu} from "@/models/components/navbar/Menu.ts";
+import {useAuth} from "@/hooks/useAuth.ts";
 
 
 interface NavbarProps {
@@ -25,8 +26,12 @@ interface NavbarProps {
 
 // Dynamic Navbar Component
 export const Navbar: React.FC<NavbarProps> = ({ user }) => {
-
     const menus: Menu[] = RoleBasedMenuBuilder(user.role);
+    const {logout} = useAuth();
+
+    function handleLogout() {
+        logout();
+    }
 
     return (
         <div className="flex justify-between items-center w-full p-4">
@@ -70,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
                         <MenubarContent>
                             <MenubarItem >Account Settings</MenubarItem>
 
-                            <MenubarItem>Logout</MenubarItem>
+                            <MenubarItem onClick={handleLogout}>Logout</MenubarItem>
                         </MenubarContent>
                     </MenubarMenu>
                 </Menubar>
