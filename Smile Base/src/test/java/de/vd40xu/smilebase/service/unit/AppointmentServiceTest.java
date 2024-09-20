@@ -35,7 +35,7 @@ class AppointmentServiceTest {
     private AppointmentRepository appointmentRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private static UserRepository userRepository;
 
     @Mock
     private PatientRepository patientRepository;
@@ -209,5 +209,179 @@ class AppointmentServiceTest {
         );
         assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO));
     }
+
+    @Test
+    @DisplayName("Unit > Try scheduling appointment with non-doctor as doctor")
+    void test7() {
+        LocalDateTime appointmentStart = LocalDateTime.now(fixedClock);
+        User notDoc = User.builder()
+                .id(2L)
+                .username("receptionist")
+                .password("password")
+                .name("Non Doctor")
+                .email("receptionist@mail.exmple")
+                .role(UserRole.RECEPTIONIST)
+                .build();
+        PatientDTO patientDTO = new PatientDTO(
+            "John Doe",
+            "INS123",
+            LocalDate.of(1990, 1, 1),
+            "Provider A",
+            "john@example.com"
+        );
+        NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
+            "New Test Appointment",
+            2L,
+            appointmentStart,
+            AppointmentType.QUICKCHECK,
+            patientDTO
+        );
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(notDoc));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO));
+        assertEquals("User is not a doctor", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Unit > Try scheduling appointment for a non-existing patient")
+    void test8() {
+        LocalDateTime appointmentStart = LocalDateTime.now(fixedClock);
+        User doc = User.builder()
+                .id(1L)
+                .username("receptionist")
+                .password("password")
+                .name("Non Doctor")
+                .email("receptionist@mail.exmple")
+                    .role(UserRole.DOCTOR)
+                .build();
+        PatientDTO patientDTO = new PatientDTO(
+            2L,
+            "John Doe",
+            LocalDate.of(1990, 1, 1),
+            "INS123",
+            "Provider A",
+            "john@example.com"
+        );
+        NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
+            "New Test Appointment",
+            1L,
+            appointmentStart,
+            AppointmentType.QUICKCHECK,
+            patientDTO
+        );
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(doc));
+        when(patientRepository.findById(2L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO));
+        assertEquals("Patient not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Unit > Try creating appointment with non-existing doctor")
+    void test9() {
+        LocalDateTime appointmentStart = LocalDateTime.now(fixedClock);
+        PatientDTO patientDTO = new PatientDTO(
+            "John Doe",
+            "INS123",
+            LocalDate.of(1990, 1, 1),
+            "Provider A",
+            "john@example.com"
+        );
+        NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
+            "New Test Appointment",
+            1L,
+            appointmentStart,
+            AppointmentType.QUICKCHECK,
+            patientDTO
+        );
+
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO));
+        assertEquals("Doctor not found", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Unit > Try creating an appointment that starts too late or too early in the day")
+    void test10() {
+        LocalDateTime appointmentStart = LocalDateTime.now(fixedClock);
+        PatientDTO patientDTO = new PatientDTO(
+            "John Doe",
+            "INS123",
+            LocalDate.of(1990, 1, 1),
+            "Provider A",
+            "john@example.com"
+        );
+        NewAppointmentDTO appointmentDTO1_too_late = new NewAppointmentDTO(
+            "New Test Appointment",
+            1L,
+            appointmentStart.withHour(16).withMinute(30),
+            AppointmentType.EXTENSIVE, // will take longer then 30 minutes left in the working day
+            patientDTO
+        );
+        NewAppointmentDTO appointmentDTO2_too_early = new NewAppointmentDTO(
+            "New Test Appointment",
+            1L,
+            appointmentStart.withHour(7).withMinute(30), // 30 min before opening hours
+            AppointmentType.EXTENSIVE,
+            patientDTO
+        );
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO1_too_late));
+        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO2_too_early));
+        assertEquals("Appointment time is outside clinic hours", exception.getMessage());
+        assertEquals("Appointment time is outside clinic hours", exception2.getMessage());
+    }
+
+    @Test
+    @DisplayName("Unit > Update an appointment with non-doctor as doctor")
+    void test11() {
+        User notDoc = User.builder().id(2L)
+                                    .username("receptionist")
+                                    .password("password")
+                                    .name("Non Doctor")
+                                    .email("test@mail.de")
+                                    .role(UserRole.RECEPTIONIST)
+                                    .build();
+        AppointmentDTO appointmentDTO = new AppointmentDTO(
+            1L,
+            "Updated Appointment",
+            2L,
+            2L,
+            LocalDateTime.now(),
+            AppointmentType.QUICKCHECK
+        );
+        Appointment existingAppointment = new Appointment("Original Appointment", LocalDateTime.now(fixedClock).minusDays(1), AppointmentType.QUICKCHECK);
+
+        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(existingAppointment));
+        when(userRepository.findById(any())).thenReturn(Optional.of(notDoc));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> appointmentService.updateAppointment(appointmentDTO));
+        assertEquals("User is not a doctor", exception.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("Unit > Update an appointment with non-existing doctor")
+    void test12() {
+        AppointmentDTO appointmentDTO = new AppointmentDTO(
+            1L,
+            "Updated Appointment",
+            2L,
+            2L,
+            LocalDateTime.now(),
+            AppointmentType.QUICKCHECK
+        );
+        Appointment existingAppointment = new Appointment("Original Appointment", LocalDateTime.now(fixedClock).minusDays(1), AppointmentType.QUICKCHECK);
+
+        when(appointmentRepository.findById(1L)).thenReturn(Optional.of(existingAppointment));
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> appointmentService.updateAppointment(appointmentDTO));
+        assertEquals("Doctor not found", exception.getMessage());
+    }
+
 }
 
