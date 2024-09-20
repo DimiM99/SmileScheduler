@@ -37,7 +37,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
 
     private List<User> doctors;
     private LocalDateTime startDate;
-    private Clock clock = Clock.fixed(Instant.parse("2023-06-15T10:00:00Z"), ZoneId.systemDefault());
+    private final Clock clock = Clock.fixed(Instant.parse("2023-06-15T10:00:00Z"), ZoneId.systemDefault());
 
     @BeforeAll
     public void setUp() {
@@ -111,7 +111,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         LocalDate date = startDate.plusDays(1).toLocalDate();
         AppointmentType appointmentType = AppointmentType.QUICKCHECK;
 
-        List<LocalDateTime> availableSlots = appointmentService.getAvailableAppointments(doctors.get(0).getId(), date, appointmentType, true);
+        List<LocalDateTime> availableSlots = appointmentService.getAvailableAppointments(doctors.getFirst().getId(), date, appointmentType, true);
 
         assertFalse(availableSlots.isEmpty());
         assertTrue(availableSlots.stream().allMatch(slot -> slot.toLocalDate().getDayOfWeek().getValue() <= 5));
