@@ -19,8 +19,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -38,11 +37,13 @@ class AppointmentServiceTest extends AuthContextConfiguration {
 
     private List<User> doctors;
     private LocalDateTime startDate;
+    private Clock clock = Clock.fixed(Instant.parse("2023-06-15T10:00:00Z"), ZoneId.systemDefault());
 
     @BeforeAll
     public void setUp() {
         super.setUp();
-        startDate = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        appointmentService.setClock(clock);
+        startDate = LocalDateTime.now(clock).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         // Create 3 doctors
         doctors = IntStream.range(0, 3)
@@ -60,7 +61,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         List<Patient> patients = IntStream.range(0, 10)
                 .mapToObj(i -> patientRepository.save(new Patient(
                         "Patient" + i,
-                        LocalDate.now().minusYears(30 + i),
+                        LocalDate.now(clock).minusYears(30 + i),
                         "INS" + i,
                         "Provider" + i,
                         "patient" + i + "@example.com"

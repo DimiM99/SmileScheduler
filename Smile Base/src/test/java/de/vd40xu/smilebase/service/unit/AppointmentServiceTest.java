@@ -188,5 +188,26 @@ class AppointmentServiceTest {
 
         verify(appointmentRepository, times(1)).deleteById(appointmentId);
     }
+
+    @Test
+    @DisplayName("Unit > Try scheduling appointment outside of working hours")
+    void test6() {
+        LocalDateTime appointmentStart = LocalDateTime.now(fixedClock).withHour(20);
+        PatientDTO patientDTO = new PatientDTO(
+            "John Doe",
+            "INS123",
+            LocalDate.of(1990, 1, 1),
+            "Provider A",
+            "john@example.com"
+        );
+        NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
+            "New Test Appointment",
+            1L,
+            appointmentStart,
+            AppointmentType.QUICKCHECK,
+            patientDTO
+        );
+        assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO));
+    }
 }
 
