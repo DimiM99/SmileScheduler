@@ -1,5 +1,5 @@
 // src/utils/navbar/MenuGenerator.ts
-import { Menu } from "@/models/navbar/Menu.ts";
+import { Menu } from "@/models/components/navbar/Menu.ts";
 
 //Placeholder functions for menu items
 

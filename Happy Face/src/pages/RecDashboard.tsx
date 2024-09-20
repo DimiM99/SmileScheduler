@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {fetchAppointments} from '../services/api';
 import {Appointment} from '@/models';
-import {useAuth} from "@/hooks/ausAuth.ts";
+import {useAuth} from "@/hooks/useAuth.ts";
 import Layout from "@/components/layout.tsx";
 
 const RecDashboard: React.FC = () => {
@@ -10,25 +9,8 @@ const RecDashboard: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect (() => {
-        const loadAppointments = async (): Promise<void> => {
-            if (user) {
-                try {
-                    const fetchedAppointments = await fetchAppointments(user.username);
-                    setAppointments(fetchedAppointments);
-                } catch (error) {
-                    console.error('Failed to fetch appointments:', error);
-                } finally {
-                    setLoading(false);  // Set loading to false when done
-                }
-            } else {
-                setLoading(false);  // No user, stop loading
-            }
-        };
-
-        loadAppointments ().catch ((e: unknown) => {
-            console.error (e);
-            setLoading(false);
-        });
+        setLoading(true);
+        setLoading(false);
     }, [user]);
 
     if (loading) {
