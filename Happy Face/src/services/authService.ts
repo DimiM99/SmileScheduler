@@ -41,12 +41,13 @@ export class AuthService implements IAuthService {
         const encryptedToken = CryptoJS.AES.encrypt(loginResponse.token, this.secret);
         sessionStorage.setItem('token', encryptedToken.toString());
         const expiryDate = new Date().getTime() + loginResponse.expiresIn;
-        localStorage.setItem('tokenExpiry', expiryDate.toString());
+        sessionStorage.setItem('tokenExpiry', expiryDate.toString());
     }
 
     clearToken() {
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('tokenExpiry');
+        sessionStorage.removeItem('credentials');
     }
 
     refreshToken = async (): Promise<void> => {
@@ -68,7 +69,7 @@ export class AuthService implements IAuthService {
 
     getDecryptedToken = async (): Promise<string | null> => {
         const encryptedToken = sessionStorage.getItem('token');
-        const expiryDateString = localStorage.getItem('tokenExpiry');
+        const expiryDateString = sessionStorage.getItem('tokenExpiry');
         if (!encryptedToken || !expiryDateString) return null;
 
         const decryptedTokenBytes = CryptoJS.AES.decrypt(encryptedToken, this.secret);
@@ -85,7 +86,7 @@ export class AuthService implements IAuthService {
 
     isLoggedIn(): boolean {
         const encryptedToken = sessionStorage.getItem('token');
-        const expiryDateString = localStorage.getItem('tokenExpiry');
+        const expiryDateString = sessionStorage.getItem('tokenExpiry');
         if (!encryptedToken || !expiryDateString) return false;
 
         const expiryDate = parseInt(expiryDateString);
