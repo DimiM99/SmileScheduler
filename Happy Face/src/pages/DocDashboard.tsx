@@ -5,6 +5,8 @@ import Layout from "@/components/layout.tsx";
 
 const DocDashboard: React.FC = () => {
     const {user} = useAuth ();
+
+    // @ts-expect-error because appointments are not yet implemented
     const [appointments, setAppointments] = useState<Appointment[]> ([]);
     const [loading, setLoading] = useState<boolean>(true);
 

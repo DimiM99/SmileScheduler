@@ -5,6 +5,7 @@ import {useTokenAuth} from "@/hooks/useTokenAuth.ts";
 const AppointmentView: React.FC = () => {
     const {token} = useTokenAuth ();
 
+    // @ts-expect-error because appointments are not yet implemented
     const [appointments, setAppointments] = useState<Appointment[]> ([]);
 
     useEffect (() => {

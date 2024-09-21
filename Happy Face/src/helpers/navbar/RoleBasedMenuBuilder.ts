@@ -1,7 +1,8 @@
-// src/utils/navbar/MenuGenerator.ts
-import { Menu } from "@/models/components/navbar/Menu.ts";
 
-//Placeholder functions for menu items
+import {Menu} from "@/models/components/navbar/Menu.ts";
+import {Role} from "@/models/enums/Role.ts";
+
+// Placeholder functions for menu items
 
 const handleNewAppointment = () => {
     console.log("New appointment clicked");
@@ -15,11 +16,29 @@ const handleDeleteAppointment = () => {
     console.log("Delete appointment clicked");
 };
 
-//Generate menus based on user role
-type MenuGeneratorType = (role: string) => Menu[];
-export const RoleBasedMenuBuilder: MenuGeneratorType = (role: string): Menu[] => {
-    switch (role) {
-        case 'RECEPTIONIST':
+// New handlers for ADMIN
+const handleRegisterUser = () => {
+    console.log("Register user clicked");
+};
+
+const handleManageUsers = () => {
+    console.log("Manage users clicked");
+};
+
+const handleViewSystemLogs = () => {
+    console.log("View system logs clicked");
+};
+
+const handleSystemSettings = () => {
+    console.log("System settings clicked");
+};
+
+
+type MenuGeneratorType = (role: Role) => Menu[];
+
+export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
+    switch (role) { // Ensure role comparison is case-insensitive
+        case Role.RECEPTIONIST:
             return [
                 {
                     name: "Appointment",
@@ -33,7 +52,7 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: string): Menu[] =>
                     ],
                 },
                 {
-                    name: "Patient",
+                    name: 'Patient',
                     items: [
                         { label: "Add New Patient", shortcut: "⌘P" },
                         { label: "View Patient List", shortcut: "⌘V" },
@@ -57,7 +76,7 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: string): Menu[] =>
                     ],
                 },
             ];
-        case 'DOCTOR':
+        case Role.DOCTOR:
             return [
                 {
                     name: "Appointment",
@@ -74,18 +93,30 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: string): Menu[] =>
                     ],
                 },
             ];
-        case 'PATIENT':
+        case Role.ADMIN:
             return [
                 {
-                    name: "Appointment",
+                    name: "User Management",
                     items: [
-                        { label: "View All Appointments", shortcut: "⌘L", onClick: handleViewAppointments },
+                        { label: "Register New User", shortcut: "⌘U", onClick: handleRegisterUser },
+                        { label: "Manage Users", shortcut: "⌘M", onClick: handleManageUsers },
+                        'separator',
+                        { label: "View System Logs", shortcut: "⌘S", onClick: handleViewSystemLogs },
+                        { label: "System Settings", shortcut: "⌘T", onClick: handleSystemSettings },
                     ],
                 },
                 {
-                    name: "Billing & Payments",
+                    name: "Dashboard",
                     items: [
-                        { label: "View Payment Status", shortcut: "⌘Y" },
+                        { label: "View Analytics", shortcut: "⌘A" },
+                        { label: "System Health", shortcut: "⌘H" },
+                    ],
+                },
+                {
+                    name: "Reports",
+                    items: [
+                        { label: "Generate Reports", shortcut: "⌘G" },
+                        { label: "Export Data", shortcut: "⌘E" },
                     ],
                 },
             ];
