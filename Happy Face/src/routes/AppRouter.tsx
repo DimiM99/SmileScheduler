@@ -12,7 +12,6 @@ const AppRouter: React.FC = () => {
         <Router>
             <Routes>
                 <Route path="/login" element={<Login/>}/>
-                <Route path="/register" element={<Register/>}/>
                 <Route path="/receptionist-dashboard" element={
                     <ProtectedRoute>
                         <RecDashboard/>

@@ -1,9 +1,9 @@
 import React from 'react';
-import {User} from '@/models/User.ts';
 import {Navbar} from "@/components/navbar.tsx";
+import {GetUserResponse} from "@/models/services/responses/GetUserResponse.ts";
 
 interface LayoutProps {
-    user: User;
+    user: GetUserResponse;
     left: React.ReactNode;
     right: React.ReactNode;
     leftWeight?: number;

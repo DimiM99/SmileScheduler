@@ -5,37 +5,41 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  # frontend:
-  #   name: Frontend - Test, Lint, and Build
-  #   runs-on: ubuntu-latest
+  frontend:
+    name: Frontend Checks - Test, Lint, and Build
+    runs-on: ubuntu-latest
     
-  #   steps:
-  #   - uses: actions/checkout@v3
+    steps:
+    - uses: actions/checkout@v3
     
-  #   - name: Set up Node.js
-  #     uses: actions/setup-node@v3
-  #     with:
-  #       node-version: '18'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
         
-  #   - name: Install dependencies
-  #     working-directory: ./Happy Face
-  #     run: npm ci
+    - name: Install dependencies
+      working-directory: ./Happy Face
+      run: npm ci
       
-  #   - name: Run linting
-  #     working-directory: ./Happy Face
-  #     run: npm run lint
+    - name: Run linting
+      working-directory: ./Happy Face
+      run: npm run lint
       
-  #   - name: Run tests
-  #     working-directory: ./Happy Face
-  #     run: npm test
+    - name: Run tests
+      working-directory: ./Happy Face
+      run: npm test
       
-  #   - name: Build frontend
-  #     working-directory: ./Happy Face
-  #     run: npm run build
+    - name: Build frontend
+      working-directory: ./Happy Face
+      run: npm run build
 
   backend:
-    name: Backend - Test and Build
+    name: Backend Checks - Test and Build
     runs-on: ubuntu-latest
     
     steps:
@@ -64,3 +68,49 @@ jobs:
     - name: Build backend
       working-directory: ./Smile Base
       run: ./gradlew build -x test
+
+  add-labels:
+    name: Report CI Workflow Result
+    needs: [frontend, backend]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - uses: actions/github-script@v7.0.1
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const frontend_status = '${{ needs.frontend.result }}';
+          const backend_status = '${{ needs.backend.result }}';
+          let labels_to_add = [];
+          let labels_to_remove = [];
+          if (frontend_status === 'success') {
+            labels_to_add.push('CI - Frontend Checks Pass');
+            labels_to_remove.push('CI - Frontend Checks Failed');
+          } else {
+            labels_to_add.push('CI - Frontend Checks Failed');
+            labels_to_remove.push('CI - Frontend Checks Pass');
+          }
+          if (backend_status === 'success') {
+            labels_to_add.push('CI - Backend Checks Pass');
+            labels_to_remove.push('CI - Backend Checks Failed');
+          } else {
+            labels_to_add.push('CI - Backend Checks Failed');
+            labels_to_remove.push('CI - Backend Checks Pass');
+          }
+          for (const label of labels_to_remove) {
+            try {
+              await github.rest.issues.removeLabel({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label
+              });
+            } catch (e) {}
+          }
+          await github.rest.issues.addLabels({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: labels_to_add
+          });
