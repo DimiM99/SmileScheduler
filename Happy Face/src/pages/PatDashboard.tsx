@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Appointment} from '@/models';
 import {useTokenAuth} from "@/hooks/useTokenAuth.ts";
 
-const AppointmentView: React.FC = () => {
+const PatDashboard: React.FC = () => {
     const {token} = useTokenAuth ();
 
     // @ts-expect-error because appointments are not yet implemented
@@ -19,4 +19,4 @@ const AppointmentView: React.FC = () => {
     );
 }
 
-export default AppointmentView;
+export default PatDashboard;

@@ -41,7 +41,7 @@ const formSchema = z.object ({
 
 type FormValues = z.infer<typeof formSchema>
 
-export function AppointmentFormComponent() {
+export function AppointmentForm() {
     const form = useForm<FormValues> ({
         resolver: zodResolver (formSchema),
         defaultValues: {
