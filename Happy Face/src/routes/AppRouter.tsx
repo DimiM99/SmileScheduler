@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom
 import Login from '../pages/Login';
 import RecDashboard from "../pages/RecDashboard.tsx";
 import DocDashboard from "../pages/DocDashboard.tsx";
-import AppointmentView from "../pages/AppointmentView.tsx";
+import PatDashboard from "../pages/PatDashboard.tsx";
 import ProtectedRoute from './ProtectedRoute';
 import TokenProtectedRoute from './TokenProtectedRoute';
 
@@ -24,7 +24,7 @@ const AppRouter: React.FC = () => {
                 }/>
                 <Route path="/appointments" element={
                     <TokenProtectedRoute>
-                        <AppointmentView/>
+                        <PatDashboard/>
                     </TokenProtectedRoute>
                 }/>
                 <Route path="*" element={<Navigate to="/login" replace/>}/>
