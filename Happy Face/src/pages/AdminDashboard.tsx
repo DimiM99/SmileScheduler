@@ -18,20 +18,20 @@ const AdminDashboard: React.FC = () => {
     }
 
     if (!user) {
-        return <p>User not authenticated.</p>; // Optionally handle unauthenticated state
+        return <p>User not authenticated.</p>;
     }
 
     return (
         <Layout
             user={user}
             left={
-                <div>
+                <div className="flex flex-col items-center">
                     <h2>Registered Users</h2>
                     <p>Here is a list of registered users</p>
                 </div>
             }
             right={
-                <div>
+                <div className="flex flex-col items-center">
                     <h2>Edit Users</h2>
                     <p>This is the content for the right section.</p>
                     <UserManagementForm current={null}/>
