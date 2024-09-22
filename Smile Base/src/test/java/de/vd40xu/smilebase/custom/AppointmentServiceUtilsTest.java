@@ -4,6 +4,7 @@ import de.vd40xu.smilebase.service.utility.AppointmentServiceUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AppointmentServiceUtilsTest {
@@ -11,6 +12,7 @@ class AppointmentServiceUtilsTest {
     @Test
     @DisplayName("Unit > Test AppointmentServiceUtils constructor")
     void test() {
-        assertThrows(IllegalStateException.class, AppointmentServiceUtils::new);
+        IllegalStateException e = assertThrows(IllegalStateException.class, AppointmentServiceUtils::new);
+        assertEquals("Utility class", e.getMessage());
     }
 }
