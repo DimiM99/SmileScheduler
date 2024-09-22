@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -295,14 +296,21 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     @DisplayName("Integration > update the appointment doctor")
     void test9() {
         Appointment existingAppointment = appointmentRepository.findAll().getFirst();
+        User newDoctor;
 
-        Optional<User> newDoctor = userRepository.findById(existingAppointment.getDoctor().getId() + 1L);
+        Optional<User> newDoctorOptional = doctors.stream()
+            .filter(doctor -> !Objects.equals(doctor.getId(), existingAppointment.getDoctor().getId()))
+            .filter(doctor -> getFreeSlots(doctor.getId(), existingAppointment.getStart().toLocalDate(), existingAppointment.getAppointmentType(), false).contains(existingAppointment.getStart()))
+            .findFirst();
+        assertTrue(newDoctorOptional.isPresent());
+
+        newDoctor = newDoctorOptional.get();
 
         AppointmentDTO appointmentDTO = new AppointmentDTO(
             existingAppointment.getId(),
             null,
             null,
-            newDoctor.get().getId(),
+            newDoctor.getId(),
             null,
             null
         );
@@ -316,9 +324,9 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         assertEquals(updatedAppointment.getTitle(), existingAppointment.getTitle());
 
         assertNotEquals(updatedAppointment.getDoctor().getId(), existingAppointment.getDoctor().getId());
-        assertEquals(updatedAppointment.getDoctor().getId(), newDoctor.get().getId());
-        assertEquals(updatedAppointment.getDoctor().getName(), newDoctor.get().getName());
-        assertEquals(updatedAppointment.getDoctor().getEmail(), newDoctor.get().getEmail());
+        assertEquals(updatedAppointment.getDoctor().getId(), newDoctor.getId());
+        assertEquals(updatedAppointment.getDoctor().getName(), newDoctor.getName());
+        assertEquals(updatedAppointment.getDoctor().getEmail(), newDoctor.getEmail());
     }
 
     @Test
@@ -339,12 +347,16 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     @DisplayName("Integration > try to schedule an appointment with a doctor that is not free")
     void test11() {
         LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY);
-
-        Appointment existingAppointment = appointmentRepository.findByDoctorIdAndStartBetween(
+        Appointment existingAppointment;
+        Appointment anotherAppointment;
+        List<Appointment> pol = appointmentRepository.findByDoctorIdAndStartBetween(
                 doctors.getFirst().getId(),
                 requestDate.atTime(8, 30),
                 requestDate.atTime(16, 30)
-        ).getFirst();
+        );
+
+        existingAppointment = pol.getFirst();
+        anotherAppointment = pol.getLast();
 
         NewAppointmentDTO newAppointmentDTO = new NewAppointmentDTO(
                 existingAppointment.getTitle(),
@@ -366,7 +378,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
                 existingAppointment.getTitle(),
                 existingAppointment.getPatient().getId(),
                 existingAppointment.getDoctor().getId(),
-                existingAppointment.getStart().minusMinutes(15),
+                anotherAppointment.getStart().minusMinutes(15),
                 existingAppointment.getAppointmentType()
         );
 
