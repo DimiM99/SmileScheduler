@@ -71,7 +71,7 @@ public class AppointmentService implements IAppointmentService {
                 appointmentDTO.getStart(),
                 appointmentDTO.getAppointmentType()
         );
-        if (!(appointment.getStart().toLocalTime().isAfter(clinicOpenTime) && appointment.getEnd().toLocalTime().isBefore(clinicCloseTime))) {
+        if (!(appointment.getStart().toLocalTime().isAfter(clinicOpenTime.minusMinutes(1)) && appointment.getEnd().toLocalTime().isBefore(clinicCloseTime.plusMinutes(1)))) {
             throw new IllegalArgumentException("Appointment time is outside clinic hours");
         }
         checkForDoctor(appointment, appointmentDTO.getDoctorId());
@@ -139,7 +139,7 @@ public class AppointmentService implements IAppointmentService {
                                 appointmentRepository.findByDoctorIdAndStartBetween(
                                         doc.getId(), appointment.getStart(), appointment.getEnd()
                                 ).stream().filter(
-                                        match -> match.getId().equals(appointment.getId())
+                                        match -> !match.getId().equals(appointment.getId())
                                 ).toList(),
                                 appointment.getAppointmentType().getDuration()
                         )) {
