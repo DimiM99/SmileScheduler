@@ -38,7 +38,7 @@ public class AppointmentServiceUtils {
                 .toList();
     }
 
-    private static boolean isSlotFree(LocalDateTime slot, List<Appointment> existingAppointments, long appointmentDuration) {
+    public static boolean isSlotFree(LocalDateTime slot, List<Appointment> existingAppointments, long appointmentDuration) {
         LocalDateTime slotEnd = slot.plusMinutes(appointmentDuration);
         return existingAppointments.stream()
                 .noneMatch(appointment ->

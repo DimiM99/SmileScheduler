@@ -19,6 +19,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import static de.vd40xu.smilebase.service.utility.AppointmentServiceUtils.getFreeSlots;
+import static de.vd40xu.smilebase.service.utility.AppointmentServiceUtils.isSlotFree;
 
 @Service
 public class AppointmentService implements IAppointmentService {
@@ -73,18 +74,7 @@ public class AppointmentService implements IAppointmentService {
         if (!(appointment.getStart().toLocalTime().isAfter(clinicOpenTime) && appointment.getEnd().toLocalTime().isBefore(clinicCloseTime))) {
             throw new IllegalArgumentException("Appointment time is outside clinic hours");
         }
-        userRepository.findById(appointmentDTO.getDoctorId()).ifPresentOrElse(
-                doc -> {
-                    if (doc.getRole().equals(UserRole.DOCTOR)) {
-                        appointment.setDoctor(doc);
-                    } else {
-                        throw new IllegalArgumentException("User is not a doctor");
-                    }
-                },
-                () -> {
-                    throw new IllegalArgumentException("Doctor not found");
-                }
-        );
+        checkForDoctor(appointment, appointmentDTO.getDoctorId());
         if (appointmentDTO.getPatient().getId() != null) {
             appointment.setPatient(
                     patientRepository.findById(appointmentDTO.getPatient().getId()).orElseThrow(
@@ -127,18 +117,7 @@ public class AppointmentService implements IAppointmentService {
             appointment.setEnd(appointment.getStart().plusMinutes(appointment.getAppointmentType().getDuration()));
         }
         if (appointmentDTO.getDoctorId() != null) {
-            userRepository.findById(appointmentDTO.getDoctorId()).ifPresentOrElse(
-                    doc -> {
-                        if (doc.getRole().equals(UserRole.DOCTOR)) {
-                            appointment.setDoctor(doc);
-                        } else {
-                            throw new IllegalArgumentException("User is not a doctor");
-                        }
-                    },
-                    () -> {
-                        throw new IllegalArgumentException("Doctor not found");
-                    }
-            );
+            checkForDoctor(appointment, appointmentDTO.getDoctorId());
         }
         return appointmentRepository.save(appointment);
     }
@@ -150,5 +129,32 @@ public class AppointmentService implements IAppointmentService {
 
     @Setter
     private Clock clock = Clock.systemDefaultZone();
+
+    private void checkForDoctor(Appointment appointment, Long doctorId) {
+        userRepository.findById(doctorId).ifPresentOrElse(
+                doc -> {
+                    if (doc.getRole().equals(UserRole.DOCTOR)) {
+                        if (isSlotFree(
+                                appointment.getStart(),
+                                appointmentRepository.findByDoctorIdAndStartBetween(
+                                        doc.getId(), appointment.getStart(), appointment.getEnd()
+                                ).stream().filter(
+                                        match -> match.getId().equals(appointment.getId())
+                                ).toList(),
+                                appointment.getAppointmentType().getDuration()
+                        )) {
+                            appointment.setDoctor(doc);
+                        } else {
+                            throw new IllegalArgumentException("Doctor is not free at the requested time");
+                        }
+                    } else {
+                        throw new IllegalArgumentException("User is not a doctor");
+                    }
+                },
+                () -> {
+                    throw new IllegalArgumentException("Doctor not found");
+                }
+        );
+    }
 
 }
