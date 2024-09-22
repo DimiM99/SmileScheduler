@@ -120,6 +120,7 @@ public class AppointmentService implements IAppointmentService {
         }
         if (appointmentDTO.getStart() != null) {
             appointment.setStart(appointmentDTO.getStart());
+            appointment.setEnd(appointment.getStart().plusMinutes(appointment.getAppointmentType().getDuration()));
         }
         if (appointmentDTO.getAppointmentType() != null) {
             appointment.setAppointmentType(appointmentDTO.getAppointmentType());
