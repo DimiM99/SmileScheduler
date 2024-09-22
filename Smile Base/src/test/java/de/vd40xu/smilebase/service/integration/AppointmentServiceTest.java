@@ -92,6 +92,10 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         }
     }
 
+    private List<LocalDateTime> getFreeSlots(Long docId, LocalDate date, AppointmentType appointmentType, boolean weekView) {
+        return appointmentService.getAvailableAppointments(docId, date, appointmentType, weekView);
+    }
+
 
     @Test
     @DisplayName("Integration > Get Available Appointments")
@@ -99,7 +103,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         LocalDate date = startDate.plusDays(1).toLocalDate();
         AppointmentType appointmentType = AppointmentType.QUICKCHECK;
 
-        List<LocalDateTime> availableSlots = appointmentService.getAvailableAppointments(doctors.getFirst().getId(), date, appointmentType, false);
+        List<LocalDateTime> availableSlots = getFreeSlots(doctors.getFirst().getId(), date, appointmentType, false);
 
         assertFalse(availableSlots.isEmpty());
         assertTrue(availableSlots.stream().allMatch(slot -> slot.toLocalDate().equals(date)));
@@ -112,7 +116,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         LocalDate date = startDate.plusDays(1).toLocalDate();
         AppointmentType appointmentType = AppointmentType.QUICKCHECK;
 
-        List<LocalDateTime> availableSlots = appointmentService.getAvailableAppointments(doctors.getFirst().getId(), date, appointmentType, true);
+        List<LocalDateTime> availableSlots = getFreeSlots(doctors.getFirst().getId(), date, appointmentType, true);
 
         assertFalse(availableSlots.isEmpty());
         assertTrue(availableSlots.stream().allMatch(slot -> slot.toLocalDate().getDayOfWeek().getValue() <= 5));
@@ -125,6 +129,13 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     @DisplayName("Integration > Schedule Appointment")
     void test3() {
         User doctor = doctors.getFirst();
+        LocalDateTime requestTime = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY).atTime(13, 30);
+        LocalDateTime freeSlot = getFreeSlots(
+                doctor.getId(),
+                requestTime.toLocalDate(),
+                AppointmentType.QUICKCHECK,
+                false
+        ).getFirst();
         PatientDTO patientDTO = new PatientDTO(
             "New Patient",
             "INS-NEW",
@@ -135,7 +146,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
             doctor.getId(),
-            startDate.plusDays(2).withHour(10),
+            freeSlot,
             AppointmentType.QUICKCHECK,
             patientDTO
         );
@@ -156,13 +167,20 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     void test4() {
         Appointment existingAppointment = appointmentRepository.findAll().getFirst();
         User newDoctor = doctors.get(1);
+        LocalDateTime requestTime = existingAppointment.getStart();
+        LocalDateTime freeSlot = getFreeSlots(
+                newDoctor.getId(),
+                requestTime.toLocalDate(),
+                AppointmentType.EXTENSIVE,
+                false
+        ).getFirst();
 
         AppointmentDTO appointmentDTO = new AppointmentDTO(
             existingAppointment.getId(),
             "Updated Appointment",
             existingAppointment.getPatient().getId(),
             newDoctor.getId(),
-            existingAppointment.getStart().plusDays(1),
+            freeSlot,
             AppointmentType.EXTENSIVE
         );
 
@@ -315,5 +333,47 @@ class AppointmentServiceTest extends AuthContextConfiguration {
                    "All slots should be within the work week (Monday to Friday)");
         assertTrue(availableSlots.stream().allMatch(slot -> slot.getHour() >= 8 && slot.getHour() < 17),
                    "All slots should be within work hours (8 AM to 5 PM)");
+    }
+
+    @Test
+    @DisplayName("Integration > try to schedule an appointment with a doctor that is not free")
+    void test11() {
+        LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY);
+
+        Appointment existingAppointment = appointmentRepository.findByDoctorIdAndStartBetween(
+                doctors.getFirst().getId(),
+                requestDate.atTime(8, 30),
+                requestDate.atTime(16, 30)
+        ).getFirst();
+
+        NewAppointmentDTO newAppointmentDTO = new NewAppointmentDTO(
+                existingAppointment.getTitle(),
+                existingAppointment.getDoctor().getId(),
+                existingAppointment.getStart().minusMinutes(15),
+                existingAppointment.getAppointmentType(),
+                new PatientDTO(
+                    existingAppointment.getPatient().getId(),
+                    existingAppointment.getPatient().getName(),
+                    existingAppointment.getPatient().getBirthdate(),
+                    existingAppointment.getPatient().getInsuranceNumber(),
+                    existingAppointment.getPatient().getInsuranceProvider(),
+                    existingAppointment.getPatient().getEmail()
+                )
+        );
+
+        AppointmentDTO appointmentDTO = new AppointmentDTO(
+                existingAppointment.getId(),
+                existingAppointment.getTitle(),
+                existingAppointment.getPatient().getId(),
+                existingAppointment.getDoctor().getId(),
+                existingAppointment.getStart().minusMinutes(15),
+                existingAppointment.getAppointmentType()
+        );
+
+        IllegalArgumentException eCreate = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(newAppointmentDTO));
+        IllegalArgumentException eUpdate = assertThrows(IllegalArgumentException.class, () -> appointmentService.updateAppointment(appointmentDTO));
+        assertEquals("Doctor is not free at the requested time", eCreate.getMessage());
+        assertEquals("Doctor is not free at the requested time", eUpdate.getMessage());
+
     }
 }
