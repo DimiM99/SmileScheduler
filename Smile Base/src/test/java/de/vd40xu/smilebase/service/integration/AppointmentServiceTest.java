@@ -21,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
@@ -40,7 +41,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     private final Clock clock = Clock.fixed(Instant.parse("2023-06-15T10:00:00Z"), ZoneId.systemDefault());
 
     @BeforeAll
-    public void setUp() {
+    public void setUpTestEnv() {
         super.setUp();
         appointmentService.setClock(clock);
         startDate = LocalDateTime.now(clock).withHour(0).withMinute(0).withSecond(0).withNano(0);
@@ -185,5 +186,134 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         appointmentService.deleteAppointment(appointmentId);
 
         assertThrows(Exception.class, () -> appointmentService.getAppointmentById(appointmentId));
+    }
+
+    @Test
+    @DisplayName("Integration > update only appointment title")
+    void test6() {
+        Appointment existingAppointment = appointmentRepository.findAll().getFirst();
+
+        AppointmentDTO appointmentDTO = new AppointmentDTO(
+            existingAppointment.getId(),
+            "Only T Updated Appointment",
+            null,
+            null,
+            null,
+            null
+        );
+
+        Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
+
+        assertEquals(updatedAppointment.getId(), existingAppointment.getId());
+        assertEquals(updatedAppointment.getDoctor().getId(), existingAppointment.getDoctor().getId());
+        assertEquals(updatedAppointment.getPatient().getId(), existingAppointment.getPatient().getId());
+        assertEquals(updatedAppointment.getAppointmentType(), existingAppointment.getAppointmentType());
+        assertEquals(updatedAppointment.getStart(), existingAppointment.getStart());
+
+        assertEquals(updatedAppointment.getTitle(), appointmentDTO.getTitle());
+        assertNotEquals(updatedAppointment.getTitle(), existingAppointment.getTitle());
+    }
+
+    @Test
+    @DisplayName("Integration > update the appointment start time")
+    void test7() {
+        Appointment existingAppointment = appointmentRepository.findAll().getFirst();
+
+        AppointmentDTO appointmentDTO = new AppointmentDTO(
+            existingAppointment.getId(),
+            null,
+            null,
+            null,
+            existingAppointment.getStart().plusMinutes(30),
+            null
+        );
+
+        Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
+
+        assertEquals(updatedAppointment.getId(), existingAppointment.getId());
+        assertEquals(updatedAppointment.getDoctor().getId(), existingAppointment.getDoctor().getId());
+        assertEquals(updatedAppointment.getPatient().getId(), existingAppointment.getPatient().getId());
+        assertEquals(updatedAppointment.getAppointmentType(), existingAppointment.getAppointmentType());
+        assertEquals(updatedAppointment.getTitle(), existingAppointment.getTitle());
+
+        assertNotEquals(updatedAppointment.getStart(), existingAppointment.getStart());
+        assertNotEquals(updatedAppointment.getEnd(), existingAppointment.getEnd());
+
+        assertEquals(updatedAppointment.getStart(), existingAppointment.getStart().plusMinutes(30));
+        assertEquals(updatedAppointment.getEnd(), existingAppointment.getEnd().plusMinutes(30));
+    }
+
+    @Test
+    @DisplayName("Integration > update the appointment type")
+    void test8() {
+        Appointment existingAppointment = appointmentRepository.findAll().getFirst();
+
+        int nextOrdinal = (existingAppointment.getAppointmentType().ordinal() + 1) % AppointmentType.values().length;
+        AppointmentType newType = AppointmentType.values()[nextOrdinal];
+
+        AppointmentDTO appointmentDTO = new AppointmentDTO(
+            existingAppointment.getId(),
+            null,
+            null,
+            null,
+            null,
+            newType
+        );
+
+        Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
+
+        assertEquals(updatedAppointment.getId(), existingAppointment.getId());
+        assertEquals(updatedAppointment.getDoctor().getId(), existingAppointment.getDoctor().getId());
+        assertEquals(updatedAppointment.getPatient().getId(), existingAppointment.getPatient().getId());
+        assertEquals(updatedAppointment.getStart(), existingAppointment.getStart());
+        assertEquals(updatedAppointment.getTitle(), existingAppointment.getTitle());
+
+        assertNotEquals(updatedAppointment.getAppointmentType(), existingAppointment.getAppointmentType());
+        assertEquals(updatedAppointment.getAppointmentType(), newType);
+        assertEquals(updatedAppointment.getEnd(), updatedAppointment.getStart().plusMinutes(newType.getDuration()));
+    }
+
+    @Test
+    @DisplayName("Integration > update the appointment doctor")
+    void test9() {
+        Appointment existingAppointment = appointmentRepository.findAll().getFirst();
+
+        Optional<User> newDoctor = userRepository.findById(existingAppointment.getDoctor().getId() + 1L);
+
+        AppointmentDTO appointmentDTO = new AppointmentDTO(
+            existingAppointment.getId(),
+            null,
+            null,
+            newDoctor.get().getId(),
+            null,
+            null
+        );
+
+        Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
+
+        assertEquals(updatedAppointment.getId(), existingAppointment.getId());
+        assertEquals(updatedAppointment.getPatient().getId(), existingAppointment.getPatient().getId());
+        assertEquals(updatedAppointment.getAppointmentType(), existingAppointment.getAppointmentType());
+        assertEquals(updatedAppointment.getStart(), existingAppointment.getStart());
+        assertEquals(updatedAppointment.getTitle(), existingAppointment.getTitle());
+
+        assertNotEquals(updatedAppointment.getDoctor().getId(), existingAppointment.getDoctor().getId());
+        assertEquals(updatedAppointment.getDoctor().getId(), newDoctor.get().getId());
+        assertEquals(updatedAppointment.getDoctor().getName(), newDoctor.get().getName());
+        assertEquals(updatedAppointment.getDoctor().getEmail(), newDoctor.get().getEmail());
+    }
+
+    @Test
+    @DisplayName("Integration > get available appointments for the current week (Wednesday) (should return all slots for Wednesday, Thursday, and Friday)")
+    void test10() {
+        LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY);
+
+        List<LocalDateTime> availableSlots = appointmentService.getAvailableAppointments(doctors.getFirst().getId(), requestDate, AppointmentType.QUICKCHECK, true);
+
+        assertFalse(availableSlots.isEmpty());
+        assertTrue(availableSlots.stream().allMatch(slot -> slot.toLocalDate().getDayOfWeek().getValue() <= 5 && slot.toLocalDate().getDayOfWeek().getValue() >= 3),
+                   "All slots should be within the work week (Monday to Friday)");
+        assertTrue(availableSlots.stream().allMatch(slot -> slot.getHour() >= 8 && slot.getHour() < 17),
+                   "All slots should be within work hours (8 AM to 5 PM)");
     }
 }
