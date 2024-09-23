@@ -53,8 +53,6 @@ public class AppointmentController {
             return ResponseEntity.ok(freeSlots);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("An error occurred while scheduling the appointment");
         }
     }
 
@@ -65,8 +63,6 @@ public class AppointmentController {
             return ResponseEntity.ok(appointment);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("An error occurred while scheduling the appointment");
         }
     }
 
@@ -77,8 +73,6 @@ public class AppointmentController {
             return ResponseEntity.ok(appointment);
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The appointment with the provided id does not exist");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("An error occurred while fetching the appointment details");
         }
     }
 
@@ -89,11 +83,9 @@ public class AppointmentController {
             Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
             return ResponseEntity.ok(updatedAppointment);
         } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("the appointment does not exist");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The appointment with the provided id does not exist");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("An error occurred while updating the appointment");
         }
     }
 
