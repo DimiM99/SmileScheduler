@@ -219,3 +219,226 @@ Request Body Schema (UserDTO)
         * Body: List<User> object
     * **403 Fobidden**:
         * Body: `Error message`
+
+
+### Scheduling API
+
+**Overview and current code coverage** **`(class/method/line)`**
+	
+* Controller: AppointmentController  **`(100%/100%/100%)`**
+    * Services:
+	    * AppointmentService via Interface IAppointmentService **`(100%/100%/100%)`**
+            * AppointmentRepository **`(100%/100%/100%)`**
+            * UserRepository **`(100%/100%/100%)`**
+            * PatientRepository **`(100%/100%/100%)`**
+	    * PatientService via Interface IPatientService **`(100%/100%/100%)`**
+            * PatientRepository **`(100%/100%/100%)`**
+
+####  Search Patient by Insurance
+
+* Method: GET
+* URL: `/api/patients/search`
+* Query Parameters:
+	* insuranceNumber (string): The insurance number of the patient
+* Responses:
+	* **200 OK**:
+	    * Body: Patient object
+	* **404 Not Found**:
+	    * Body: None
+
+Response Body Schema (Patient)
+``` json
+{
+    "id": "long",
+    "name": "string",
+    "birthdate": "string (ISO date)",
+    "insuranceNumber": "string",
+    "insuranceProvider": "string",
+    "email": "string"
+}
+```
+
+#### Get Free Appointment Slots
+
+* Method: GET
+* URL: `/api/appointments/free-slots`
+* Query Parameters:
+	* doctorId (long): The ID of the doctor
+	* date (string): The date in ISO format (YYYY-MM-DD)
+	* weekView (boolean, optional): Whether to return slots for the whole week (default: false)
+	* appointmentType (string): The type of appointment
+* Responses:
+    * **200 OK**:
+        * Body: List of LocalDateTime objects
+    * **400 Bad Request**:
+        * Body: Error message
+
+Response Body Schema
+
+```
+[
+    "2024-09-23T10:00:00",
+    "2024-09-23T11:00:00",
+    // ... more datetime strings
+]
+```
+
+#### Schedule Appointment
+
+* Method: POST
+* URL: `/api/appointments`
+* Request Body: NewAppointmentDTO object
+
+Request Body Schema (NewAppointmentDTO)
+``` json
+{
+    "title": "string",
+    "doctorId": "long",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "patient": {
+        "id": "long (optional)", // If the patient is already in the system if not set, the patient will be created
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string"
+    }
+}
+```
+
+* Responses:
+    * **200 OK**:
+        * Body: Appointment object
+    * **403 Forbidden**:
+        * Body: Error message
+
+Response Body Schema (Appointment)
+``` json
+{
+    "id": "long",
+    "title": "string",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "end": "string (ISO datetime)",
+    "doctor": {
+        "id": "long",
+        "username": "string",
+        "name": "string",
+        "email": "string",
+        "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+        "active": "boolean"
+    },
+    "patient": {
+        "id": "long",
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string"
+    }
+}
+```
+
+#### Get Appointment Details
+
+* Method: GET
+* URL: `/api/appointments`
+* Query Parameters:
+    * appointmentId (long): The ID of the appointment
+* Responses:
+    * **200 OK**:
+        * Body: Appointment object
+    * **404 Not Found**:
+        * Body: "The appointment with the provided id does not exist"
+
+Response Body Schema (Appointment)
+``` json
+{
+    "id": "long",
+    "title": "string",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "end": "string (ISO datetime)",
+    "doctor": {
+        "id": "long",
+        "username": "string",
+        "name": "string",
+        "email": "string",
+        "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+        "active": "boolean"
+    },
+    "patient": {
+        "id": "long",
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string"
+    }
+}
+```
+
+#### Change Appointment
+
+* Method: PUT
+* URL: `/api/appointments`
+* Request Body: AppointmentDTO object
+
+Request Body Schema (AppointmentDTO) // for optional fields - if set to null, the values will not be changed if set to something, the values will be updated
+``` json
+{
+    "id": "long", // required
+    "title": "string", // optional
+    "patientId": "long", // makes no difference
+    "doctorId": "long", // optional
+    "start": "string (ISO datetime)", // optional
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)" // optional
+}
+
+```
+
+* Responses:
+    * **200 OK**:
+        * Body: Appointment object
+    * **404 Not Found**:
+        * Body: "The appointment with the provided id does not exist"
+    * **403 Forbidden**:
+        * Body: Error message
+
+Response Body Schema (Appointment)
+``` json
+{
+    "id": "long",
+    "title": "string",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "end": "string (ISO datetime)",
+    "doctor": {
+        "id": "long",
+        "username": "string",
+        "name": "string",
+        "email": "string",
+        "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+        "active": "boolean"
+    },
+    "patient": {
+        "id": "long",
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string"
+    }
+}
+```
+
+#### Cancel Appointment
+
+* Method: DELETE
+* URL: `/api/appointments/{appointmentId}`
+* Path Variables:
+    * appointmentId (long): The ID of the appointment to cancel
+* Responses:
+    * 200 OK:
+        * Body: None
