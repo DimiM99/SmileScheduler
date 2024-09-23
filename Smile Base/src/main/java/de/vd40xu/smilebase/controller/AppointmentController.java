@@ -54,7 +54,7 @@ public class AppointmentController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(List.of());
+            return ResponseEntity.badRequest().body("An error occurred while scheduling the appointment");
         }
     }
 
