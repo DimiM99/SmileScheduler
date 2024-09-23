@@ -59,7 +59,10 @@ public class AppointmentService implements IAppointmentService {
                                                 refDates.startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
             refDates.endDate = refDates.startDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
         }
-        User doc = userRepository.findById(doctorId).orElseThrow(() -> new IllegalArgumentException("The id provided is not a doctor id"));
+        User doc = userRepository
+                .findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("The id provided is not a doctor id"));
+        if (!doc.getRole().equals(UserRole.DOCTOR)) { throw new IllegalArgumentException("The id provided is not a doctor id"); }
         var appointments = appointmentRepository.findByDoctorIdAndStartBetween(doc.getId(), refDates.startDate, refDates.endDate);
         return getFreeSlots(appointments, appointmentType.getDuration(), refDates.startDate, refDates.endDate);
     }
