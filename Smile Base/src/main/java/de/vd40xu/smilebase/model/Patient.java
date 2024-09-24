@@ -1,70 +1,70 @@
 package de.vd40xu.smilebase.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.vd40xu.smilebase.model.emuns.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "patients")
 @Getter
-@Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
-    private String username;
-
-    @Column(nullable = false)
-    @Setter
-    private String password;
 
     @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
+    private LocalDate birthdate;
+
+    @Column(nullable = false)
+    @Setter
+    private String insuranceNumber;
+
+    @Column(nullable = false)
+    @Setter
+    private String insuranceProvider;
+
+    @Column(nullable = false)
     @Setter
     private String email;
 
-    @Column(nullable = false)
-    private UserRole role;
-
-    @Column(nullable = false)
-    @Setter
-    private boolean active;
-
     @JsonIgnore
-    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
 
     public void addAppointment(Appointment appointment) {
         appointments.add(appointment);
-        appointment.setDoctor(this);
+        appointment.setPatient(this);
     }
 
     public void removeAppointment(Appointment appointment) {
         appointments.remove(appointment);
-        appointment.setDoctor(null);
+        appointment.setPatient(null);
     }
 
-    public User() { }
-
-    public User(Long id, String username, String password, String name, String email, UserRole role, boolean active) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
+    public Patient(
+        String name,
+        LocalDate birthdate,
+        String insuranceNumber,
+        String insuranceProvider,
+        String email
+    ) {
         this.name = name;
+        this.birthdate = birthdate;
+        this.insuranceNumber = insuranceNumber;
+        this.insuranceProvider = insuranceProvider;
         this.email = email;
-        this.role = role;
-        this.active = active;
     }
+
 }

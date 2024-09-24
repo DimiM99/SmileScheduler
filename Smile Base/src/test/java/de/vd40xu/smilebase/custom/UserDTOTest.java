@@ -1,5 +1,6 @@
-package de.vd40xu.smilebase.dto;
+package de.vd40xu.smilebase.custom;
 
+import de.vd40xu.smilebase.dto.UserDTO;
 import de.vd40xu.smilebase.model.emuns.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
