@@ -11,6 +11,7 @@ import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
 import de.vd40xu.smilebase.repository.AppointmentRepository;
 import de.vd40xu.smilebase.repository.PatientRepository;
+import de.vd40xu.smilebase.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@TestMethodOrder(MethodOrderer.MethodName.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AppointmentControllerTest extends ControllerIntegrationTest {
 
     @Autowired private ObjectMapper objectMapper;
@@ -30,6 +31,8 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     @Autowired private AppointmentRepository appointmentRepository;
 
     @Autowired private PatientRepository patientRepository;
+
+    @Autowired UserRepository userRepository;
 
     private String authToken;
 
@@ -40,10 +43,12 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
 
     @Test
     @Sql({"/test-data.sql"})
+    @Order(1)
     @DisplayName("Integration - init")
     void test0() { assertDoesNotThrow( () -> { } ); }
 
     @Test
+    @Order(2)
     @DisplayName("Integration > Search Patient by Insurance Number, GET /api/patients/search")
     void test1() throws Exception {
         mockMvc.perform(get("/api/patients/search")
@@ -54,6 +59,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(3)
     @DisplayName("Integration > Get Free Appointment Slots, GET /api/appointments/free-slots")
     void test2() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
@@ -68,6 +74,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(4)
     @DisplayName("Integration > Schedule New Appointment, POST /api/appointments")
     void test3() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
@@ -91,6 +98,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(5)
     @DisplayName("Integration > Get Appointment Details, GET /api/appointments")
     void test4() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
@@ -103,6 +111,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(6)
     @DisplayName("Integration > Update Existing Appointment, PUT /api/appointments")
     void test5() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
@@ -110,10 +119,10 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
         AppointmentDTO appointmentDTO = new AppointmentDTO(
                 appointment.getId(),
                 "Updated Appointment",
-                appointment.getPatient().getId(),
-                appointment.getDoctor().getId(),
-                appointment.getStart().plusHours(1),
-                AppointmentType.EXTENSIVE
+                null,
+                null,
+                null,
+                appointment.getAppointmentType()
         );
 
         mockMvc.perform(put("/api/appointments")
@@ -125,6 +134,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(7)
     @DisplayName("Integration > Cancel Appointment, DELETE /api/appointments/{appointmentId}")
     void test6() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
@@ -140,6 +150,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(8)
     @DisplayName("Integration > Get Free Appointment Slots (without a doctor id), GET /api/appointments/free-slots")
     void test7() throws Exception {
         User notDoc = userRepository.findByUsername("max.m").orElseThrow();
@@ -153,6 +164,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(9)
     @DisplayName("Integration > Get Free Appointment Slots with incorrect request, GET /api/appointments/free-slots")
     void test8() throws Exception {
         User notDoc = userRepository.findByUsername("max.m").orElseThrow();
@@ -165,6 +177,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(10)
     @DisplayName("Integration > try scheduling an appointment outside clinic hours, POST /api/appointments")
     void test9() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
@@ -188,6 +201,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(11)
     @DisplayName("Integration > try getting appointment details with incorrect id, GET /api/appointments")
     void test10() throws Exception {
         mockMvc.perform(get("/api/appointments")
@@ -198,6 +212,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(12)
     @DisplayName("Integration > try updating an appointment with incorrect id, PUT /api/appointments")
     void test11() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
@@ -220,6 +235,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
+    @Order(13)
     @DisplayName("Integration > try changing an appointments doctor where the doctor isn't available, PUT /api/appointments")
     void test12() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
