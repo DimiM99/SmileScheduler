@@ -3,7 +3,7 @@ INSERT INTO users (username, password, name, email, role, active) VALUES
 ('smith.j', 'password', 'Dr. Smith', 'smith@example.com', 1, true),
 ('johnson.m', 'password', 'Dr. Johnson', 'johnson@example.com', 1, true),
 ('williams.d', 'password', 'Dr. Williams', 'williams@example.com', 1, true),
-('max.m', 'password', 'Max Mustermann', 'williams@example.com', 0, true);
+('max.m', 'password', 'Max Mustermann', 'max@example.com', 0, true);
 
 -- Insert Patients
 INSERT INTO patients (name, birthdate, insurance_number, insurance_provider, email) VALUES
@@ -18,53 +18,54 @@ INSERT INTO patients (name, birthdate, insurance_number, insurance_provider, ema
 ('Henry Taylor', '1982-11-11', 'INS009', 'Provider A', 'henry@example.com'),
 ('Ivy Clark', '1987-04-22', 'INS010', 'Provider C', 'ivy@example.com');
 
--- Insert Appointments for doctor1
-INSERT INTO appointments (title, start, appointment_type, "end", doctor_id, patient_id)
-SELECT
-    'Appointment ' || CAST(FLOOR(RAND() * 1000) AS INT),
-    DATEADD('DAY', n, CURRENT_DATE()) + DATEADD('HOUR', 8 + MOD(n, 8), TIME '00:00:00'),
-    FLOOR(RAND() * 3),
-    DATEADD('DAY', n, CURRENT_DATE()) + DATEADD('HOUR', 9 + MOD(n, 8), TIME '00:00:00'),
-    (SELECT id FROM users WHERE username = 'smith.j'),
-    CAST(FLOOR(RAND() * (SELECT COUNT(*) FROM patients)) + 1 AS INT)
-FROM (
-    SELECT ROW_NUMBER() OVER () - 1 AS n
-    FROM INFORMATION_SCHEMA.COLUMNS
-    LIMIT 14
-) AS numbers
-WHERE MOD(n, 7) < 5
-LIMIT 35;
+-- Common Table Expression for generating weekdays
+WITH RECURSIVE weekdays(day_num, date) AS (
+    SELECT 0, PARSEDATETIME('2024-01-08', 'yyyy-MM-dd')
+    UNION ALL
+    SELECT day_num + 1, DATEADD('DAY', 1, date)
+    FROM weekdays
+    WHERE day_num < 9
+),
+-- Generate all possible appointment slots
+generate_appointments AS (
+    SELECT
+        d.id AS doctor_id,
+        w.date,
+        DATEADD('MINUTE', (slot - 1) * 30 + 480, w.date) AS start_time,
+        FLOOR(RAND() * 3) AS appointment_type
+    FROM weekdays w
+    CROSS JOIN (SELECT id FROM users WHERE role = 1) d
+    CROSS JOIN (
+        SELECT 1 AS slot UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+        UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+        UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12
+        UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16
+    ) slots
+)
 
--- Insert Appointments for doctor2
+-- Insert Appointments for all doctors
 INSERT INTO appointments (title, start, appointment_type, "end", doctor_id, patient_id)
 SELECT
     'Appointment ' || CAST(FLOOR(RAND() * 1000) AS INT),
-    DATEADD('DAY', n, CURRENT_DATE()) + DATEADD('HOUR', 8 + MOD(n, 8), TIME '00:00:00'),
-    FLOOR(RAND() * 3),
-    DATEADD('DAY', n, CURRENT_DATE()) + DATEADD('HOUR', 9 + MOD(n, 8), TIME '00:00:00'),
-    (SELECT id FROM users WHERE username = 'johnson.m'),
+    start_time,
+    appointment_type,
+    CASE
+        WHEN appointment_type = 0 THEN DATEADD('MINUTE', 30, start_time)
+        WHEN appointment_type = 1 THEN DATEADD('MINUTE', 60, start_time)
+        WHEN appointment_type = 2 THEN DATEADD('MINUTE', 120, start_time)
+    END,
+    doctor_id,
     CAST(FLOOR(RAND() * (SELECT COUNT(*) FROM patients)) + 1 AS INT)
 FROM (
-    SELECT ROW_NUMBER() OVER () - 1 AS n
-    FROM INFORMATION_SCHEMA.COLUMNS
-    LIMIT 14
-) AS numbers
-WHERE MOD(n, 7) < 5
-LIMIT 35;
-
--- Insert Appointments for doctor3
-INSERT INTO appointments (title, start, appointment_type, "end", doctor_id, patient_id)
-SELECT
-    'Appointment ' || CAST(FLOOR(RAND() * 1000) AS INT),
-    DATEADD('DAY', n, CURRENT_DATE()) + DATEADD('HOUR', 8 + MOD(n, 8), TIME '00:00:00'),
-    FLOOR(RAND() * 3),
-    DATEADD('DAY', n, CURRENT_DATE()) + DATEADD('HOUR', 9 + MOD(n, 8), TIME '00:00:00'),
-    (SELECT id FROM users WHERE username = 'williams.d'),
-    CAST(FLOOR(RAND() * (SELECT COUNT(*) FROM patients)) + 1 AS INT)
-FROM (
-    SELECT ROW_NUMBER() OVER () - 1 AS n
-    FROM INFORMATION_SCHEMA.COLUMNS
-    LIMIT 14
-) AS numbers
-WHERE MOD(n, 7) < 5
-LIMIT 35;
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY doctor_id, date ORDER BY RAND()) as rn
+    FROM generate_appointments
+    WHERE start_time < DATEADD('HOUR', 17, TRUNC(start_time))
+      AND CASE
+            WHEN appointment_type = 0 THEN DATEADD('MINUTE', 30, start_time)
+            WHEN appointment_type = 1 THEN DATEADD('MINUTE', 60, start_time)
+            WHEN appointment_type = 2 THEN DATEADD('MINUTE', 120, start_time)
+          END <= DATEADD('HOUR', 17, TRUNC(start_time))
+) subquery
+WHERE rn <= 5
+ORDER BY doctor_id, start_time;
