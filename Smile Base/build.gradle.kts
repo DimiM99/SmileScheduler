@@ -44,6 +44,6 @@ tasks.withType<Test> {
     testLogging.showStandardStreams = false
     useJUnitPlatform()
     testLogging {
-        events ("STARTED", "PASSED", "SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR");
+        events ("PASSED", "SKIPPED", "FAILED", "STANDARD_ERROR");
     }
 }
