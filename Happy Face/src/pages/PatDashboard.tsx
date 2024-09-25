@@ -1,12 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {Appointment} from '@/models';
+import React, {useEffect} from 'react';
 import {useTokenAuth} from "@/hooks/useTokenAuth.ts";
 
 const PatDashboard: React.FC = () => {
     const {token} = useTokenAuth ();
 
-    // @ts-expect-error because appointments are not yet implemented
-    const [appointments, setAppointments] = useState<Appointment[]> ([]);
 
     useEffect (() => {
 
