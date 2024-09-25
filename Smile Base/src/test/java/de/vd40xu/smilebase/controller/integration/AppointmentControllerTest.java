@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Order(1)
 class AppointmentControllerTest extends ControllerIntegrationTest {
 
     @Autowired private ObjectMapper objectMapper;

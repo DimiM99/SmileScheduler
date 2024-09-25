@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ExtendWith({MockitoExtension.class, PostgresqlTestContainerExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles("container")
 @DirtiesContext
 public abstract class ControllerIntegrationTest {
 
@@ -52,7 +52,7 @@ public abstract class ControllerIntegrationTest {
     );
 
     @BeforeAll
-    public void setUp() throws IllegalAccessException {
+    public void setUp() {
         userRepository.save(
                 User.builder()
                         .username(testUserDTO.getUsername())
