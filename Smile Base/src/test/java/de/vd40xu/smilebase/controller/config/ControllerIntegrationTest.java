@@ -15,14 +15,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = SmileBaseApplication.class)
 @ExtendWith({MockitoExtension.class, PostgresqlTestContainerExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public abstract class ControllerIntegrationTest {
 
     @Autowired public MockMvc mockMvc;
@@ -34,6 +37,8 @@ public abstract class ControllerIntegrationTest {
     @Autowired public AuthService authService;
 
     @Autowired public PasswordEncoder passwordEncoder;
+
+    @Autowired JdbcTemplate jdbcTemplate;
 
     public UserDTO testUserDTO = new UserDTO(
                 1L,
@@ -66,6 +71,7 @@ public abstract class ControllerIntegrationTest {
 
     @AfterAll
     public void clean() {
-        userRepository.deleteAll();
+        jdbcTemplate.execute("DELETE FROM appointments");
+        jdbcTemplate.execute("DELETE FROM users WHERE username != 'adminUser'");
     }
 }
