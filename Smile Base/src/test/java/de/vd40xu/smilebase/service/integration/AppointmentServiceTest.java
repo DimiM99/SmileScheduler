@@ -21,7 +21,6 @@ import org.springframework.test.context.jdbc.Sql;
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -268,31 +267,22 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     @Order(10)
     @DisplayName("Integration > update the appointment doctor")
     void test9() {
-        Appointment existingAppointment = appointmentRepository.findAll().getFirst();
+        User doc1 = userRepository.findByUsername("johnson.m").orElseThrow();
+        User newDoctor = userRepository.findByUsername("smith.j").orElseThrow();
 
-        User newDoctor;
-
-        int doctorIndex = 0;
-        do {
-            newDoctor = doctors.get(doctorIndex);
-            doctorIndex++;
-        } while (
-                Objects.equals(newDoctor.getId(), existingAppointment.getDoctor().getId())
-                &&
-                appointmentRepository.findByDoctorIdAndStartBetween(
-                        newDoctor.getId(),
-                        existingAppointment.getStart().minusMinutes(15),
-                        existingAppointment.getStart().plusMinutes(15)
-                ).stream().anyMatch(a -> a.getStart().equals(existingAppointment.getStart()))
-        );
+        Appointment existingAppointment = appointmentRepository.findByDoctorIdAndStartBetween(
+            doc1.getId(),
+            LocalDate.now(clock).atTime(12, 30),
+            LocalDate.now(clock).atTime(15, 30)
+        ).getFirst();
 
         AppointmentDTO appointmentDTO = new AppointmentDTO(
-            existingAppointment.getId(),
-            null,
-            null,
-            newDoctor.getId(),
-            null,
-            null
+                existingAppointment.getId(),
+                null,
+                null,
+                newDoctor.getId(),
+                null,
+                null
         );
 
         Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);

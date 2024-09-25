@@ -238,7 +238,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     @Order(13)
     @DisplayName("Integration > try changing an appointments doctor where the doctor isn't available, PUT /api/appointments")
     void test12() throws Exception {
-        Appointment appointment = appointmentRepository.findAll().getFirst();
+        Appointment appointment = appointmentRepository.findAll().get(3);
         User doctor = userRepository.findByUsername("williams.d").orElseThrow();
 
         AppointmentDTO appointmentDTO = new AppointmentDTO(
