@@ -39,10 +39,6 @@ public class Patient {
     @Setter
     private String email;
 
-    @Column(nullable = false)
-    @Setter
-    private String phoneNumber;
-
     @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
@@ -62,15 +58,13 @@ public class Patient {
         LocalDate birthdate,
         String insuranceNumber,
         String insuranceProvider,
-        String email,
-        String phoneNumber
+        String email
     ) {
         this.name = name;
         this.birthdate = birthdate;
         this.insuranceNumber = insuranceNumber;
         this.insuranceProvider = insuranceProvider;
         this.email = email;
-        this.phoneNumber = phoneNumber;
     }
 
 }
