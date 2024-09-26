@@ -57,7 +57,7 @@ jobs:
             console.log('PR is ready for review. Proceeding with checks.');
           }
 
-  ddetermine_changes:
+  determine_changes:
     name: Determine Changed Components
     needs: check_pr_readiness
     if: needs.check_pr_readiness.outputs.is_ready == 'true'
