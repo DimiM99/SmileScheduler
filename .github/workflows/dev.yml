@@ -11,11 +11,11 @@ permissions:
   pull-requests: write
 
 jobs:
-  check_label:
-    name: Check for Review Label
+  check_pr_readiness:
+    name: Check PR Readiness
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ steps.check_label.outputs.has_label }}
+      is_ready: ${{ steps.check_label.outputs.has_label }}
     steps:
     - name: Check for 'PR - for review' label
       id: check_label
@@ -30,25 +30,37 @@ jobs:
           });
           const hasLabel = labels.data.some(label => label.name === 'PR - for review');
           core.setOutput('has_label', hasLabel);
-    
-  pr_readiness:
-    name: Check PR Readiness
-    needs: check_label
-    runs-on: ubuntu-latest
-    steps:
-    - name: Fail if PR is not ready for review
-      if: needs.check_label.outputs.should_run != 'true'
-      run: |
-        echo "PR is not ready for review. Please add the 'PR - for review' label when it's ready."
-        exit 1
-    - name: PR is ready for review
-      if: needs.check_label.outputs.should_run == 'true'
-      run: echo "PR is ready for review. Proceeding with checks."
 
-  determine_changes:
+          if (!hasLabel) {
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            
+            const botComment = comments.data.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('This PR is not ready for review')
+            );
+            
+            if (!botComment) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'This PR is not ready for review. Please add the "PR - for review" label when it\'s ready to run checks.'
+              });
+            }
+            
+            core.setFailed('PR is not ready for review.');
+          } else {
+            console.log('PR is ready for review. Proceeding with checks.');
+          }
+
+  ddetermine_changes:
     name: Determine Changed Components
-    needs: [check_label, pr_readiness]
-    if: needs.check_label.outputs.should_run == 'true'
+    needs: check_pr_readiness
+    if: needs.check_pr_readiness.outputs.is_ready == 'true'
     runs-on: ubuntu-latest
     outputs:
       frontend_changed: ${{ steps.filter.outputs.frontend }}
