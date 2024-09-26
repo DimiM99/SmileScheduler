@@ -19,18 +19,21 @@ public class PatientDTO {
     private String insuranceNumber;
     private String insuranceProvider;
     private String email;
+    private String phoneNumber;
 
     public PatientDTO(
             String name,
             String insuranceNumber,
             LocalDate birthdate,
             String insuranceProvider,
-            String email
+            String email,
+            String phoneNumber
     ) {
         this.name = name;
         this.birthdate = birthdate;
         this.insuranceNumber = insuranceNumber;
         this.insuranceProvider = insuranceProvider;
         this.email = email;
+        this.phoneNumber = phoneNumber;
     }
 }
