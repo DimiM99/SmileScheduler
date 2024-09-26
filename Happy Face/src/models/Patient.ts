@@ -1,8 +1,7 @@
 export interface Patient {
     name: string;
-    dateOfBirth: Date;
+    birthdate: string;
     email: string;
     insuranceNumber: string;
     insuranceProvider: string;
-    phone: string;
 }

@@ -5,7 +5,7 @@ import {Patient} from "@/models";
 export interface AppointmentRequest {
     title: string;
     doctorId: number;
-    start: Date;
+    start: string;
     appointmentType: AppointmentType;
     patient: Patient;
 }
