@@ -15,8 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,6 +34,11 @@ public class AppointmentRepositoryTest extends IntegrationRepositoryTest {
 
     private User testDoctor;
     private Patient testPatient;
+
+    private final Clock clock = Clock.fixed(
+        LocalDate.of(2024, 1, 8).atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        ZoneId.systemDefault()
+    );
 
     @BeforeAll
     void setUp() {
@@ -51,7 +58,7 @@ public class AppointmentRepositoryTest extends IntegrationRepositoryTest {
     @Test
     @DisplayName("Integration > Find Appointments by Doctor ID")
     void test1() {
-        Appointment appointment = new Appointment("New Check-up", LocalDateTime.now(), AppointmentType.QUICKCHECK);
+        Appointment appointment = new Appointment("New Check-up", LocalDateTime.now(clock), AppointmentType.QUICKCHECK);
         appointment.setDoctor(testDoctor);
         appointment.setPatient(testPatient);
         appointmentRepository.save(appointment);
@@ -65,7 +72,7 @@ public class AppointmentRepositoryTest extends IntegrationRepositoryTest {
     @Test
     @DisplayName("Integration > Find Appointments by Doctor ID and Date Range")
     void test2() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
         Appointment appointment = new Appointment("New Follow-up", now, AppointmentType.QUICKCHECK);
         appointment.setDoctor(testDoctor);
         appointment.setPatient(testPatient);
@@ -80,7 +87,7 @@ public class AppointmentRepositoryTest extends IntegrationRepositoryTest {
     @Test
     @DisplayName("Integration > Find Appointments by Patient ID")
     void test3() {
-        Appointment appointment = new Appointment("New Annual check-up", LocalDateTime.now(), AppointmentType.QUICKCHECK);
+        Appointment appointment = new Appointment("New Annual check-up", LocalDateTime.now(clock), AppointmentType.QUICKCHECK);
         appointment.setDoctor(testDoctor);
         appointment.setPatient(testPatient);
         appointmentRepository.save(appointment);
