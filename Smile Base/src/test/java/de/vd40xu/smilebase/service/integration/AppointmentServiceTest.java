@@ -6,102 +6,66 @@ import de.vd40xu.smilebase.dto.AppointmentDTO;
 import de.vd40xu.smilebase.dto.NewAppointmentDTO;
 import de.vd40xu.smilebase.dto.PatientDTO;
 import de.vd40xu.smilebase.model.Appointment;
-import de.vd40xu.smilebase.model.Patient;
 import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
 import de.vd40xu.smilebase.model.emuns.UserRole;
 import de.vd40xu.smilebase.repository.AppointmentRepository;
-import de.vd40xu.smilebase.repository.PatientRepository;
 import de.vd40xu.smilebase.repository.UserRepository;
 import de.vd40xu.smilebase.service.AppointmentService;
 import de.vd40xu.smilebase.service.config.AuthContextConfiguration;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.time.*;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.IntStream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AppointmentServiceTest extends AuthContextConfiguration {
 
     @Autowired private AppointmentService appointmentService;
 
     @Autowired private UserRepository userRepository;
 
-    @Autowired private PatientRepository patientRepository;
-
     @Autowired private AppointmentRepository appointmentRepository;
 
     private List<User> doctors;
-    private LocalDateTime startDate;
-    private final Clock clock = Clock.fixed(Instant.parse("2023-06-15T10:00:00Z"), ZoneId.systemDefault());
+    private final Clock clock = Clock.fixed(
+        LocalDate.of(2024, 1, 8).plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant(),
+        ZoneId.systemDefault()
+    );
 
     @BeforeAll
     public void setUpTestEnv() {
         super.setUp();
         appointmentService.setClock(clock);
-        startDate = LocalDateTime.now(clock).withHour(0).withMinute(0).withSecond(0).withNano(0);
-
-        // Create 3 doctors
-        doctors = IntStream.range(0, 3)
-            .mapToObj(i -> userRepository.save(User.builder()
-                .username("doctor" + i)
-                .password("password")
-                .name("Dr. Smith" + i)
-                .email("dr.smith" + i + "@example.com")
-                .role(UserRole.DOCTOR)
-                .active(true)
-                .build()))
-            .toList();
-
-        // Create 10 patients
-        List<Patient> patients = IntStream.range(0, 10)
-                .mapToObj(i -> patientRepository.save(new Patient(
-                        "Patient" + i,
-                        LocalDate.now(clock).minusYears(30 + i),
-                        "INS" + i,
-                        "Provider" + i,
-                        "patient" + i + "@example.com"
-                )))
-                .toList();
-
-        // Create appointments for the past week and next week
-        LocalDateTime currentDate = startDate.minusDays(7);
-        for (int day = 0; day < 14; day++) {
-            for (User doctor : doctors) {
-                for (int hour = 8; hour < 17; hour += 2) {
-                    if (Math.random() < 0.7) { // 70% chance of creating an appointment
-                        Patient patient = patients.get((int) (Math.random() * patients.size()));
-                        AppointmentType type = Math.random() < 0.8 ? AppointmentType.QUICKCHECK : AppointmentType.EXTENSIVE;
-                        Appointment appointment = new Appointment(
-                            "Appointment",
-                            currentDate.withHour(hour),
-                            type
-                        );
-                        appointment.setDoctor(doctor);
-                        appointment.setPatient(patient);
-                        appointmentRepository.save(appointment);
-                    }
-                }
-            }
-            currentDate = currentDate.plusDays(1);
-        }
     }
 
     private List<LocalDateTime> getFreeSlots(Long docId, LocalDate date, AppointmentType appointmentType, boolean weekView) {
         return appointmentService.getAvailableAppointments(docId, date, appointmentType, weekView);
     }
 
+    @Test
+    @Order(1)
+    @Sql("/test-data.sql")
+    @DisplayName("Integration > Test Environment Setup")
+    void test0() {
+        assertDoesNotThrow(() -> {});
+        doctors = userRepository.findAll().stream().filter(
+            user -> user.getRole().equals(UserRole.DOCTOR)
+        ).toList();
+        assertEquals(3, doctors.size());
+    }
 
     @Test
+    @Order(2)
     @DisplayName("Integration > Get Available Appointments")
     void test1() {
-        LocalDate date = startDate.plusDays(1).toLocalDate();
+        LocalDate date = LocalDate.now(clock);
         AppointmentType appointmentType = AppointmentType.QUICKCHECK;
 
         List<LocalDateTime> availableSlots = getFreeSlots(doctors.getFirst().getId(), date, appointmentType, false);
@@ -112,9 +76,10 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
+    @Order(3)
     @DisplayName("Integration > Get Available Appointments (Week View)")
     void test2() {
-        LocalDate date = startDate.plusDays(1).toLocalDate();
+        LocalDate date = LocalDate.now(clock).with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         AppointmentType appointmentType = AppointmentType.QUICKCHECK;
 
         List<LocalDateTime> availableSlots = getFreeSlots(doctors.getFirst().getId(), date, appointmentType, true);
@@ -127,6 +92,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
 
 
     @Test
+    @Order(4)
     @DisplayName("Integration > Schedule Appointment")
     void test3() {
         User doctor = doctors.getFirst();
@@ -164,6 +130,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
+    @Order(5)
     @DisplayName("Integration > Update Appointment")
     void test4() {
         Appointment existingAppointment = appointmentRepository.findAll().getFirst();
@@ -197,6 +164,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
+    @Order(6)
     @DisplayName("Integration > Delete Appointment")
     void test5() {
         Appointment appointmentToDelete = appointmentRepository.findAll().getFirst();
@@ -208,6 +176,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
+    @Order(7)
     @DisplayName("Integration > update only appointment title")
     void test6() {
         Appointment existingAppointment = appointmentRepository.findAll().getFirst();
@@ -234,6 +203,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
+    @Order(8)
     @DisplayName("Integration > update the appointment start time")
     void test7() {
         Appointment existingAppointment = appointmentRepository.findAll().getFirst();
@@ -263,6 +233,7 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
+    @Order(9)
     @DisplayName("Integration > update the appointment type")
     void test8() {
         Appointment existingAppointment = appointmentRepository.findAll().getFirst();
@@ -293,26 +264,25 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
+    @Order(10)
     @DisplayName("Integration > update the appointment doctor")
     void test9() {
-        Appointment existingAppointment = appointmentRepository.findAll().getFirst();
-        User newDoctor;
+        User doc1 = userRepository.findByUsername("johnson.m").orElseThrow();
+        User newDoctor = userRepository.findByUsername("smith.j").orElseThrow();
 
-        Optional<User> newDoctorOptional = doctors.stream()
-            .filter(doctor -> !Objects.equals(doctor.getId(), existingAppointment.getDoctor().getId()))
-            .filter(doctor -> getFreeSlots(doctor.getId(), existingAppointment.getStart().toLocalDate(), existingAppointment.getAppointmentType(), false).contains(existingAppointment.getStart()))
-            .findFirst();
-        assertTrue(newDoctorOptional.isPresent());
-
-        newDoctor = newDoctorOptional.get();
+        Appointment existingAppointment = appointmentRepository.findByDoctorIdAndStartBetween(
+            doc1.getId(),
+            LocalDate.now(clock).atTime(12, 30),
+            LocalDate.now(clock).atTime(15, 30)
+        ).getFirst();
 
         AppointmentDTO appointmentDTO = new AppointmentDTO(
-            existingAppointment.getId(),
-            null,
-            null,
-            newDoctor.getId(),
-            null,
-            null
+                existingAppointment.getId(),
+                null,
+                null,
+                newDoctor.getId(),
+                null,
+                null
         );
 
         Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
@@ -330,20 +300,22 @@ class AppointmentServiceTest extends AuthContextConfiguration {
     }
 
     @Test
-    @DisplayName("Integration > get available appointments for the current week (Wednesday) (should return all slots for Wednesday, Thursday, and Friday)")
+    @Order(11)
+    @DisplayName("Integration > get available appointments for the current week (Tuesday) (should return all slots for Tuesday, Wednesday, Thursday, and Friday)")
     void test10() {
-        LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY);
+        LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.TUESDAY);
 
         List<LocalDateTime> availableSlots = appointmentService.getAvailableAppointments(doctors.getFirst().getId(), requestDate, AppointmentType.QUICKCHECK, true);
 
         assertFalse(availableSlots.isEmpty());
-        assertTrue(availableSlots.stream().allMatch(slot -> slot.toLocalDate().getDayOfWeek().getValue() <= 5 && slot.toLocalDate().getDayOfWeek().getValue() >= 3),
+        assertTrue(availableSlots.stream().allMatch(slot -> slot.toLocalDate().getDayOfWeek().getValue() <= 5 && slot.toLocalDate().getDayOfWeek().getValue() >= 2),
                    "All slots should be within the work week (Monday to Friday)");
         assertTrue(availableSlots.stream().allMatch(slot -> slot.getHour() >= 8 && slot.getHour() < 17),
                    "All slots should be within work hours (8 AM to 5 PM)");
     }
 
     @Test
+    @Order(12)
     @DisplayName("Integration > try to schedule an appointment with a doctor that is not free")
     void test11() {
         LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY);

@@ -54,7 +54,7 @@ public class AppointmentService implements IAppointmentService {
         };
         if (weekView) {
             refDates.startDate = refDates.startDate
-                                            .isBefore(LocalDateTime.now(clock)) ?
+                                            .isBefore(LocalDateTime.now(clock).plusDays(1)) ?
                                                 LocalDateTime.now(clock) :
                                                 refDates.startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
             refDates.endDate = refDates.startDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
