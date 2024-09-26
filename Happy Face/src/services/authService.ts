@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { api } from './apiConfig';
+import { apiWithoutAuth } from './apiConfig';
 import { handleApiError } from './errorHandler';
 import {LoginResponse} from "@/models/services/responses/LoginResponse.ts";
 import {GetUserResponse} from "@/models/services/responses/GetUserResponse.ts";
@@ -13,10 +13,9 @@ export class AuthService implements IAuthService {
 
     async login(req: LoginRequest): Promise<LoginResponse> {
         try {
-
             const encryptedCredentials = CryptoJS.AES.encrypt(JSON.stringify(req), this.secret);
             sessionStorage.setItem('credentials', encryptedCredentials.toString());
-            const response: AxiosResponse<LoginResponse> = await api.post('/auth/login', req);
+            const response: AxiosResponse<LoginResponse> = await apiWithoutAuth.post('/auth/login', req);
             this.saveToken(response.data);
             return response.data;
         } catch (error) {
@@ -27,8 +26,7 @@ export class AuthService implements IAuthService {
     async getUser(): Promise<GetUserResponse> {
         try {
             const token = await this.getDecryptedToken();
-            if (token === null) throw new Error('Token not found');
-            const response: AxiosResponse<GetUserResponse> = await api.get('/user', {
+            const response: AxiosResponse<GetUserResponse> = await apiWithoutAuth.get('/user', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             return response.data;
@@ -67,10 +65,10 @@ export class AuthService implements IAuthService {
         }
     }
 
-    getDecryptedToken = async (): Promise<string | null> => {
+    getDecryptedToken = async (): Promise<string> => {
         const encryptedToken = sessionStorage.getItem('token');
         const expiryDateString = sessionStorage.getItem('tokenExpiry');
-        if (!encryptedToken || !expiryDateString) return null;
+        if (!encryptedToken || !expiryDateString) throw new Error('Token not found');
 
         const decryptedTokenBytes = CryptoJS.AES.decrypt(encryptedToken, this.secret);
         const decryptedToken = decryptedTokenBytes.toString(CryptoJS.enc.Utf8);
@@ -78,7 +76,7 @@ export class AuthService implements IAuthService {
         const expiryDate = parseInt(expiryDateString);
         if (new Date().getTime() >= expiryDate) {
             await this.refreshToken();
-            return await this.getDecryptedToken();  // Ensure the function returns the refreshed token
+            return await this.getDecryptedToken();
         }
         return decryptedToken;
 
