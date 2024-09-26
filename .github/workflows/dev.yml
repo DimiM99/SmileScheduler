@@ -30,10 +30,24 @@ jobs:
           });
           const hasLabel = labels.data.some(label => label.name === 'PR - for review');
           core.setOutput('has_label', hasLabel);
+    
+  pr_readiness:
+    name: Check PR Readiness
+    needs: check_label
+    runs-on: ubuntu-latest
+    steps:
+    - name: Fail if PR is not ready for review
+      if: needs.check_label.outputs.should_run != 'true'
+      run: |
+        echo "PR is not ready for review. Please add the 'PR - for review' label when it's ready."
+        exit 1
+    - name: PR is ready for review
+      if: needs.check_label.outputs.should_run == 'true'
+      run: echo "PR is ready for review. Proceeding with checks."
 
   determine_changes:
     name: Determine Changed Components
-    needs: check_label
+    needs: [check_label, pr_readiness]
     if: needs.check_label.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     outputs:
