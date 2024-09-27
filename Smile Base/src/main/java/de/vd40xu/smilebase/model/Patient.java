@@ -12,7 +12,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "patients")
+@Table(name = "patients",
+        uniqueConstraints={
+            @UniqueConstraint(columnNames = {"insurance_number", "insurance_provider"})
+        })
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
