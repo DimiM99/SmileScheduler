@@ -118,6 +118,7 @@ Response Body Schema (User)
 * Method: POST
 * URL: `/account-management/user`
 * Request Body: UserDTO object
+* Request Headers: Authorization: Bearer (JWT Token)
 
 Request Body Schema (UserDTO)
 ```json
@@ -154,6 +155,7 @@ Response Body Schema (User)
 * Method: PUT
 * URL: `/account-management/user`
 * Request Body: UserDTO object
+* Request Headers: Authorization: Bearer (JWT Token)
 
 Request Body Schema (UserDTO)
 ```json
@@ -191,6 +193,7 @@ Response Body Schema (User)
 * Method: DELETE
 * URL: `/account-management/user`
 * Request Body: UserDTO object
+* Request Headers: Authorization: Bearer (JWT Token)
 
 Request Body Schema (UserDTO)
 ```json
@@ -215,6 +218,7 @@ Request Body Schema (UserDTO)
 
 * Method: GET
 * URL: `/account-management/users`
+* Request Headers: Authorization: Bearer (JWT Token)
 
 * Responses:
     * **200 OK**:
@@ -234,10 +238,11 @@ Request Body Schema (UserDTO)
             * UserRepository **`(100%/100%/100%)`**
             * PatientRepository **`(100%/100%/100%)`**
 
-#### Get Free Appointment Slots
+#### Get Free Appointment Slots (protected)
 
 * Method: GET
 * URL: `/api/appointments/free-slots`
+* Request Headers: Authorization: Bearer (JWT Token)
 * Query Parameters:
 	* doctorId (long): The ID of the doctor
 	* date (string): The date in ISO format (YYYY-MM-DD)
@@ -259,10 +264,11 @@ Response Body Schema
 ]
 ```
 
-#### Get Appointment Details
+#### Get Appointment Details (protected)
 
 * Method: GET
 * URL: `/api/appointments/booked`
+* Request Headers: Authorization: Bearer (JWT Token)
 * Query Parameters:
 	* doctorId (long): The ID of the doctor
 	* date (string): The date in ISO format (YYYY-MM-DD)
@@ -405,10 +411,11 @@ Response Body Schema (Appointment)
 }
 ```
 
-#### Change Appointment
+#### Change Appointment (protected)
 
 * Method: PUT
 * URL: `/api/appointments`
+* Request Headers: Authorization: Bearer (JWT Token)
 * Request Body: AppointmentDTO object
 
 Request Body Schema (AppointmentDTO) // for optional fields - if set to null, the values will not be changed if set to something, the values will be updated
@@ -460,10 +467,11 @@ Response Body Schema (Appointment)
 }
 ```
 
-#### Cancel Appointment
+#### Cancel Appointment (protected)
 
 * Method: DELETE
 * URL: `/api/appointments/{appointmentId}`
+* Request Headers: Authorization: Bearer (JWT Token)
 * Path Variables:
     * appointmentId (long): The ID of the appointment to cancel
 * Responses:
@@ -481,10 +489,11 @@ Response Body Schema (Appointment)
             * PatientRepository **`(100%/100%/100%)`**
 
 
-#### Search Patient by Insurance
+#### Search Patient by Insurance (protected)
 
 * Method: GET
 * URL: `/api/patients/search`
+* Request Headers: Authorization: Bearer (JWT Token)
 * Query Parameters:
 	* insuranceNumber (string): The insurance number of the patient
 * Responses:
@@ -507,10 +516,11 @@ Response Body Schema (Patient)
 ```
 
 
-#### Update a Patient
+#### Update a Patient (protected)
 
 * Method: GET
 * URL: `/api/patients`
+* Request Headers: Authorization: Bearer (JWT Token)
 * Request Body: patientDTO object
 * Responses:
 	* **200 OK**:
@@ -554,7 +564,7 @@ Response Body Schema (Patient)
             * AppointmentRepository **`(100%/100%/100%)`**
             * PatientRepository **`(100%/100%/100%)`**
 
-#### Get Patient Schedule
+#### Get Patient Schedule (open)
 
 * Method: GET
 * URL: `/api/patient-schedule`
