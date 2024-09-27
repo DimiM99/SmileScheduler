@@ -76,6 +76,20 @@ public class AppointmentController {
         }
     }
 
+     @GetMapping("/appointments/booked")
+     public ResponseEntity<Object> getAppointmentsForDoc(
+            @RequestParam Long doctorId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "false") boolean weekView
+     ) {
+        try {
+            List<Appointment> appointments = appointmentService.getAppointmentsForDoctor(doctorId, date, weekView);
+            return ResponseEntity.ok(appointments);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+     }
+
     @PutMapping("/appointments")
     public ResponseEntity<Object> changeAppointment(
             @RequestBody AppointmentDTO appointmentDTO) {
