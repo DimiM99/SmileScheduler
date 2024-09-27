@@ -2,14 +2,10 @@ package de.vd40xu.smilebase.controller;
 
 import de.vd40xu.smilebase.dto.AppointmentDTO;
 import de.vd40xu.smilebase.dto.NewAppointmentDTO;
-import de.vd40xu.smilebase.dto.PatientDTO;
 import de.vd40xu.smilebase.model.Appointment;
-import de.vd40xu.smilebase.model.Patient;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
 import de.vd40xu.smilebase.service.AppointmentService;
-import de.vd40xu.smilebase.service.PatientService;
 import de.vd40xu.smilebase.service.interfaces.IAppointmentService;
-import de.vd40xu.smilebase.service.interfaces.IPatientService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,36 +16,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/api")
 public class AppointmentController {
 
     private final IAppointmentService appointmentService;
-    private final IPatientService patientService;
 
     public AppointmentController(
-            AppointmentService appointmentService,
-            PatientService patientService) {
-        this.appointmentService = appointmentService;
-        this.patientService = patientService;
-    }
-
-    @GetMapping("/patients/search")
-    public ResponseEntity<Patient> searchPatientByInsurance(@RequestParam String insuranceNumber) {
-        Optional<Patient> patient = patientService.getPatientByInsuranceNumber(insuranceNumber);
-        return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/patients")
-    public ResponseEntity<Patient> updatePatient(
-            @RequestBody PatientDTO patient
+            AppointmentService appointmentService
     ) {
-        Patient updatedPatient = patientService.updatePatient(patient);
-        return ResponseEntity.ok(updatedPatient);
+        this.appointmentService = appointmentService;
     }
-
 
     @GetMapping("/appointments/free-slots")
     public ResponseEntity<Object> getFreeSlots(

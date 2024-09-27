@@ -233,32 +233,6 @@ Request Body Schema (UserDTO)
             * AppointmentRepository **`(100%/100%/100%)`**
             * UserRepository **`(100%/100%/100%)`**
             * PatientRepository **`(100%/100%/100%)`**
-	    * PatientService via Interface IPatientService **`(100%/100%/100%)`**
-            * PatientRepository **`(100%/100%/100%)`**
-
-####  Search Patient by Insurance
-
-* Method: GET
-* URL: `/api/patients/search`
-* Query Parameters:
-	* insuranceNumber (string): The insurance number of the patient
-* Responses:
-	* **200 OK**:
-	    * Body: Patient object
-	* **404 Not Found**:
-	    * Body: None
-
-Response Body Schema (Patient)
-``` json
-{
-    "id": "long",
-    "name": "string",
-    "birthdate": "string (ISO date)",
-    "insuranceNumber": "string",
-    "insuranceProvider": "string",
-    "email": "string"
-}
-```
 
 #### Get Free Appointment Slots
 
@@ -323,12 +297,14 @@ Response Body Schema (List of Appointment ojects)
                 "birthdate": "string (ISO date)",
                 "insuranceNumber": "string",
                 "insuranceProvider": "string",
-                "email": "string"
+                "email": "string",
+                "phoneNumer": "string"
             }
         },
         // ... more appointment objects
     ]
 }
+```
 
 #### Schedule Appointment
 
@@ -349,7 +325,8 @@ Request Body Schema (NewAppointmentDTO)
         "birthdate": "string (ISO date)",
         "insuranceNumber": "string",
         "insuranceProvider": "string",
-        "email": "string"
+        "email": "string",
+        "phoneNumer": "string"
     }
 }
 ```
@@ -382,7 +359,8 @@ Response Body Schema (Appointment)
         "birthdate": "string (ISO date)",
         "insuranceNumber": "string",
         "insuranceProvider": "string",
-        "email": "string"
+        "email": "string",
+        "phoneNumer": "string"
     }
 }
 ```
@@ -421,7 +399,8 @@ Response Body Schema (Appointment)
         "birthdate": "string (ISO date)",
         "insuranceNumber": "string",
         "insuranceProvider": "string",
-        "email": "string"
+        "email": "string",
+        "phoneNumer": "string"
     }
 }
 ```
@@ -475,7 +454,8 @@ Response Body Schema (Appointment)
         "birthdate": "string (ISO date)",
         "insuranceNumber": "string",
         "insuranceProvider": "string",
-        "email": "string"
+        "email": "string",
+        "phoneNumer": "string"
     }
 }
 ```
@@ -489,3 +469,75 @@ Response Body Schema (Appointment)
 * Responses:
     * 200 OK:
         * Body: None
+
+
+### Patient Management API
+
+* Controller: PatientController  **`(100%/100%/100%)`**
+    * Services:
+	    * PatientService via Interface IPatientService **`(100%/100%/100%)`**
+            * PatientRepository **`(100%/100%/100%)`**
+
+
+#### Search Patient by Insurance
+
+* Method: GET
+* URL: `/api/patients/search`
+* Query Parameters:
+	* insuranceNumber (string): The insurance number of the patient
+* Responses:
+	* **200 OK**:
+	    * Body: Patient object
+	* **404 Not Found**:
+	    * Body: None
+
+Response Body Schema (Patient)
+``` json
+{
+    "id": "long",
+    "name": "string",
+    "birthdate": "string (ISO date)",
+    "insuranceNumber": "string",
+    "insuranceProvider": "string",
+    "email": "string",
+    "phoneNumer": "string"
+}
+```
+
+
+#### Update a Patient
+
+* Method: GET
+* URL: `/api/patients`
+* Request Body: patientDTO object
+* Responses:
+	* **200 OK**:
+	    * Body: Patient object
+	* **404 Not Found**:
+	    * Body: Error message
+
+Request Body Schema (PatientDTO)
+``` json
+{
+    "id": "long",
+    "name": "string",
+    "birthdate": "string (ISO date)",
+    "insuranceNumber": "string",
+    "insuranceProvider": "string",
+    "email": "string",
+    "phoneNumer": "string"
+}
+```
+
+Response Body Schema (Patient)
+``` json
+{
+    "id": "long",
+    "name": "string",
+    "birthdate": "string (ISO date)",
+    "insuranceNumber": "string",
+    "insuranceProvider": "string",
+    "email": "string",
+    "phoneNumer": "string"
+}
+```
