@@ -18,6 +18,8 @@ JUnit 5 will be used for unit tests and Spring Boot Test will be used for integr
 
 Addiditionally, the testcontainers will be used to cover integration tests with the database identical to the one used in production. Such tests will be written for controllers only to test all levels of the application at once.
 
+The generation of the test coverage reports will be done using the IntelliJ IDEA IDE.
+
 ## APIs and Endpoints
 
 ### Authentication
@@ -282,6 +284,51 @@ Response Body Schema
     // ... more datetime strings
 ]
 ```
+
+#### Get Appointment Details
+
+* Method: GET
+* URL: `/api/appointments/booked`
+* Query Parameters:
+	* doctorId (long): The ID of the doctor
+	* date (string): The date in ISO format (YYYY-MM-DD)
+	* weekView (boolean): Whether to return slots for the whole week (default: false)
+* Responses:
+    * **200 OK**:
+        * Body: List of Appointment objects
+    * **400 Bad Request**:
+        * Body: Error message
+
+Response Body Schema (List of Appointment ojects)
+``` json
+{
+    [
+        {
+            "id": "long",
+            "title": "string",
+            "start": "string (ISO datetime)",
+            "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+            "end": "string (ISO datetime)",
+            "doctor": {
+                "id": "long",
+                "username": "string",
+                "name": "string",
+                "email": "string",
+                "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+                "active": "boolean"
+            },
+            "patient": {
+                "id": "long",
+                "name": "string",
+                "birthdate": "string (ISO date)",
+                "insuranceNumber": "string",
+                "insuranceProvider": "string",
+                "email": "string"
+            }
+        },
+        // ... more appointment objects
+    ]
+}
 
 #### Schedule Appointment
 
