@@ -473,6 +473,8 @@ Response Body Schema (Appointment)
 
 ### Patient Management API
 
+**Overview and current code coverage** **`(class/method/line)`**
+
 * Controller: PatientController  **`(100%/100%/100%)`**
     * Services:
 	    * PatientService via Interface IPatientService **`(100%/100%/100%)`**
@@ -539,5 +541,68 @@ Response Body Schema (Patient)
     "insuranceProvider": "string",
     "email": "string",
     "phoneNumer": "string"
+}
+```
+
+### Patient Schedule API
+
+**Overview and current code coverage** **`(class/method/line)`**
+
+* Controller: PatientScheduleController  **`(100%/100%/100%)`**
+    * Services:
+        * PatientScheduleService via Interface IPatientScheduleService **`(100%/100%/100%)`**
+            * AppointmentRepository **`(100%/100%/100%)`**
+            * PatientRepository **`(100%/100%/100%)`**
+
+#### Get Patient Schedule
+
+* Method: GET
+* URL: `/api/patient-schedule`
+* Requset Body: PatientScheduleRequestDTO object
+* Responses:
+    * **200 OK**:
+        * Body: List of Appointment objects
+    * **400 Bad Request**:
+        * Body: Error message
+
+Request Body Schema (PatientScheduleRequestDTO)
+``` json
+{
+    "receivedHash": "String",
+    "patientId": "long",
+    "patientDateOfBirth": "string (ISO date)"
+}
+```
+
+Response Body Schema (List of Appointment objects)
+``` json
+{
+    [
+        {
+            "id": "long",
+            "title": "string",
+            "start": "string (ISO datetime)",
+            "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+            "end": "string (ISO datetime)",
+            "doctor": {
+                "id": "long",
+                "username": "string",
+                "name": "string",
+                "email": "string",
+                "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+                "active": "boolean"
+            },
+            "patient": {
+                "id": "long",
+                "name": "string",
+                "birthdate": "string (ISO date)",
+                "insuranceNumber": "string",
+                "insuranceProvider": "string",
+                "email": "string",
+                "phoneNumer": "string"
+            }
+        },
+        // ... more appointment objects
+    ]
 }
 ```
