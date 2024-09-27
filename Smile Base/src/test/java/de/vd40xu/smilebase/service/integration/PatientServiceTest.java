@@ -5,6 +5,7 @@ import de.vd40xu.smilebase.model.Patient;
 import de.vd40xu.smilebase.repository.PatientRepository;
 import de.vd40xu.smilebase.service.PatientService;
 import de.vd40xu.smilebase.service.config.AuthContextConfiguration;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -31,6 +32,11 @@ class PatientServiceTest extends AuthContextConfiguration {
                 "test@mail.de",
                 "+49 911 3456 7890"
         );
+
+    @BeforeAll
+    public void setup() {
+        patientRepository.deleteAll();
+    }
 
     @Test
     @DisplayName("Integration > test saving a patient")
