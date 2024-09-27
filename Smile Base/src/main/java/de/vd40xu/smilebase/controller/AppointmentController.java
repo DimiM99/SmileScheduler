@@ -2,6 +2,7 @@ package de.vd40xu.smilebase.controller;
 
 import de.vd40xu.smilebase.dto.AppointmentDTO;
 import de.vd40xu.smilebase.dto.NewAppointmentDTO;
+import de.vd40xu.smilebase.dto.PatientDTO;
 import de.vd40xu.smilebase.model.Appointment;
 import de.vd40xu.smilebase.model.Patient;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
@@ -40,6 +41,15 @@ public class AppointmentController {
         Optional<Patient> patient = patientService.getPatientByInsuranceNumber(insuranceNumber);
         return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/patients")
+    public ResponseEntity<Patient> updatePatient(
+            @RequestBody PatientDTO patient
+    ) {
+        Patient updatedPatient = patientService.updatePatient(patient);
+        return ResponseEntity.ok(updatedPatient);
+    }
+
 
     @GetMapping("/appointments/free-slots")
     public ResponseEntity<Object> getFreeSlots(
