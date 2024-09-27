@@ -108,7 +108,8 @@ class AppointmentServiceTest extends AuthContextConfiguration {
             "INS-NEW",
             LocalDate.of(1990, 1, 1),
             "New Provider",
-            "newpatient@example.com"
+            "newpatient@example.com",
+            "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
@@ -341,7 +342,8 @@ class AppointmentServiceTest extends AuthContextConfiguration {
                     existingAppointment.getPatient().getBirthdate(),
                     existingAppointment.getPatient().getInsuranceNumber(),
                     existingAppointment.getPatient().getInsuranceProvider(),
-                    existingAppointment.getPatient().getEmail()
+                    existingAppointment.getPatient().getEmail(),
+                    existingAppointment.getPatient().getPhoneNumber()
                 )
         );
 

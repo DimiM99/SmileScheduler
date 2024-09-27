@@ -42,7 +42,7 @@ public class AppointmentRepositoryTest extends IntegrationRepositoryTest {
 
     @BeforeAll
     void setUp() {
-        Patient patient = new Patient("Test Patient", LocalDate.now(), "INS-TEST", "Test Provider", "test@example.com");
+        Patient patient = new Patient("Test Patient", LocalDate.now(), "INS-TEST", "Test Provider", "test@example.com", "+49 911 3456 0000");
         User doctor = User.builder()
                 .username("doctor1")
                 .password("password")

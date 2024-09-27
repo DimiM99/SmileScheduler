@@ -87,7 +87,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 LocalDateTime.now().plusDays(1).withHour(10).withMinute(0),
                 AppointmentType.QUICKCHECK,
                 new PatientDTO(patient.getId(), patient.getName(), patient.getBirthdate(),
-                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail())
+                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail(), patient.getPhoneNumber())
         );
 
         mockMvc.perform(post("/api/appointments")
@@ -190,7 +190,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 LocalDateTime.now().plusDays(1).withHour(7).withMinute(30),
                 AppointmentType.QUICKCHECK,
                 new PatientDTO(patient.getId(), patient.getName(), patient.getBirthdate(),
-                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail())
+                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail() , patient.getPhoneNumber())
         );
 
         mockMvc.perform(post("/api/appointments")

@@ -28,7 +28,8 @@ class PatientServiceTest extends AuthContextConfiguration {
                 "123456789",
                 LocalDate.of(1990, 1, 1),
                 "provider",
-                "test@mail.de"
+                "test@mail.de",
+                "+49 911 3456 7890"
         );
 
     @Test

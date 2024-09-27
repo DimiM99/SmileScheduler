@@ -41,6 +41,7 @@ class PatientServiceTest {
                 "123456789",
                 "Provider 1",
                 "email@tes.de",
+                "+49 911 3456 7890",
                 new HashSet<>()
         );
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
@@ -60,6 +61,7 @@ class PatientServiceTest {
                 "123456789",
                 "Provider 1",
                 "email@tets.de",
+                "+49 911 3456 7890",
                 new HashSet<>()
         );
         when(patientRepository.findByInsuranceNumber("123456789")).thenReturn(Optional.of(patient));
@@ -79,6 +81,7 @@ class PatientServiceTest {
                 "123456789",
                 "Provider 1",
                 "email@tets.de",
+                "+49 911 3456 7890",
                 new HashSet<>()
         );
         when(patientRepository.findByEmail("email@test.de")).thenReturn(Optional.of(patient));
@@ -96,7 +99,8 @@ class PatientServiceTest {
                 "123456789",
                 LocalDate.of(1990, 1, 1),
                 "Provider 1",
-                "email@tets.de");
+                "email@tets.de",
+                "+49 911 3456 7890");
 
         Patient patient = new Patient(
                 1L,
@@ -105,6 +109,7 @@ class PatientServiceTest {
                 "123456789",
                 "Provider 1",
                 "email@tets.de",
+                "+49 911 3456 7890",
                 new HashSet<>()
         );
 
@@ -139,6 +144,7 @@ class PatientServiceTest {
                 "123456789",
                 "Provider 1",
                 "email@tets.de",
+                "+49 911 3456 7890",
                 new HashSet<>()
         );
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
@@ -160,7 +166,8 @@ class PatientServiceTest {
                                         LocalDate.of(1990, 1, 1),
                                         "123456790",
                                         null,
-                                        null)
+                                        null,
+                                        "+49 911 3456 7890")
                         )
                 ),
                 Arguments.of(
@@ -171,7 +178,8 @@ class PatientServiceTest {
                                         LocalDate.of(1990, 1, 1),
                                         null,
                                         "provider 2",
-                                        null)
+                                        null,
+                                        "+49 911 3456 7890")
                         )
                 ),
                 Arguments.of(
@@ -182,7 +190,8 @@ class PatientServiceTest {
                                         LocalDate.of(1990, 1, 1),
                                         null,
                                         null,
-                                        "newEmail@test.de")
+                                        "newEmail@test.de",
+                                        "+49 911 3456 7890")
                         )
                 ),
                 Arguments.of(
@@ -193,7 +202,8 @@ class PatientServiceTest {
                                         LocalDate.of(1990, 1, 1),
                                         "1234123",
                                         "Provider 3",
-                                        "newEmail@test.de")
+                                        "newEmail@test.de",
+                                        "+49 911 3456 7890")
                         )
                 )
         );

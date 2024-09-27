@@ -59,7 +59,7 @@ class AppointmentControllerTest {
     @Test
     @DisplayName("Unit > Search Patient by Insurance Number, GET /api/patients/search")
     void testSearchPatientByInsurance() throws Exception {
-        Patient patient = new Patient("John Doe", LocalDate.of(1990, 1, 1), "INS123", "Provider A", "john@example.com");
+        Patient patient = new Patient("John Doe", LocalDate.of(1990, 1, 1), "INS123", "Provider A", "john@example.com", "+49 911 3456 0000");
         when(patientService.getPatientByInsuranceNumber("INS123")).thenReturn(Optional.of(patient));
 
         mockMvc.perform(get("/api/patients/search")
@@ -103,7 +103,7 @@ class AppointmentControllerTest {
                 1L,
                 LocalDateTime.of(2023, 6, 1, 9, 0),
                 AppointmentType.QUICKCHECK,
-                new PatientDTO("John Doe", "INS123", LocalDate.of(1990, 1, 1), "Provider A", "john@example.com")
+                new PatientDTO("John Doe", "INS123", LocalDate.of(1990, 1, 1), "Provider A", "john@example.com", "+49 911 3456 7890")
         );
         Appointment appointment = new Appointment("Check-up", LocalDateTime.of(2023, 6, 1, 9, 0), AppointmentType.QUICKCHECK);
         when(appointmentService.scheduleAppointment(any(NewAppointmentDTO.class))).thenReturn(appointment);

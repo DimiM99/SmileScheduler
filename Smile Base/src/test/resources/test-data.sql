@@ -6,17 +6,17 @@ INSERT INTO users (username, password, name, email, role, active) VALUES
 ('max.m', 'password', 'Max Mustermann', 'max@example.com', 0, true);
 
 -- Insert Patients
-INSERT INTO patients (name, birthdate, insurance_number, insurance_provider, email) VALUES
-('John Doe', '1980-01-01', 'INS001', 'Provider A', 'john@example.com'),
-('Jane Smith', '1985-05-15', 'INS002', 'Provider B', 'jane@example.com'),
-('Bob Johnson', '1990-10-20', 'INS003', 'Provider A', 'bob@example.com'),
-('Alice Brown', '1975-03-30', 'INS004', 'Provider C', 'alice@example.com'),
-('Charlie Davis', '1988-07-07', 'INS005', 'Provider B', 'charlie@example.com'),
-('Eva Wilson', '1992-12-25', 'INS006', 'Provider A', 'eva@example.com'),
-('Frank Miller', '1970-06-18', 'INS007', 'Provider C', 'frank@example.com'),
-('Grace Lee', '1995-09-03', 'INS008', 'Provider B', 'grace@example.com'),
-('Henry Taylor', '1982-11-11', 'INS009', 'Provider A', 'henry@example.com'),
-('Ivy Clark', '1987-04-22', 'INS010', 'Provider C', 'ivy@example.com');
+INSERT INTO patients (name, birthdate, insurance_number, insurance_provider, email, phone_number) VALUES
+('John Doe', '1980-01-01', 'INS001', 'Provider A', 'john@example.com', '+49 30 1234 5678'),
+('Jane Smith', '1985-05-15', 'INS002', 'Provider B', 'jane@example.com', '+49 40 9876 5432'),
+('Bob Johnson', '1990-10-20', 'INS003', 'Provider A', 'bob@example.com', '+49 89 2468 1357'),
+('Alice Brown', '1975-03-30', 'INS004', 'Provider C', 'alice@example.com', '+49 69 1357 2468'),
+('Charlie Davis', '1988-07-07', 'INS005', 'Provider B', 'charlie@example.com', '+49 211 8765 4321'),
+('Eva Wilson', '1992-12-25', 'INS006', 'Provider A', 'eva@example.com', '+49 221 4567 8901'),
+('Frank Miller', '1970-06-18', 'INS007', 'Provider C', 'frank@example.com', '+49 351 7890 1234'),
+('Grace Lee', '1995-09-03', 'INS008', 'Provider B', 'grace@example.com', '+49 521 2345 6789'),
+('Henry Taylor', '1982-11-11', 'INS009', 'Provider A', 'henry@example.com', '+49 711 8901 2345'),
+('Ivy Clark', '1987-04-22', 'INS010', 'Provider C', 'ivy@example.com', '+49 911 3456 7890');
 
 -- Insert Appointments
 WITH doctor_ids AS (
