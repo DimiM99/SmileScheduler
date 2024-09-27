@@ -97,6 +97,9 @@ public class AppointmentService implements IAppointmentService {
         if (!(appointment.getStart().toLocalTime().isAfter(clinicOpenTime.minusMinutes(1)) && appointment.getEnd().toLocalTime().isBefore(clinicCloseTime.plusMinutes(1)))) {
             throw new IllegalArgumentException("Appointment time is outside clinic hours");
         }
+        if (appointment.getStart().isBefore(LocalDateTime.now(clock))) {
+            throw new IllegalArgumentException("Appointment time is in the past");
+        }
         checkForDoctor(appointment, appointmentDTO.getDoctorId());
         if (appointmentDTO.getPatient().getId() != null) {
             appointment.setPatient(

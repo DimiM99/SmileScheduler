@@ -401,4 +401,30 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() <= 5));
         assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() >= 2));
     }
+
+    @Test
+    @Order(16)
+    @DisplayName("Integration > try scheduling an appointmet that is in the past")
+    void test15() {
+        User doctor = userRepository.findByUsername("johnson.m").orElseThrow();
+        LocalDateTime freeSlot = LocalDateTime.of(2024, 1, 8, 14, 30);
+        PatientDTO patientDTO = new PatientDTO(
+            "New Patient",
+            "INS-NEW",
+            LocalDate.of(1990, 1, 1),
+            "New Provider",
+            "no-matter@some.mail",
+            "+49 911 3456 7890");
+
+        NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
+            "New Test Appointment",
+            doctor.getId(),
+            freeSlot,
+            AppointmentType.QUICKCHECK,
+            patientDTO
+        );
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO));
+        assertEquals("Appointment time is in the past", e.getMessage());
+    }
 }
