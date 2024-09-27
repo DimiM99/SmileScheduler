@@ -1,6 +1,8 @@
 package de.vd40xu.smilebase.service.utility;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,16 +11,21 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+@Component
 public class PSUtility {
 
+    @Value("${smilebase.PS_KEY}") String keyHolder;
+    @Value("${smilebase.PS_TOKEN}") String tokenHolder;
+
     private static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
-    @Value("${smilebase.PS_KEY}")
+
     private static String key;
-    @Value("${smilebase.PS_TOKEN}")
     private static String token;
 
-    public PSUtility() {
-        throw new IllegalStateException("Utility class");
+    @PostConstruct
+    public void init() {
+        key = keyHolder;
+        token = tokenHolder;
     }
 
     public static boolean validateToken(String receivedHash) {
