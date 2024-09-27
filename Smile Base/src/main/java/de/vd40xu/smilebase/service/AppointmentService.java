@@ -92,7 +92,8 @@ public class AppointmentService implements IAppointmentService {
                         appointmentDTO.getPatient().getBirthdate(),
                         appointmentDTO.getPatient().getInsuranceNumber(),
                         appointmentDTO.getPatient().getInsuranceProvider(),
-                        appointmentDTO.getPatient().getEmail()
+                        appointmentDTO.getPatient().getEmail(),
+                        appointmentDTO.getPatient().getPhoneNumber()
                 )
             )
         );

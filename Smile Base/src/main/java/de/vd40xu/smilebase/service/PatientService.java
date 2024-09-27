@@ -39,7 +39,8 @@ public class PatientService implements IPatientService {
                 patientDTO.getBirthdate(),
                 patientDTO.getInsuranceNumber(),
                 patientDTO.getInsuranceProvider(),
-                patientDTO.getEmail()
+                patientDTO.getEmail(),
+                patientDTO.getPhoneNumber()
         );
         return patientRepository.save(patient);
     }
@@ -60,6 +61,9 @@ public class PatientService implements IPatientService {
         }
         if (patientDTO.getEmail() != null) {
             savedPatient.setEmail(patientDTO.getEmail());
+        }
+        if (patientDTO.getPhoneNumber() != null) {
+            savedPatient.setPhoneNumber(patientDTO.getPhoneNumber());
         }
         return patientRepository.save(savedPatient);
     }
