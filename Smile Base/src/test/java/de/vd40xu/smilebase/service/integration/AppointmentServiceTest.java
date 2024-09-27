@@ -362,4 +362,43 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         assertEquals("Doctor is not free at the requested time", eUpdate.getMessage());
 
     }
+
+    @Test
+    @Order(13)
+    @DisplayName("Integration > get booked appointments for a doctor")
+    void test12() {
+        User doctor = doctors.getFirst();
+        LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY);
+        List<Appointment> bookedAppointments = appointmentService.getAppointmentsForDoctor(doctor.getId(), requestDate, false);
+
+        assertFalse(bookedAppointments.isEmpty());
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getDoctor().getId().equals(doctor.getId())));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().equals(requestDate)));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Integration > get booked appointments for a doctor (week view - full week)")
+    void test13() {
+        User doctor = doctors.getFirst();
+        LocalDate requestDate = LocalDate.now(clock).with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        List<Appointment> bookedAppointments = appointmentService.getAppointmentsForDoctor(doctor.getId(), requestDate, true);
+        assertFalse(bookedAppointments.isEmpty());
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getDoctor().getId().equals(doctor.getId())));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() <= 5));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() >= 1));
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("Integration > get booked appointments for a doctor (week view - partial week)")
+    void test14() {
+        User doctor = doctors.getFirst();
+        LocalDate requestDate = LocalDate.now(clock);
+        List<Appointment> bookedAppointments = appointmentService.getAppointmentsForDoctor(doctor.getId(), requestDate, true);
+        assertFalse(bookedAppointments.isEmpty());
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getDoctor().getId().equals(doctor.getId())));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() <= 5));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() >= 2));
+    }
 }

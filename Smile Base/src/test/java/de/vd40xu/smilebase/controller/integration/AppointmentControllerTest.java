@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -246,5 +248,55 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(appointmentDTO)))
                 .andExpect(status().isForbidden())
                 .andExpect(content().string("Doctor is not free at the requested time"));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Integration > get Appointments for a doctor, GET /api/appointments/booked")
+    void test14() throws Exception {
+        User doctor = userRepository.findByUsername("williams.d").orElseThrow();
+        LocalDate requestDate = LocalDate.now().plusDays(1);
+        List<Appointment> expectedAppointments = appointmentRepository.findByDoctorIdAndStartBetween(
+                doctor.getId(),
+                requestDate.atStartOfDay(),
+                requestDate.atTime(23, 59)
+        );
+        mockMvc.perform(get("/api/appointments/booked")
+                .header("Authorization", "Bearer " + authToken)
+                .param("doctorId", doctor.getId().toString())
+                .param("date", requestDate.toString())
+                .param("weekView", "false"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedAppointments)));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Integration > get Appointments for a doctor that doesn't exist, GET /api/appointments/booked")
+    void test15() throws Exception {
+        LocalDate requestDate = LocalDate.now().plusDays(1);
+
+        mockMvc.perform(get("/api/appointments/booked")
+                .header("Authorization", "Bearer " + authToken)
+                .param("doctorId", "not-a-doctor")
+                .param("date", requestDate.toString())
+                .param("weekView", "false"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("Integration > get Appointments for a user that isn't a doctor, GET /api/appointments/booked")
+    void test16() throws Exception {
+        User user = userRepository.findByUsername("max.m").orElseThrow();
+        LocalDate requestDate = LocalDate.now().plusDays(1);
+
+        mockMvc.perform(get("/api/appointments/booked")
+                .header("Authorization", "Bearer " + authToken)
+                .param("doctorId", user.getId().toString())
+                .param("date", requestDate.toString())
+                .param("weekView", "false"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("The id provided is not a doctor id"));
     }
 }
