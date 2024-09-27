@@ -167,7 +167,7 @@ class PatientServiceTest {
                                         "123456790",
                                         null,
                                         null,
-                                        "+49 911 3456 7890")
+                                        null)
                         )
                 ),
                 Arguments.of(
@@ -179,7 +179,7 @@ class PatientServiceTest {
                                         null,
                                         "provider 2",
                                         null,
-                                        "+49 911 3456 7890")
+                                        null)
                         )
                 ),
                 Arguments.of(
@@ -191,7 +191,7 @@ class PatientServiceTest {
                                         null,
                                         null,
                                         "newEmail@test.de",
-                                        "+49 911 3456 7890")
+                                        null)
                         )
                 ),
                 Arguments.of(
@@ -203,7 +203,19 @@ class PatientServiceTest {
                                         "1234123",
                                         "Provider 3",
                                         "newEmail@test.de",
-                                        "+49 911 3456 7890")
+                                        null)
+                        )
+                ),
+                Arguments.of(
+                        Named.of("> updated phone number",
+                                new PatientDTO(
+                                        1L,
+                                        "Max Mustermann",
+                                        LocalDate.of(1990, 1, 1),
+                                        null,
+                                        null,
+                                        null,
+                                        "+49 911 3456 8888")
                         )
                 )
         );
