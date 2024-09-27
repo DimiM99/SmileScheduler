@@ -35,7 +35,7 @@ public class WebSecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        auth-> auth.requestMatchers("/auth/**","/error").permitAll()
+                        auth-> auth.requestMatchers("/auth/**","/error", "api/patient-schedule").permitAll()
                                    .anyRequest().authenticated()
                 )
                 .sessionManagement(
