@@ -21,8 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -53,7 +53,7 @@ class PatientControllerTest {
     void test1() throws Exception {
         when(
           patientService.getPatientByInsuranceNumber("1234567890")
-        ).thenReturn(Optional.of(new Patient()));
+        ).thenReturn(List.of(new Patient()));
         mockMvc.perform(get("/api/patients/search?insuranceNumber=1234567890"))
                 .andExpect(status().isOk());
     }
@@ -63,9 +63,10 @@ class PatientControllerTest {
     void test2() throws Exception {
         when(
           patientService.getPatientByInsuranceNumber("1234567890")
-        ).thenReturn(Optional.empty());
+        ).thenReturn(List.of());
         mockMvc.perform(get("/api/patients/search?insuranceNumber=1234567890"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 
     @Test

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.condition.DisabledIf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -46,12 +48,12 @@ class PatientControllerTest extends ControllerIntegrationTest {
     @Order(2)
     @DisplayName("Integration - search a patient by his insurance number")
     void test1() throws Exception {
-        Patient patient= patientRepository.findAll().getFirst();
+        Patient patient = patientRepository.findAll().getFirst();
         mockMvc.perform(get("/api/patients/search")
                 .header("Authorization", "Bearer " + authToken)
                 .param("insuranceNumber", patient.getInsuranceNumber()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(patient.getName()));
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(patient))));
     }
 
     @Test
@@ -61,7 +63,8 @@ class PatientControllerTest extends ControllerIntegrationTest {
         mockMvc.perform(get("/api/patients/search")
                 .header("Authorization", "Bearer " + authToken)
                 .param("insuranceNumber", "NOTFOUND"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
     }
 
     @Test
