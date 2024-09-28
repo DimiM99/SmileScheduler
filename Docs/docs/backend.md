@@ -498,21 +498,22 @@ Response Body Schema (Appointment)
 	* insuranceNumber (string): The insurance number of the patient
 * Responses:
 	* **200 OK**:
-	    * Body: Patient object
-	* **404 Not Found**:
-	    * Body: None
+	    * Body: List of Patient objects
 
 Response Body Schema (Patient)
 ``` json
-{
-    "id": "long",
-    "name": "string",
-    "birthdate": "string (ISO date)",
-    "insuranceNumber": "string",
-    "insuranceProvider": "string",
-    "email": "string",
-    "phoneNumer": "string"
-}
+[
+    {
+        "id": "long",
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string",
+        "phoneNumer": "string"
+    },
+    // ... more patient objects
+]
 ```
 
 
