@@ -57,7 +57,7 @@ jobs:
           if (!isReady) {
             let message = '';
             if (!hasRequiredLabel) {
-              message = 'This PR is not ready for checks. Please add the "PR - for review" label when it\'s ready to run checks.';
+              message = 'This PR is not ready for checks. Please add either the "PR - for review" or "PR - reviewed - ready" label when it's ready to run checks.';
             } else if (hasChangesRequested) {
               message = `Changes have been requested on this PR in the latest review. Please address the requested changes before running checks again. (Latest review ID: ${latestReview.id})`;
             }
