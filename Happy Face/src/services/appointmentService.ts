@@ -11,7 +11,7 @@ export class AppointmentService implements IAppointmentService {
     async getFreeSlots(doctorId: number, date: string, appointmentType: AppointmentType, weekView?: boolean): Promise<string[]> {
         try {
             const response: AxiosResponse<string[]> = await api
-                .get(`/api/appointments/freeslots?doctorId=${doctorId.toString()}&appointmentType=${appointmentType}&date=${date}${weekView ? `&weekView=true`: ''}`);
+                .get(`/api/appointments/free-slots?doctorId=${doctorId.toString()}&appointmentType=${appointmentType}&date=${date}${weekView ? `&weekView=true`: ''}`);
             return response.data;
         } catch (error) {
             throw handleApiError(error);
