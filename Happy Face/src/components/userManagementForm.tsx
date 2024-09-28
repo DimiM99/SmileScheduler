@@ -97,7 +97,7 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
 
 
     return (
-        <Card className="w-full max-w-md p-4 shadow-md"> {/* ShadCN card */}
+        <Card className="w-full h-5/7 max-w-md p-4 shadow-md"> {/* ShadCN card */}
             <CardHeader>
                 <CardTitle className="text-center">
                     {
@@ -191,7 +191,6 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
                                 </SelectContent>
                             </Select>
                         </div>
-                        {}
 
                     </div>
                     <Button className="mt-10 w-full" type="submit">
