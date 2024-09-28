@@ -519,7 +519,7 @@ Response Body Schema (Patient)
 
 #### Update a Patient (protected)
 
-* Method: GET
+* Method: PUT
 * URL: `/api/patients`
 * Request Headers: Authorization: Bearer (JWT Token)
 * Request Body: patientDTO object
