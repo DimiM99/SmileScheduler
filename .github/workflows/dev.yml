@@ -28,10 +28,14 @@ jobs:
             repo: context.repo.repo,
             issue_number: context.issue.number
           });
-          const hasLabel = labels.data.some(label => label.name === 'PR - for review');
-          core.setOutput('has_label', hasLabel);
+          
+          const isForReview = labels.data.some(label => label.name === 'PR - for review');
+          const isReviewed = labels.data.some(label => label.name === 'PR - reviewed - ready');
+          const isReady = isForReview || isReviewed;
+          
+          core.setOutput('is_ready', isReady);
 
-          if (!hasLabel) {
+          if (!isReady) {
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -40,7 +44,7 @@ jobs:
             
             const botComment = comments.data.find(comment => 
               comment.user.type === 'Bot' && 
-              comment.body.includes('This PR is not ready for review')
+              comment.body.includes('This PR is not ready for checks')
             );
             
             if (!botComment) {
@@ -48,13 +52,13 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: 'This PR is not ready for review. Please add the "PR - for review" label when it\'s ready to run checks.'
+                body: 'This PR is not ready for checks. Please add either the "PR - for review" or "PR - reviewed - ready" label when it\'s ready to run checks.'
               });
             }
             
-            core.setFailed('PR is not ready for review.');
+            core.setFailed('PR is not ready for checks.');
           } else {
-            console.log('PR is ready for review. Proceeding with checks.');
+            console.log('PR is ready for checks. Proceeding with checks.');
           }
 
   determine_changes:
