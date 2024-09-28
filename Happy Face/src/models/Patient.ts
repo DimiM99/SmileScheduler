@@ -4,4 +4,5 @@ export interface Patient {
     email: string;
     insuranceNumber: string;
     insuranceProvider: string;
+    phoneNumber: string;
 }
