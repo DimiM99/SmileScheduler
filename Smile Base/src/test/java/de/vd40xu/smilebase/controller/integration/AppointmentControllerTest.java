@@ -70,7 +70,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     @DisplayName("Integration > Schedule New Appointment, POST /api/appointments")
     void test2() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
-        Patient patient = patientRepository.findByInsuranceNumber("INS001").orElseThrow();
+        Patient patient = patientRepository.findByInsuranceNumber("INS001").getFirst();
 
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
                 "New Appointment",
@@ -173,7 +173,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     @DisplayName("Integration > try scheduling an appointment outside clinic hours, POST /api/appointments")
     void test10() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
-        Patient patient = patientRepository.findByInsuranceNumber("INS001").orElseThrow();
+        Patient patient = patientRepository.findByInsuranceNumber("INS001").getFirst();
 
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
                 "New Appointment",
