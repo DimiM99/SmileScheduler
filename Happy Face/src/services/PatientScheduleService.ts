@@ -5,8 +5,8 @@ import CryptoJS from 'crypto-js';
 
 export class PatientScheduleService implements IPatientScheduleService {
 
-    private readonly secretKey: string = 'your-secret-key-here';
-    private readonly message: string = 'your-message-here';
+    private readonly secretKey: string = import.meta.env.PS_KEY || "default";
+    private readonly message: string = import.meta.env.PS_TOKEN || "default";
 
     generateHmacSha256(message: string, key: string): string {
         const hash = CryptoJS.HmacSHA256(message, key);
