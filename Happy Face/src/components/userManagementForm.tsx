@@ -97,7 +97,7 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
 
 
     return (
-        <Card className="w-full h-5/7 max-w-md p-4 shadow-md"> {/* ShadCN card */}
+        <Card className="w-full h-4/5 max-w-md p-4 shadow-md"> {/* ShadCN card */}
             <CardHeader>
                 <CardTitle className="text-center">
                     {
@@ -105,95 +105,93 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
                     }
                 </CardTitle> {/* Card title */}
             </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit}>
-                    <div className="grid w-full items-center gap-4">
-                        <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="username">Username</Label>
-                            <Input
-                                id="username"
-                                name="username"
-                                placeholder="Enter your username"
-                                value={formState.username}
-                                onChange={handleChange}
-                            />
-                            {
-                                errors.username &&
-                                <div className="flex flex-col space-y-1.5 items-center text-red-600">
-                                    <Label>{errors.username}</Label>
-                                </div>
-                            }
-                        </div>
-                        <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                name="password"
-                                type="password"
-                                placeholder="Enter your password"
-                                value={formState.password}
-                                onChange={handleChange}
-                            />
-                        </div>
+            <CardContent className="h-5/6">
+                <form onSubmit={handleSubmit} className="h-full flex flex-col justify-between">
+                    <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="username">Username</Label>
+                        <Input
+                            id="username"
+                            name="username"
+                            placeholder="Enter your username"
+                            value={formState.username}
+                            onChange={handleChange}
+                        />
                         {
-                            errors.password &&
-                            <div className="flex flex-col space-y-1.5 items-center text-red-600">
-                                <Label>{errors.password}</Label>
+                            errors.username &&
+                            <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
+                                <Label>{errors.username}</Label>
                             </div>
                         }
-                        <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="aName">Name</Label>
-                            <Input
-                                id="aName"
-                                name="aName"
-                                placeholder="Enter your full name"
-                                value={formState.aName}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        {
-                            errors.aName &&
-                            <div className="flex flex-col space-y-1.5 items-center text-red-600">
-                                <Label>{errors.aName}</Label>
-                            </div>
-                        }
-                        <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="email">email</Label>
-                            <Input
-                                id="email"
-                                name="email"
-                                type="mail"
-                                placeholder="Enter your email"
-                                value={formState.email}
-                                onChange={handleChange}
-                            />
-                        </div>
-                        {
-                            errors.email &&
-                            <div className="flex flex-col space-y-1.5 items-center text-red-600">
-                                <Label>{errors.email}</Label>
-
-                            </div>
-                        }
-                        <div className="flex flex-col space-y-1.5">
-                            <Label htmlFor="role">Role</Label>
-                            <Select
-                                value={formState.role}
-                                onValueChange={handleRoleChange}
-                            >
-                                <SelectTrigger id="role">
-                                    <SelectValue placeholder="Select a role"/>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value={Role.RECEPTIONIST}>Receptionist</SelectItem>
-                                    <SelectItem value={Role.DOCTOR}>Doctor</SelectItem>
-
-                                </SelectContent>
-                            </Select>
-                        </div>
-
                     </div>
-                    <Button className="mt-10 w-full" type="submit">
+                    <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            value={formState.password}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    {
+                        errors.password &&
+                        <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
+                            <Label>{errors.password}</Label>
+                        </div>
+                    }
+                    <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="aName">Name</Label>
+                        <Input
+                            id="aName"
+                            name="aName"
+                            placeholder="Enter your full name"
+                            value={formState.aName}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    {
+                        errors.aName &&
+                        <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
+                            <Label>{errors.aName}</Label>
+                        </div>
+                    }
+                    <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="email">email</Label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="mail"
+                            placeholder="Enter your email"
+                            value={formState.email}
+                            onChange={handleChange}
+                        />
+                    </div>
+                    {
+                        errors.email &&
+                        <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
+                            <Label>{errors.email}</Label>
+
+                        </div>
+                    }
+                    <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="role">Role</Label>
+                        <Select
+                            value={formState.role}
+                            onValueChange={handleRoleChange}
+                        >
+                            <SelectTrigger id="role">
+                                <SelectValue placeholder="Select a role"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={Role.RECEPTIONIST}>Receptionist</SelectItem>
+                                <SelectItem value={Role.DOCTOR}>Doctor</SelectItem>
+
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <Button className="mt-7 w-full" type="submit">
                         {
                             user.current ? "Apply Changes" : "Create User"
                         }
