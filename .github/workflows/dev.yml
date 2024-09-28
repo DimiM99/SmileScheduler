@@ -15,14 +15,20 @@ jobs:
     name: Check PR Readiness
     runs-on: ubuntu-latest
     outputs:
-      is_ready: ${{ steps.check_label.outputs.has_label }}
+      is_ready: ${{ steps.check_status.outputs.is_ready }}
     steps:
-    - name: Check for 'PR - for review' label
-      id: check_label
+    - name: Check PR status
+      id: check_status
       uses: actions/github-script@v7.0.1
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
+          const { data: pr } = await github.rest.pulls.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number
+          });
+
           const labels = await github.rest.issues.listLabelsOnIssue({
             owner: context.repo.owner,
             repo: context.repo.repo,
@@ -31,28 +37,51 @@ jobs:
           
           const isForReview = labels.data.some(label => label.name === 'PR - for review');
           const isReviewed = labels.data.some(label => label.name === 'PR - reviewed - ready');
-          const isReady = isForReview || isReviewed;
+          const hasRequiredLabel = isForReview || isReviewed;
+
+          const { data: reviews } = await github.rest.pulls.listReviews({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number
+          });
+
+          reviews.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+
+          const latestReview = reviews[0];
+          const hasChangesRequested = latestReview && latestReview.state === 'CHANGES_REQUESTED';
+
+          const isReady = hasRequiredLabel && !hasChangesRequested;
           
-          core.setOutput('is_ready', isReady);
+          core.setOutput('is_ready', isReady.toString());
 
           if (!isReady) {
-            const comments = await github.rest.issues.listComments({
+            let message = '';
+            if (!hasRequiredLabel) {
+              message = 'This PR is not ready for checks. Please add the "PR - for review" label when it\'s ready to run checks.';
+            } else if (hasChangesRequested) {
+              message = `Changes have been requested on this PR in the latest review. Please address the requested changes before running checks again. (Latest review ID: ${latestReview.id})`;
+            }
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number
             });
             
-            const botComment = comments.data.find(comment => 
+            const botComments = comments.filter(comment => 
               comment.user.type === 'Bot' && 
-              comment.body.includes('This PR is not ready for checks')
+              comment.body.includes('Changes have been requested on this PR')
             );
-            
-            if (!botComment) {
+
+            const shouldComment = !botComments.length || 
+              (hasChangesRequested && !botComments.some(comment => comment.body.includes(`Latest review ID: ${latestReview.id}`)));
+
+            if (shouldComment) {
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: 'This PR is not ready for checks. Please add either the "PR - for review" or "PR - reviewed - ready" label when it\'s ready to run checks.'
+                body: message
               });
             }
             
