@@ -10,10 +10,10 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PatientRepositoryTest extends IntegrationRepositoryTest {
@@ -31,10 +31,10 @@ public class PatientRepositoryTest extends IntegrationRepositoryTest {
     @Test
     @DisplayName("Integration > Find Patient by Insurance Number")
     void test1() {
-        Optional<Patient> result = patientRepository.findByInsuranceNumber(testPatient.getInsuranceNumber());
+        List<Patient> result = patientRepository.findByInsuranceNumber(testPatient.getInsuranceNumber());
 
-        assertTrue(result.isPresent());
-        assertEquals(testPatient.getInsuranceNumber(), result.get().getInsuranceNumber());
+        assertFalse(result.isEmpty());
+        assertEquals(testPatient.getInsuranceNumber(), result.getFirst().getInsuranceNumber());
     }
 
     @Test
@@ -49,7 +49,7 @@ public class PatientRepositoryTest extends IntegrationRepositoryTest {
     @Test
     @DisplayName("Integration > Find Patient by Non-existent Insurance Number")
     void test3() {
-        Optional<Patient> result = patientRepository.findByInsuranceNumber("NONEXISTENT");
+        List<Patient> result = patientRepository.findByInsuranceNumber("NONEXISTENT");
 
         assertTrue(result.isEmpty());
     }

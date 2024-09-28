@@ -8,10 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,12 +25,12 @@ public class PatientRepositoryTest {
         String insuranceNumber = "INS123456";
         Patient expectedPatient = new Patient();
         expectedPatient.setInsuranceNumber(insuranceNumber);
-        when(patientRepository.findByInsuranceNumber(insuranceNumber)).thenReturn(Optional.of(expectedPatient));
+        when(patientRepository.findByInsuranceNumber(insuranceNumber)).thenReturn(List.of(expectedPatient));
 
-        Optional<Patient> result = patientRepository.findByInsuranceNumber(insuranceNumber);
+        List<Patient> result = patientRepository.findByInsuranceNumber(insuranceNumber);
 
-        assertTrue(result.isPresent());
-        assertEquals(insuranceNumber, result.get().getInsuranceNumber());
+        assertFalse(result.isEmpty());
+        assertEquals(insuranceNumber, result.getFirst().getInsuranceNumber());
         verify(patientRepository, times(1)).findByInsuranceNumber(insuranceNumber);
     }
 
