@@ -6,6 +6,7 @@ import de.vd40xu.smilebase.repository.PatientRepository;
 import de.vd40xu.smilebase.service.interfaces.IPatientService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,7 +24,7 @@ public class PatientService implements IPatientService {
     }
 
     @Override
-    public Optional<Patient> getPatientByInsuranceNumber(String insuranceNumber) {
+    public List<Patient> getPatientByInsuranceNumber(String insuranceNumber) {
         return patientRepository.findByInsuranceNumber(insuranceNumber);
     }
 

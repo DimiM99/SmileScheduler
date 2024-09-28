@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.util.List;
 
 @Controller
 @RequestMapping("/api")
@@ -24,9 +24,9 @@ public class PatientController {
     }
 
     @GetMapping("/patients/search")
-    public ResponseEntity<Patient> searchPatientByInsurance(@RequestParam String insuranceNumber) {
-        Optional<Patient> patient = patientService.getPatientByInsuranceNumber(insuranceNumber);
-        return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<Object> searchPatientByInsurance(@RequestParam String insuranceNumber) {
+        List<Patient> res = patientService.getPatientByInsuranceNumber(insuranceNumber);
+        return ResponseEntity.ok().body(res);
     }
 
     @PutMapping("/patients")
