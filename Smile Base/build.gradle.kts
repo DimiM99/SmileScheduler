@@ -24,6 +24,7 @@ repositories {
 }
 
 dependencies {
+    implementation("com.resend:resend-java:3.1.0")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -44,6 +45,6 @@ tasks.withType<Test> {
     testLogging.showStandardStreams = false
     useJUnitPlatform()
     testLogging {
-        events ("STARTED", "PASSED", "SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR");
+        events ("PASSED", "SKIPPED", "FAILED", "STANDARD_ERROR");
     }
 }

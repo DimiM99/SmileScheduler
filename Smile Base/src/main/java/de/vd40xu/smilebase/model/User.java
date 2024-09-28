@@ -1,15 +1,21 @@
 package de.vd40xu.smilebase.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.vd40xu.smilebase.model.emuns.UserRole;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Getter
 @Builder
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +41,20 @@ public class User {
     @Column(nullable = false)
     @Setter
     private boolean active;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    private Set<Appointment> appointments = new HashSet<>();
+
+    public void addAppointment(Appointment appointment) {
+        appointments.add(appointment);
+        appointment.setDoctor(this);
+    }
+
+    public void removeAppointment(Appointment appointment) {
+        appointments.remove(appointment);
+        appointment.setDoctor(null);
+    }
 
     public User() { }
 

@@ -18,6 +18,8 @@ JUnit 5 will be used for unit tests and Spring Boot Test will be used for integr
 
 Addiditionally, the testcontainers will be used to cover integration tests with the database identical to the one used in production. Such tests will be written for controllers only to test all levels of the application at once.
 
+The generation of the test coverage reports will be done using the IntelliJ IDEA IDE.
+
 ## APIs and Endpoints
 
 ### Authentication
@@ -116,6 +118,7 @@ Response Body Schema (User)
 * Method: POST
 * URL: `/account-management/user`
 * Request Body: UserDTO object
+* Request Headers: Authorization: Bearer (JWT Token)
 
 Request Body Schema (UserDTO)
 ```json
@@ -152,6 +155,7 @@ Response Body Schema (User)
 * Method: PUT
 * URL: `/account-management/user`
 * Request Body: UserDTO object
+* Request Headers: Authorization: Bearer (JWT Token)
 
 Request Body Schema (UserDTO)
 ```json
@@ -189,6 +193,7 @@ Response Body Schema (User)
 * Method: DELETE
 * URL: `/account-management/user`
 * Request Body: UserDTO object
+* Request Headers: Authorization: Bearer (JWT Token)
 
 Request Body Schema (UserDTO)
 ```json
@@ -213,9 +218,401 @@ Request Body Schema (UserDTO)
 
 * Method: GET
 * URL: `/account-management/users`
+* Request Headers: Authorization: Bearer (JWT Token)
 
 * Responses:
     * **200 OK**:
         * Body: List<User> object
     * **403 Fobidden**:
         * Body: `Error message`
+
+
+### Scheduling API
+
+**Overview and current code coverage** **`(class/method/line)`**
+	
+* Controller: AppointmentController  **`(100%/100%/100%)`**
+    * Services:
+	    * AppointmentService via Interface IAppointmentService **`(100%/100%/100%)`**
+            * AppointmentRepository **`(100%/100%/100%)`**
+            * UserRepository **`(100%/100%/100%)`**
+            * PatientRepository **`(100%/100%/100%)`**
+
+#### Get Free Appointment Slots (protected)
+
+* Method: GET
+* URL: `/api/appointments/free-slots`
+* Request Headers: Authorization: Bearer (JWT Token)
+* Query Parameters:
+	* doctorId (long): The ID of the doctor
+	* date (string): The date in ISO format (YYYY-MM-DD)
+	* weekView (boolean, optional): Whether to return slots for the whole week (default: false)
+	* appointmentType (string): The type of appointment
+* Responses:
+    * **200 OK**:
+        * Body: List of LocalDateTime objects
+    * **400 Bad Request**:
+        * Body: Error message
+
+Response Body Schema
+
+```
+[
+    "2024-09-23T10:00:00",
+    "2024-09-23T11:00:00",
+    // ... more datetime strings
+]
+```
+
+#### Get Appointment Details (protected)
+
+* Method: GET
+* URL: `/api/appointments/booked`
+* Request Headers: Authorization: Bearer (JWT Token)
+* Query Parameters:
+	* doctorId (long): The ID of the doctor
+	* date (string): The date in ISO format (YYYY-MM-DD)
+	* weekView (boolean): Whether to return slots for the whole week (default: false)
+* Responses:
+    * **200 OK**:
+        * Body: List of Appointment objects
+    * **400 Bad Request**:
+        * Body: Error message
+
+Response Body Schema (List of Appointment ojects)
+``` json
+{
+    [
+        {
+            "id": "long",
+            "title": "string",
+            "start": "string (ISO datetime)",
+            "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+            "end": "string (ISO datetime)",
+            "doctor": {
+                "id": "long",
+                "username": "string",
+                "name": "string",
+                "email": "string",
+                "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+                "active": "boolean"
+            },
+            "patient": {
+                "id": "long",
+                "name": "string",
+                "birthdate": "string (ISO date)",
+                "insuranceNumber": "string",
+                "insuranceProvider": "string",
+                "email": "string",
+                "phoneNumer": "string"
+            }
+        },
+        // ... more appointment objects
+    ]
+}
+```
+
+#### Schedule Appointment
+
+* Method: POST
+* URL: `/api/appointments`
+* Request Body: NewAppointmentDTO object
+
+Request Body Schema (NewAppointmentDTO)
+``` json
+{
+    "title": "string",
+    "doctorId": "long",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "patient": {
+        "id": "long (optional)", // If the patient is already in the system if not set, the patient will be created
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string",
+        "phoneNumer": "string"
+    }
+}
+```
+
+* Responses:
+    * **200 OK**:
+        * Body: Appointment object
+    * **403 Forbidden**:
+        * Body: Error message
+
+Response Body Schema (Appointment)
+``` json
+{
+    "id": "long",
+    "title": "string",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "end": "string (ISO datetime)",
+    "doctor": {
+        "id": "long",
+        "username": "string",
+        "name": "string",
+        "email": "string",
+        "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+        "active": "boolean"
+    },
+    "patient": {
+        "id": "long",
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string",
+        "phoneNumer": "string"
+    }
+}
+```
+
+#### Get Appointment Details
+
+* Method: GET
+* URL: `/api/appointments`
+* Query Parameters:
+    * appointmentId (long): The ID of the appointment
+* Responses:
+    * **200 OK**:
+        * Body: Appointment object
+    * **404 Not Found**:
+        * Body: "The appointment with the provided id does not exist"
+
+Response Body Schema (Appointment)
+``` json
+{
+    "id": "long",
+    "title": "string",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "end": "string (ISO datetime)",
+    "doctor": {
+        "id": "long",
+        "username": "string",
+        "name": "string",
+        "email": "string",
+        "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+        "active": "boolean"
+    },
+    "patient": {
+        "id": "long",
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string",
+        "phoneNumer": "string"
+    }
+}
+```
+
+#### Change Appointment (protected)
+
+* Method: PUT
+* URL: `/api/appointments`
+* Request Headers: Authorization: Bearer (JWT Token)
+* Request Body: AppointmentDTO object
+
+Request Body Schema (AppointmentDTO) // for optional fields - if set to null, the values will not be changed if set to something, the values will be updated
+``` json
+{
+    "id": "long", // required
+    "title": "string", // optional
+    "patientId": "long", // makes no difference
+    "doctorId": "long", // optional
+    "start": "string (ISO datetime)", // optional
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)" // optional
+}
+
+```
+
+* Responses:
+    * **200 OK**:
+        * Body: Appointment object
+    * **404 Not Found**:
+        * Body: "The appointment with the provided id does not exist"
+    * **403 Forbidden**:
+        * Body: Error message
+
+Response Body Schema (Appointment)
+``` json
+{
+    "id": "long",
+    "title": "string",
+    "start": "string (ISO datetime)",
+    "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "end": "string (ISO datetime)",
+    "doctor": {
+        "id": "long",
+        "username": "string",
+        "name": "string",
+        "email": "string",
+        "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+        "active": "boolean"
+    },
+    "patient": {
+        "id": "long",
+        "name": "string",
+        "birthdate": "string (ISO date)",
+        "insuranceNumber": "string",
+        "insuranceProvider": "string",
+        "email": "string",
+        "phoneNumer": "string"
+    }
+}
+```
+
+#### Cancel Appointment (protected)
+
+* Method: DELETE
+* URL: `/api/appointments/{appointmentId}`
+* Request Headers: Authorization: Bearer (JWT Token)
+* Path Variables:
+    * appointmentId (long): The ID of the appointment to cancel
+* Responses:
+    * 200 OK:
+        * Body: None
+
+
+### Patient Management API
+
+**Overview and current code coverage** **`(class/method/line)`**
+
+* Controller: PatientController  **`(100%/100%/100%)`**
+    * Services:
+	    * PatientService via Interface IPatientService **`(100%/100%/100%)`**
+            * PatientRepository **`(100%/100%/100%)`**
+
+
+#### Search Patient by Insurance (protected)
+
+* Method: GET
+* URL: `/api/patients/search`
+* Request Headers: Authorization: Bearer (JWT Token)
+* Query Parameters:
+	* insuranceNumber (string): The insurance number of the patient
+* Responses:
+	* **200 OK**:
+	    * Body: Patient object
+	* **404 Not Found**:
+	    * Body: None
+
+Response Body Schema (Patient)
+``` json
+{
+    "id": "long",
+    "name": "string",
+    "birthdate": "string (ISO date)",
+    "insuranceNumber": "string",
+    "insuranceProvider": "string",
+    "email": "string",
+    "phoneNumer": "string"
+}
+```
+
+
+#### Update a Patient (protected)
+
+* Method: GET
+* URL: `/api/patients`
+* Request Headers: Authorization: Bearer (JWT Token)
+* Request Body: patientDTO object
+* Responses:
+	* **200 OK**:
+	    * Body: Patient object
+	* **404 Not Found**:
+	    * Body: Error message
+
+Request Body Schema (PatientDTO)
+``` json
+{
+    "id": "long",
+    "name": "string",
+    "birthdate": "string (ISO date)",
+    "insuranceNumber": "string",
+    "insuranceProvider": "string",
+    "email": "string",
+    "phoneNumer": "string"
+}
+```
+
+Response Body Schema (Patient)
+``` json
+{
+    "id": "long",
+    "name": "string",
+    "birthdate": "string (ISO date)",
+    "insuranceNumber": "string",
+    "insuranceProvider": "string",
+    "email": "string",
+    "phoneNumer": "string"
+}
+```
+
+### Patient Schedule API
+
+**Overview and current code coverage** **`(class/method/line)`**
+
+* Controller: PatientScheduleController  **`(100%/100%/100%)`**
+    * Services:
+        * PatientScheduleService via Interface IPatientScheduleService **`(100%/100%/100%)`**
+            * AppointmentRepository **`(100%/100%/100%)`**
+            * PatientRepository **`(100%/100%/100%)`**
+
+#### Get Patient Schedule (open)
+
+* Method: GET
+* URL: `/api/patient-schedule`
+* Requset Body: PatientScheduleRequestDTO object
+* Responses:
+    * **200 OK**:
+        * Body: List of Appointment objects
+    * **400 Bad Request**:
+        * Body: Error message
+
+Request Body Schema (PatientScheduleRequestDTO)
+``` json
+{
+    "receivedHash": "String",
+    "patientId": "long",
+    "patientDateOfBirth": "string (ISO date)"
+}
+```
+
+Response Body Schema (List of Appointment objects)
+``` json
+{
+    [
+        {
+            "id": "long",
+            "title": "string",
+            "start": "string (ISO datetime)",
+            "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+            "end": "string (ISO datetime)",
+            "doctor": {
+                "id": "long",
+                "username": "string",
+                "name": "string",
+                "email": "string",
+                "role": "string (RECEPTIONIST, DOCTOR, ADMIN, PATIENT)",
+                "active": "boolean"
+            },
+            "patient": {
+                "id": "long",
+                "name": "string",
+                "birthdate": "string (ISO date)",
+                "insuranceNumber": "string",
+                "insuranceProvider": "string",
+                "email": "string",
+                "phoneNumer": "string"
+            }
+        },
+        // ... more appointment objects
+    ]
+}
+```

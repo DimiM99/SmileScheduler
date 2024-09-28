@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {useAuth} from "@/hooks/useAuth.ts";
 import Layout from "@/components/layout.tsx";
+import {UserManagementForm} from "@/components/userManagementForm.tsx";
 
-const DocDashboard: React.FC = () => {
+const AdminDashboard: React.FC = () => {
     const {user} = useAuth ();
-
 
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -18,22 +18,23 @@ const DocDashboard: React.FC = () => {
     }
 
     if (!user) {
-        return <p>User not authenticated.</p>; // Optionally handle unauthenticated state
+        return <p>User not authenticated.</p>;
     }
 
     return (
         <Layout
             user={user}
             left={
-                <div>
-                    <h2>Appointments List</h2>
-                    <p>This is the content for the left section.</p>
+                <div className="flex flex-col items-center">
+                    <h2>Registered Users</h2>
+                    <p>Here is a list of registered users</p>
                 </div>
             }
             right={
-                <div>
-                    <h2>Appointment Details</h2>
+                <div className="flex flex-col items-center">
+                    <h2>Edit Users</h2>
                     <p>This is the content for the right section.</p>
+                    <UserManagementForm current={null}/>
                 </div>
             }
             leftWeight={2}
@@ -42,4 +43,4 @@ const DocDashboard: React.FC = () => {
     );
 };
 
-export default DocDashboard;
+export default AdminDashboard;

@@ -1,13 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {Appointment} from '@/models';
 import {useAuth} from "@/hooks/useAuth.ts";
 import Layout from "@/components/layout.tsx";
 
 const RecDashboard: React.FC = () => {
     const {user} = useAuth ();
 
-    // @ts-expect-error because appointments are not yet implemented
-    const [appointments, setAppointments] = useState<Appointment[]> ([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect (() => {

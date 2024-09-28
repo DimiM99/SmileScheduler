@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {useAuth} from "@/hooks/useAuth.ts";
 import {LoginRequest} from "@/models/services/requests/LoginRequest.ts";
 import {Role} from "@/models/enums/Role.ts";
+import {LoginForm} from "@/components/loginForm.tsx";
 
 
 const dashboardRoutes: Record<Role, string> = {
@@ -52,24 +53,16 @@ const Login: React.FC = () => {
         }
     };
     return (
-        <form onSubmit={(e)=>{void handleSubmit(e)}}>
-            <input
-                type="text"
-                name="username"
-                value={credentials.username}
+        <div className="min-h-screen flex items-center justify-center">
+
+            <LoginForm
+                credentials={credentials}
                 onChange={handleInputChange}
-                placeholder="Username"
+                onSubmit={handleSubmit}
+                error={error}
             />
-            <input
-                type="password"
-                name="password"
-                value={credentials.password}
-                onChange={handleInputChange}
-                placeholder="Password"
-            />
-            <button type="submit">Login</button>
-            {error && <p className="error">{error}</p>}
-        </form>
+
+        </div>
     );
 };
 
