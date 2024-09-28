@@ -108,7 +108,8 @@ class AppointmentServiceTest extends AuthContextConfiguration {
             "INS-NEW",
             LocalDate.of(1990, 1, 1),
             "New Provider",
-            "newpatient@example.com"
+            "newpatient@example.com",
+            "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
@@ -341,7 +342,8 @@ class AppointmentServiceTest extends AuthContextConfiguration {
                     existingAppointment.getPatient().getBirthdate(),
                     existingAppointment.getPatient().getInsuranceNumber(),
                     existingAppointment.getPatient().getInsuranceProvider(),
-                    existingAppointment.getPatient().getEmail()
+                    existingAppointment.getPatient().getEmail(),
+                    existingAppointment.getPatient().getPhoneNumber()
                 )
         );
 
@@ -359,5 +361,70 @@ class AppointmentServiceTest extends AuthContextConfiguration {
         assertEquals("Doctor is not free at the requested time", eCreate.getMessage());
         assertEquals("Doctor is not free at the requested time", eUpdate.getMessage());
 
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Integration > get booked appointments for a doctor")
+    void test12() {
+        User doctor = doctors.getFirst();
+        LocalDate requestDate = LocalDate.now(clock).with(DayOfWeek.WEDNESDAY);
+        List<Appointment> bookedAppointments = appointmentService.getAppointmentsForDoctor(doctor.getId(), requestDate, false);
+
+        assertFalse(bookedAppointments.isEmpty());
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getDoctor().getId().equals(doctor.getId())));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().equals(requestDate)));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Integration > get booked appointments for a doctor (week view - full week)")
+    void test13() {
+        User doctor = doctors.getFirst();
+        LocalDate requestDate = LocalDate.now(clock).with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        List<Appointment> bookedAppointments = appointmentService.getAppointmentsForDoctor(doctor.getId(), requestDate, true);
+        assertFalse(bookedAppointments.isEmpty());
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getDoctor().getId().equals(doctor.getId())));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() <= 5));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() >= 1));
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("Integration > get booked appointments for a doctor (week view - partial week)")
+    void test14() {
+        User doctor = doctors.getFirst();
+        LocalDate requestDate = LocalDate.now(clock);
+        List<Appointment> bookedAppointments = appointmentService.getAppointmentsForDoctor(doctor.getId(), requestDate, true);
+        assertFalse(bookedAppointments.isEmpty());
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getDoctor().getId().equals(doctor.getId())));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() <= 5));
+        assertTrue(bookedAppointments.stream().allMatch(appointment -> appointment.getStart().toLocalDate().getDayOfWeek().getValue() >= 2));
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("Integration > try scheduling an appointmet that is in the past")
+    void test15() {
+        User doctor = userRepository.findByUsername("johnson.m").orElseThrow();
+        LocalDateTime freeSlot = LocalDateTime.of(2024, 1, 8, 14, 30);
+        PatientDTO patientDTO = new PatientDTO(
+            "New Patient",
+            "INS-NEW",
+            LocalDate.of(1990, 1, 1),
+            "New Provider",
+            "no-matter@some.mail",
+            "+49 911 3456 7890");
+
+        NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
+            "New Test Appointment",
+            doctor.getId(),
+            freeSlot,
+            AppointmentType.QUICKCHECK,
+            patientDTO
+        );
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(appointmentDTO));
+        assertEquals("Appointment time is in the past", e.getMessage());
     }
 }

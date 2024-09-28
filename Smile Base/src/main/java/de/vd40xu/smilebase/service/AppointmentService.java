@@ -68,6 +68,26 @@ public class AppointmentService implements IAppointmentService {
     }
 
     @Override
+    public List<Appointment> getAppointmentsForDoctor(Long doctorId, LocalDate date, boolean weekView) {
+        var refDates = new Object() {
+            LocalDateTime startDate = date.atTime(clinicOpenTime);
+            LocalDateTime endDate = date.atTime(clinicCloseTime);
+        };
+        if (weekView) {
+            refDates.startDate = refDates.startDate
+                                            .isBefore(LocalDateTime.now(clock).plusDays(1)) ?
+                                                LocalDateTime.now(clock) :
+                                                refDates.startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            refDates.endDate = refDates.startDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
+        }
+        User doc = userRepository
+                .findById(doctorId)
+                .orElseThrow(() -> new IllegalArgumentException("The id provided is not a doctor id"));
+        if (!doc.getRole().equals(UserRole.DOCTOR)) { throw new IllegalArgumentException("The id provided is not a doctor id"); }
+        return appointmentRepository.findByDoctorIdAndStartBetween(doc.getId(), refDates.startDate, refDates.endDate);
+    }
+
+    @Override
     public Appointment scheduleAppointment(NewAppointmentDTO appointmentDTO) throws IllegalArgumentException {
         Appointment appointment = new Appointment(
                 appointmentDTO.getTitle(),
@@ -76,6 +96,9 @@ public class AppointmentService implements IAppointmentService {
         );
         if (!(appointment.getStart().toLocalTime().isAfter(clinicOpenTime.minusMinutes(1)) && appointment.getEnd().toLocalTime().isBefore(clinicCloseTime.plusMinutes(1)))) {
             throw new IllegalArgumentException("Appointment time is outside clinic hours");
+        }
+        if (appointment.getStart().isBefore(LocalDateTime.now(clock))) {
+            throw new IllegalArgumentException("Appointment time is in the past");
         }
         checkForDoctor(appointment, appointmentDTO.getDoctorId());
         if (appointmentDTO.getPatient().getId() != null) {
@@ -92,7 +115,8 @@ public class AppointmentService implements IAppointmentService {
                         appointmentDTO.getPatient().getBirthdate(),
                         appointmentDTO.getPatient().getInsuranceNumber(),
                         appointmentDTO.getPatient().getInsuranceProvider(),
-                        appointmentDTO.getPatient().getEmail()
+                        appointmentDTO.getPatient().getEmail(),
+                        appointmentDTO.getPatient().getPhoneNumber()
                 )
             )
         );

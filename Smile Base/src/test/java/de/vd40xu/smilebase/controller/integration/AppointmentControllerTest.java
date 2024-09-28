@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -50,19 +52,8 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
 
     @Test
     @Order(2)
-    @DisplayName("Integration > Search Patient by Insurance Number, GET /api/patients/search")
-    void test1() throws Exception {
-        mockMvc.perform(get("/api/patients/search")
-                .header("Authorization", "Bearer " + authToken)
-                .param("insuranceNumber", "INS001"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("John Doe"));
-    }
-
-    @Test
-    @Order(3)
     @DisplayName("Integration > Get Free Appointment Slots, GET /api/appointments/free-slots")
-    void test2() throws Exception {
+    void test1() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
 
         mockMvc.perform(get("/api/appointments/free-slots")
@@ -75,9 +66,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(3)
     @DisplayName("Integration > Schedule New Appointment, POST /api/appointments")
-    void test3() throws Exception {
+    void test2() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
         Patient patient = patientRepository.findByInsuranceNumber("INS001").orElseThrow();
 
@@ -87,7 +78,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 LocalDateTime.now().plusDays(1).withHour(10).withMinute(0),
                 AppointmentType.QUICKCHECK,
                 new PatientDTO(patient.getId(), patient.getName(), patient.getBirthdate(),
-                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail())
+                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail(), patient.getPhoneNumber())
         );
 
         mockMvc.perform(post("/api/appointments")
@@ -99,9 +90,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(5)
+    @Order(4)
     @DisplayName("Integration > Get Appointment Details, GET /api/appointments")
-    void test4() throws Exception {
+    void test3() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
 
         mockMvc.perform(get("/api/appointments")
@@ -112,9 +103,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(6)
+    @Order(5)
     @DisplayName("Integration > Update Existing Appointment, PUT /api/appointments")
-    void test5() throws Exception {
+    void test6() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
 
         AppointmentDTO appointmentDTO = new AppointmentDTO(
@@ -135,9 +126,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(7)
+    @Order(6)
     @DisplayName("Integration > Cancel Appointment, DELETE /api/appointments/{appointmentId}")
-    void test6() throws Exception {
+    void test7() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
 
         mockMvc.perform(delete("/api/appointments/" + appointment.getId())
@@ -151,9 +142,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(8)
+    @Order(7)
     @DisplayName("Integration > Get Free Appointment Slots (without a doctor id), GET /api/appointments/free-slots")
-    void test7() throws Exception {
+    void test8() throws Exception {
         User notDoc = userRepository.findByUsername("max.m").orElseThrow();
         mockMvc.perform(get("/api/appointments/free-slots")
                 .header("Authorization", "Bearer " + authToken)
@@ -165,9 +156,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(9)
+    @Order(8)
     @DisplayName("Integration > Get Free Appointment Slots with incorrect request, GET /api/appointments/free-slots")
-    void test8() throws Exception {
+    void test9() throws Exception {
         User notDoc = userRepository.findByUsername("max.m").orElseThrow();
         mockMvc.perform(get("/api/appointments/free-slots")
                 .header("Authorization", "Bearer " + authToken)
@@ -178,9 +169,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(10)
+    @Order(9)
     @DisplayName("Integration > try scheduling an appointment outside clinic hours, POST /api/appointments")
-    void test9() throws Exception {
+    void test10() throws Exception {
         User doctor = userRepository.findByUsername("smith.j").orElseThrow();
         Patient patient = patientRepository.findByInsuranceNumber("INS001").orElseThrow();
 
@@ -190,7 +181,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 LocalDateTime.now().plusDays(1).withHour(7).withMinute(30),
                 AppointmentType.QUICKCHECK,
                 new PatientDTO(patient.getId(), patient.getName(), patient.getBirthdate(),
-                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail())
+                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail() , patient.getPhoneNumber())
         );
 
         mockMvc.perform(post("/api/appointments")
@@ -202,9 +193,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(11)
+    @Order(10)
     @DisplayName("Integration > try getting appointment details with incorrect id, GET /api/appointments")
-    void test10() throws Exception {
+    void test11() throws Exception {
         mockMvc.perform(get("/api/appointments")
                 .header("Authorization", "Bearer " + authToken)
                 .param("appointmentId", "0"))
@@ -213,9 +204,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(12)
+    @Order(11)
     @DisplayName("Integration > try updating an appointment with incorrect id, PUT /api/appointments")
-    void test11() throws Exception {
+    void test12() throws Exception {
         Appointment appointment = appointmentRepository.findAll().getFirst();
 
         AppointmentDTO appointmentDTO = new AppointmentDTO(
@@ -236,9 +227,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
     }
 
     @Test
-    @Order(13)
+    @Order(12)
     @DisplayName("Integration > try changing an appointments doctor where the doctor isn't available, PUT /api/appointments")
-    void test12() throws Exception {
+    void test13() throws Exception {
         Appointment appointment = appointmentRepository.findAll().get(3);
         User doctor = userRepository.findByUsername("williams.d").orElseThrow();
 
@@ -257,5 +248,55 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(appointmentDTO)))
                 .andExpect(status().isForbidden())
                 .andExpect(content().string("Doctor is not free at the requested time"));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("Integration > get Appointments for a doctor, GET /api/appointments/booked")
+    void test14() throws Exception {
+        User doctor = userRepository.findByUsername("williams.d").orElseThrow();
+        LocalDate requestDate = LocalDate.now().plusDays(1);
+        List<Appointment> expectedAppointments = appointmentRepository.findByDoctorIdAndStartBetween(
+                doctor.getId(),
+                requestDate.atStartOfDay(),
+                requestDate.atTime(23, 59)
+        );
+        mockMvc.perform(get("/api/appointments/booked")
+                .header("Authorization", "Bearer " + authToken)
+                .param("doctorId", doctor.getId().toString())
+                .param("date", requestDate.toString())
+                .param("weekView", "false"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(expectedAppointments)));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("Integration > get Appointments for a doctor that doesn't exist, GET /api/appointments/booked")
+    void test15() throws Exception {
+        LocalDate requestDate = LocalDate.now().plusDays(1);
+
+        mockMvc.perform(get("/api/appointments/booked")
+                .header("Authorization", "Bearer " + authToken)
+                .param("doctorId", "not-a-doctor")
+                .param("date", requestDate.toString())
+                .param("weekView", "false"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("Integration > get Appointments for a user that isn't a doctor, GET /api/appointments/booked")
+    void test16() throws Exception {
+        User user = userRepository.findByUsername("max.m").orElseThrow();
+        LocalDate requestDate = LocalDate.now().plusDays(1);
+
+        mockMvc.perform(get("/api/appointments/booked")
+                .header("Authorization", "Bearer " + authToken)
+                .param("doctorId", user.getId().toString())
+                .param("date", requestDate.toString())
+                .param("weekView", "false"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("The id provided is not a doctor id"));
     }
 }

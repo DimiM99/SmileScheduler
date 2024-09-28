@@ -87,7 +87,8 @@ class AppointmentServiceTest {
             "INS123",
             LocalDate.of(1990, 1, 1),
             "Provider A",
-            "john@example.com"
+            "john@example.com",
+                "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "Test Appointment",
@@ -112,7 +113,8 @@ class AppointmentServiceTest {
             patientDTO.getBirthdate(),
             patientDTO.getInsuranceNumber(),
             patientDTO.getInsuranceProvider(),
-            patientDTO.getEmail()
+            patientDTO.getEmail(),
+            patientDTO.getPhoneNumber()
         );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(doctor));
@@ -198,7 +200,8 @@ class AppointmentServiceTest {
             "INS123",
             LocalDate.of(1990, 1, 1),
             "Provider A",
-            "john@example.com"
+            "john@example.com",
+            "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
@@ -227,7 +230,8 @@ class AppointmentServiceTest {
             "INS123",
             LocalDate.of(1990, 1, 1),
             "Provider A",
-            "john@example.com"
+            "john@example.com",
+            "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
@@ -261,7 +265,8 @@ class AppointmentServiceTest {
             LocalDate.of(1990, 1, 1),
             "INS123",
             "Provider A",
-            "john@example.com"
+            "john@example.com",
+            "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
@@ -287,7 +292,8 @@ class AppointmentServiceTest {
             "INS123",
             LocalDate.of(1990, 1, 1),
             "Provider A",
-            "john@example.com"
+            "john@example.com",
+            "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
@@ -312,7 +318,8 @@ class AppointmentServiceTest {
             "INS123",
             LocalDate.of(1990, 1, 1),
             "Provider A",
-            "john@example.com"
+            "john@example.com",
+            "+49 911 3456 7890"
         );
         NewAppointmentDTO appointmentDTO1_too_late = new NewAppointmentDTO(
             "New Test Appointment",

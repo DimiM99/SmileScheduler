@@ -7,10 +7,8 @@ import de.vd40xu.smilebase.dto.AppointmentDTO;
 import de.vd40xu.smilebase.dto.NewAppointmentDTO;
 import de.vd40xu.smilebase.dto.PatientDTO;
 import de.vd40xu.smilebase.model.Appointment;
-import de.vd40xu.smilebase.model.Patient;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
 import de.vd40xu.smilebase.service.AppointmentService;
-import de.vd40xu.smilebase.service.PatientService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +26,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -46,36 +43,12 @@ class AppointmentControllerTest {
     @Autowired private ObjectMapper objectMapper;
 
     @MockBean private AppointmentService appointmentService;
-    @MockBean private PatientService patientService;
-
     @TestConfiguration
     static class TestConfig {
         @Bean
         public JwtAuthenticationFilter jwtAuthenticationFilter() {
             return Mockito.mock(JwtAuthenticationFilter.class);
         }
-    }
-
-    @Test
-    @DisplayName("Unit > Search Patient by Insurance Number, GET /api/patients/search")
-    void testSearchPatientByInsurance() throws Exception {
-        Patient patient = new Patient("John Doe", LocalDate.of(1990, 1, 1), "INS123", "Provider A", "john@example.com");
-        when(patientService.getPatientByInsuranceNumber("INS123")).thenReturn(Optional.of(patient));
-
-        mockMvc.perform(get("/api/patients/search")
-                .param("insuranceNumber", "INS123"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(patient)));
-    }
-
-    @Test
-    @DisplayName("Unit > Search Patient by Insurance Number Not Found, GET /api/patients/search")
-    void testSearchPatientByInsuranceNotFound() throws Exception {
-        when(patientService.getPatientByInsuranceNumber("INS999")).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/patients/search")
-                .param("insuranceNumber", "INS999"))
-                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -103,7 +76,7 @@ class AppointmentControllerTest {
                 1L,
                 LocalDateTime.of(2023, 6, 1, 9, 0),
                 AppointmentType.QUICKCHECK,
-                new PatientDTO("John Doe", "INS123", LocalDate.of(1990, 1, 1), "Provider A", "john@example.com")
+                new PatientDTO("John Doe", "INS123", LocalDate.of(1990, 1, 1), "Provider A", "john@example.com", "+49 911 3456 7890")
         );
         Appointment appointment = new Appointment("Check-up", LocalDateTime.of(2023, 6, 1, 9, 0), AppointmentType.QUICKCHECK);
         when(appointmentService.scheduleAppointment(any(NewAppointmentDTO.class))).thenReturn(appointment);

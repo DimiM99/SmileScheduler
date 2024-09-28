@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface IAppointmentService {
     List<LocalDateTime> getAvailableAppointments(Long doctorId, LocalDate date, AppointmentType appointmentType, boolean weekView);
+    List<Appointment> getAppointmentsForDoctor(Long doctorId, LocalDate date, boolean weekView);
     Appointment scheduleAppointment(NewAppointmentDTO appointmentDTO);
     Appointment getAppointmentById(Long id);
     Appointment updateAppointment(AppointmentDTO appointment);

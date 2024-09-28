@@ -24,7 +24,7 @@ public class PatientRepositoryTest extends IntegrationRepositoryTest {
 
     @BeforeAll
     void beforeAll() {
-        testPatient = new Patient("John Doe", LocalDate.of(1990, 1, 1), "INS123456", "Provider A", "john@example.com");
+        testPatient = new Patient("John Doe", LocalDate.of(1990, 1, 1), "INS123456", "Provider A", "john@example.com", "+49 911 1234 0000");
         testPatient = patientRepository.save(testPatient);
     }
 
