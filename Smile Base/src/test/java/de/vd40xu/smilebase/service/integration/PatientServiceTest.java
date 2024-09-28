@@ -70,7 +70,7 @@ class PatientServiceTest extends AuthContextConfiguration {
     @Test
     @DisplayName("Integration > test finding a patient by insurance number")
     void test3() {
-        Patient foundPatient = patientService.getPatientByInsuranceNumber(patientDTO.getInsuranceNumber()).orElseThrow();
+        Patient foundPatient = patientService.getPatientByInsuranceNumber(patientDTO.getInsuranceNumber()).getFirst();
 
         assertNotNull(foundPatient);
         assertEquals(patientDTO.getName(), foundPatient.getName());

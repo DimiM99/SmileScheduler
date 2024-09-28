@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -64,11 +65,11 @@ class PatientServiceTest {
                 "+49 911 3456 7890",
                 new HashSet<>()
         );
-        when(patientRepository.findByInsuranceNumber("123456789")).thenReturn(Optional.of(patient));
+        when(patientRepository.findByInsuranceNumber("123456789")).thenReturn(List.of(patient));
 
-        Optional<Patient> result = patientService.getPatientByInsuranceNumber("123456789");
+        List<Patient> result = patientService.getPatientByInsuranceNumber("123456789");
 
-        assertTrue(result.isPresent());
+        assertFalse(result.isEmpty());
     }
 
     @Test
