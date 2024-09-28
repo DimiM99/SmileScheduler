@@ -15,7 +15,7 @@ jobs:
     name: Check PR Readiness
     runs-on: ubuntu-latest
     outputs:
-      is_ready: ${{ steps.check_label.outputs.has_label }}
+      is_ready: ${{ steps.check_labels.outputs.is_ready }}
     steps:
     - name: Check for 'PR - for review' label
       id: check_label
