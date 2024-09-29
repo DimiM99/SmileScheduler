@@ -29,14 +29,14 @@ jobs:
             pull_number: context.issue.number
           });
 
-          const labels = await github.rest.issues.listLabelsOnIssue({
+          const { data: labels } = await github.rest.issues.listLabelsOnIssue({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: context.issue.number
           });
           
-          const isForReview = labels.data.some(label => label.name === 'PR - for review');
-          const isReviewed = labels.data.some(label => label.name === 'PR - reviewed - ready');
+          const isForReview = labels.some(label => label.name === 'PR - for review');
+          const isReviewed = labels.some(label => label.name === 'PR - reviewed - ready');
           const hasRequiredLabel = isForReview || isReviewed;
 
           const { data: reviews } = await github.rest.pulls.listReviews({
@@ -45,7 +45,10 @@ jobs:
             pull_number: context.issue.number
           });
 
-          const hasChangesRequested = reviews.some(review => review.state === 'CHANGES_REQUESTED');
+          reviews.sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+
+          const latestReview = reviews[0];
+          const hasChangesRequested = latestReview && latestReview.state === 'CHANGES_REQUESTED';
 
           const isReady = hasRequiredLabel && !hasChangesRequested;
           
@@ -54,23 +57,26 @@ jobs:
           if (!isReady) {
             let message = '';
             if (!hasRequiredLabel) {
-              message = 'This PR is not ready for checks. Please add the "PR - for review" label when it\'s ready to run checks.';
+              message = "This PR is not ready for checks. Please add either the \"PR - for review\" or \"PR - reviewed - ready\" label when it's ready to run checks.";
             } else if (hasChangesRequested) {
-              message = 'Changes have been requested on this PR. Please address the requested changes before running checks again.';
+              message = `Changes have been requested on this PR in the latest review. Please address the requested changes before running checks again. (Latest review ID: ${latestReview.id})`;
             }
 
-            const comments = await github.rest.issues.listComments({
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number
             });
             
-            const botComment = comments.data.find(comment => 
+            const botComments = comments.filter(comment => 
               comment.user.type === 'Bot' && 
-              comment.body === message
+              comment.body.includes('Changes have been requested on this PR')
             );
-            
-            if (!botComment) {
+
+            const shouldComment = !botComments.length || 
+              (hasChangesRequested && !botComments.some(comment => comment.body.includes(`Latest review ID: ${latestReview.id}`)));
+
+            if (shouldComment) {
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
