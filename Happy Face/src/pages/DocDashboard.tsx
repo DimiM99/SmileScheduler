@@ -1,19 +1,82 @@
 import React, {useEffect, useState} from 'react';
 import {useAuth} from "@/hooks/useAuth.ts";
 import Layout from "@/components/layout.tsx";
+import {AppointmentList} from "@/components/appointmentList.tsx";
+import {AppointmentService} from "@/services/appointmentService.ts";
+import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
+import {AppointmentDetailCard} from "@/components/appointmentDetailsCard.tsx";
+
+interface DashboardState {
+    appointments: AppointmentResponse[];
+    selectedAppointment: AppointmentResponse | null;
+    loading: boolean;
+    error: string | null;
+}
 
 const DocDashboard: React.FC = () => {
     const {user} = useAuth ();
 
+    const [dashboardState, setDashboardState] = useState<DashboardState>({
+        appointments: [],
+        selectedAppointment: null,
+        loading: true,
+        error: null,
+    });
 
-    const [loading, setLoading] = useState<boolean>(true);
+    const fetchAppointments = async () => {
+        if (!user) {
+            setDashboardState(prev => ({
+                ...prev,
+                loading: false,
+                appointments: [],
+                selectedAppointment: null,
+            }));
+            return;
+        }
+
+        setDashboardState(prev => ({ ...prev, loading: true, error: null }));
+
+        try {
+            const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            const appointments = await AppointmentService.Instance.getAppointmentsForDoctor(
+                24,
+                "2024-10-07",
+                true
+            );
+
+            setDashboardState(prev => ({
+                ...prev,
+                appointments,
+                loading: false,
+            }));
+        } catch (error: any) {
+            setDashboardState(prev => ({
+                ...prev,
+                loading: false,
+                error: error.message || 'Failed to fetch appointments.',
+            }));
+        }
+    };
+
+    const handleAppointmentSelected = (appointment: AppointmentResponse | null) => {
+        setDashboardState(prev => ({
+            ...prev,
+            selectedAppointment: appointment,
+        }));
+    };
+
+    const unsetSelectedAppointment = () => {
+        setDashboardState(prev => ({
+            ...prev,
+            selectedAppointment: null,
+        }));
+    }
 
     useEffect (() => {
-        setLoading(true);
-        setLoading(false);
+        void fetchAppointments()
     }, [user]);
 
-    if (loading) {
+    if (dashboardState.loading) {
         return <p>Loading...</p>;
     }
 
@@ -25,18 +88,27 @@ const DocDashboard: React.FC = () => {
         <Layout
             user={user}
             left={
-                <div>
-                    <h2>Appointments List</h2>
-                    <p>This is the content for the left section.</p>
+                <div className="flex flex-col justify-center items-center h-full">
+                    <AppointmentList
+                        appointments={dashboardState.appointments}
+                        onAppointmentSelect={handleAppointmentSelected}
+                        selectedAppointment={dashboardState.selectedAppointment}
+                    />
                 </div>
             }
             right={
-                <div>
-                    <h2>Appointment Details</h2>
-                    <p>This is the content for the right section.</p>
+                <div className="flex flex-col justify-center items-center h-full">
+
+                    {dashboardState.selectedAppointment && (
+
+                        <AppointmentDetailCard
+                            onClose={unsetSelectedAppointment}
+                        />
+
+                    )}
                 </div>
             }
-            leftWeight={2}
+            leftWeight={2.5}
             rightWeight={3}
         />
     );
