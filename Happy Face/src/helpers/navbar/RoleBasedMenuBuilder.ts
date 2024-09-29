@@ -1,6 +1,7 @@
 
 import {Menu} from "@/models/components/navbar/Menu.ts";
 import {Role} from "@/models/enums/Role.ts";
+import { toast } from "sonner"
 
 // Placeholder functions for menu items
 
@@ -82,7 +83,19 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
                 {
                     name: "Clinic Management",
                     items: [
-                        { label: "Change Office Hours"},
+                        {
+                            label: "Edit Office Hours",
+                            shortcut: "⌘O" ,
+                            onClick: () => {
+                                toast("Sorry", {
+                                      description: "The Office Hours are not editable currently.",
+                                      action: {
+                                        label: "Ok",
+                                        onClick: () => { console.log("Undo"); },
+                                      },
+                                    })
+                            }
+                        },
                     ],
                 }
             ];

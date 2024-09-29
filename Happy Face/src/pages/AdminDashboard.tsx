@@ -5,6 +5,7 @@ import {UserManagementForm} from "@/components/userManagementForm.tsx";
 import {User} from "@/models";
 import {UserList} from "@/components/userList.tsx";
 import {AccountManagementService} from "@/services/accountManagementService.ts";
+import {Toaster} from "@/components/ui/sonner.tsx";
 
 
 const AdminDashboard: React.FC = () => {
@@ -89,29 +90,32 @@ const AdminDashboard: React.FC = () => {
     }
 
     return (
-        <Layout
-            user={user}
-            left={
-                <div className="flex flex-col justify-center items-center h-full">
-                    <UserList
-                        users={dashboardState.users}
-                        selectedUser={dashboardState.selectedUser}
-                        onUserSelect={handleUserSelect}
-                    />
-                    {dashboardState.error && <p className="text-red-600">{dashboardState.error}</p>}
-                </div>
-            }
-            right={
-                <div className="flex flex-col justify-center items-center h-full">
-                    <UserManagementForm
-                        current={dashboardState.selectedUser}
-                        onUserUpdated={handleUserUpdated}
-                    />
-                </div>
-            }
-            leftWeight={4}
-            rightWeight={2}
-        />
+        <div>
+            <Layout
+                user={user}
+                left={
+                    <div className="flex flex-col justify-center items-center h-full">
+                        <UserList
+                            users={dashboardState.users}
+                            selectedUser={dashboardState.selectedUser}
+                            onUserSelect={handleUserSelect}
+                        />
+                        {dashboardState.error && <p className="text-red-600">{dashboardState.error}</p>}
+                    </div>
+                }
+                right={
+                    <div className="flex flex-col justify-center items-center h-full">
+                        <UserManagementForm
+                            current={dashboardState.selectedUser}
+                            onUserUpdated={handleUserUpdated}
+                        />
+                    </div>
+                }
+                leftWeight={4}
+                rightWeight={2}>
+            </Layout>
+            <Toaster/>
+        </div>
     );
 };
 
