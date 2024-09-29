@@ -2,6 +2,7 @@ import { IPatientScheduleService } from "@/models/services/IPatientScheduleServi
 import { AppointmentResponse } from "@/models/services/responses/AppointmentResponse";
 import { apiWithoutAuth } from "@/services/apiConfig.ts";
 import CryptoJS from 'crypto-js';
+import { format } from 'date-fns';
 
 export class PatientScheduleService implements IPatientScheduleService {
 
@@ -15,7 +16,7 @@ export class PatientScheduleService implements IPatientScheduleService {
 
     async fetchAppointments(dateOfBirth: Date, patientID: number): Promise<AppointmentResponse[]> {
         try {
-            const formattedDateOfBirth = dateOfBirth.toISOString().split('T')[0];
+            const formattedDateOfBirth = format(dateOfBirth, 'yyyy-MM-dd');
             const receivedHash = this.generateHmacSha256(this.message, this.secretKey);
 
             const requestBody = {
