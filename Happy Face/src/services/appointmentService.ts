@@ -7,6 +7,12 @@ import { handleApiError } from './errorHandler';
 import {AppointmentType} from "@/models/enums/AppointmentType.ts";
 
 export class AppointmentService implements IAppointmentService {
+    private static _instance?: AppointmentService;
+
+    public static get Instance() {
+        return this._instance ?? (this._instance = new this());
+    }
+
 
     async getFreeSlots(doctorId: number, date: string, appointmentType: AppointmentType, weekView?: boolean): Promise<string[]> {
         try {
