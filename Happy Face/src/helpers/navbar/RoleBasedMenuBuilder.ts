@@ -96,29 +96,11 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
         case Role.ADMIN:
             return [
                 {
-                    name: "User Management",
+                    name: "Clinic Management",
                     items: [
-                        { label: "Register New User", shortcut: "⌘U", onClick: handleRegisterUser },
-                        { label: "Manage Users", shortcut: "⌘M", onClick: handleManageUsers },
-                        'separator',
-                        { label: "View System Logs", shortcut: "⌘S", onClick: handleViewSystemLogs },
-                        { label: "System Settings", shortcut: "⌘T", onClick: handleSystemSettings },
+                        { label: "Change Office Hours"},
                     ],
-                },
-                {
-                    name: "Dashboard",
-                    items: [
-                        { label: "View Analytics", shortcut: "⌘A" },
-                        { label: "System Health", shortcut: "⌘H" },
-                    ],
-                },
-                {
-                    name: "Reports",
-                    items: [
-                        { label: "Generate Reports", shortcut: "⌘G" },
-                        { label: "Export Data", shortcut: "⌘E" },
-                    ],
-                },
+                }
             ];
         default:
             return [];
