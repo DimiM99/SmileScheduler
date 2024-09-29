@@ -1,12 +1,13 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Role} from "@/models/enums/Role";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {useState} from "react";
 import {User} from "@/models";
+import {AccountManagementService} from "@/services/accountManagementService.ts";
+import {mapUserToUserRequest, mapUserToUserResponse} from "@/helpers/userMapper.ts";
 
 type formData = {
     username: string,
@@ -20,24 +21,56 @@ type ErrorMessages = {
     [key in keyof formData]: string
 }
 
+interface StatusState {
+    errors: ErrorMessages,
+    loading: boolean,
+    operationStatus: string | null
+}
+
 interface FormProps {
-    current: User | null
+    current: User | null,
+    onUserUpdated: () => void
 }
 
 
-export const UserManagementForm: React.FC<FormProps> = (user) => {
+export const UserManagementForm: React.FC<FormProps> = ({ current, onUserUpdated }) => {
 
     const [formState, setFormState] = useState<formData>({
-        username: user.current?.username ? user.current.username : "",
+        username: "",
         password: "",
-        aName: user.current?.name ? user.current.name : "",
-        email: user.current?.email ? user.current.email : "",
-        role: user.current?.role ? user.current.role : Role.RECEPTIONIST,
+        aName: "",
+        email: "",
+        role: Role.RECEPTIONIST,
+    });
+    
+    const [statusState, setStatusState] = useState<StatusState>({
+        errors: {} as ErrorMessages,
+        loading: false,
+        operationStatus: null
     });
 
+    useEffect(() => {
+        if (current) {
+            setFormState({
+                username: current.username,
+                password: current.password,
+                aName: current.name,
+                email: current.email,
+                role: current.role,
+            });
+        } else {
+            // Reset form when no user is selected
+            setFormState({
+                username: "",
+                password: "",
+                aName: "",
+                email: "",
+                role: Role.RECEPTIONIST,
+            });
+        }
+    }, [current]);
 
-    const [errors, setErrors] = useState<ErrorMessages>({} as ErrorMessages)
-
+ 
     const forbidden = ['´', '\\', '*', '$', '#', '^', '%', '&']
 
     const containsForbidden = (str: string): boolean => {
@@ -60,40 +93,111 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
 
         if (formState.username.length < 4) {
             newErrors.username = "User name has to be at least 3 characters"
+        }else if (containsForbidden(formState.username)) {
+            newErrors.username = "Username contains forbidden characters";
         }
 
         if (formState.password.length < 6) {
             newErrors.password = "Password has to be at least 6 characters"
+        } else if (containsForbidden(formState.password)) {
+            newErrors.password = "Password contains forbidden characters";
         }
+
 
         if (formState.aName.length < 3) {
             newErrors.aName = "Name has to be at least 3 characters"
+        }else if (containsForbidden(formState.aName)) {
+            newErrors.aName = "Name contains forbidden characters";
         }
 
         if (!isEmailValid.test(formState.email)) {
             newErrors.email = "Email is invalid"
+        }else if (containsForbidden(formState.email)) {
+            newErrors.email = "Email contains forbidden characters";
         }
 
-        setErrors(newErrors)
+        setStatusState(prev => ({...prev, errors: newErrors}))
         return Object.keys(newErrors).length === 0;
 
     }
 
+    const createUser = async () => {
+        setStatusState(prev => ({...prev, loading: true}))
+        try {
+            await AccountManagementService.Instance.createUser(mapUserToUserRequest({
+                username: formState.username,
+                password: formState.password,
+                name: formState.aName,
+                email: formState.email,
+                role: formState.role,
+            } as User
+            ));
+            setStatusState(prev => ({...prev, loading: false}))
+            onUserUpdated();
+        } catch (error) {
+            setStatusState(prev => ({...prev, operationStatus: "Error creating user"}))
+            console.error("Error creating user:", error);
+        } finally {
+            setStatusState(prev => ({...prev, loading: false}))
+        }
+    };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const updateUser = async () => {
+        if (!current) return;
+        setStatusState(prev => ({...prev, loading: true}))
+
+        const toUpdate: User = {
+            id: current.id,
+            username: current.username,
+            password: formState.password,
+            name: current.name,
+            email: formState.email,
+            role: current.role,
+        }
+
+        try {
+            await AccountManagementService.Instance.updateUser(mapUserToUserResponse(toUpdate));
+            setStatusState(prev => ({...prev, operationStatus: "User updated successfully"}))
+            onUserUpdated();
+        } catch (error) {
+            setStatusState(prev => ({...prev, operationStatus: "Error updating user"}))
+            console.error("Error updating user:", error);
+        } finally {
+            setStatusState(prev => ({...prev, loading: false}))  
+        }
+    };
+
+    const deleteUser = async () => {
+        if (!current) return;
+        setStatusState(prev => ({...prev, loading: true}))
+        try {
+            await AccountManagementService.Instance.deleteUser(mapUserToUserResponse(current));
+            setStatusState(prev => ({...prev, operationStatus: "User deleted successfully"}))
+            onUserUpdated();
+        } catch (error) {
+            setStatusState(prev => ({...prev, operationStatus: "Error deleting user"}))
+        } finally {
+            setStatusState(prev => ({...prev, loading: false}))
+        }
+    };
+
+
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(containsForbidden("´"))
         if (isFormValid()) {
-            console.log(" Valid ")
-            if (user.current) {
-
-                console.log("Edit user")
+            if (current) {
+                await updateUser();
                 return
             }
-            console.log("Create user")
+            await createUser();
 
         }
     };
+
+    if (statusState.loading) {
+        return <p>Loading...</p>;
+    }
 
 
     return (
@@ -101,12 +205,15 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
             <CardHeader>
                 <CardTitle className="text-center">
                     {
-                        user.current ? "Edit User" : "Create User"
+                        current ? "Edit User" : "Create User"
                     }
                 </CardTitle> {/* Card title */}
             </CardHeader>
             <CardContent className="h-5/6">
-                <form onSubmit={handleSubmit} className="h-full flex flex-col justify-between">
+                <form onSubmit={(e) => {
+                    void handleSubmit(e)
+                } } className="h-full flex flex-col justify-between">
+
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="username">Username</Label>
                         <Input
@@ -115,11 +222,12 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
                             placeholder="Enter your username"
                             value={formState.username}
                             onChange={handleChange}
+                            disabled={current !== null}
                         />
                         {
-                            errors.username &&
+                            statusState.errors.username &&
                             <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
-                                <Label>{errors.username}</Label>
+                                <Label>{ statusState.errors.username}</Label>
                             </div>
                         }
                     </div>
@@ -135,9 +243,9 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
                         />
                     </div>
                     {
-                        errors.password &&
+                         statusState.errors.password &&
                         <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
-                            <Label>{errors.password}</Label>
+                            <Label>{ statusState.errors.password}</Label>
                         </div>
                     }
                     <div className="flex flex-col space-y-1.5">
@@ -148,12 +256,13 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
                             placeholder="Enter your full name"
                             value={formState.aName}
                             onChange={handleChange}
+                            disabled={current !== null}
                         />
                     </div>
                     {
-                        errors.aName &&
+                         statusState.errors.aName &&
                         <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
-                            <Label>{errors.aName}</Label>
+                            <Label>{ statusState.errors.aName}</Label>
                         </div>
                     }
                     <div className="flex flex-col space-y-1.5">
@@ -168,9 +277,9 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
                         />
                     </div>
                     {
-                        errors.email &&
+                         statusState.errors.email &&
                         <div className="flex flex-col space-y-1.5 items-center text-red-600 text-sm">
-                            <Label>{errors.email}</Label>
+                            <Label>{ statusState.errors.email}</Label>
 
                         </div>
                     }
@@ -179,6 +288,7 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
                         <Select
                             value={formState.role}
                             onValueChange={handleRoleChange}
+                            disabled={current !== null}
                         >
                             <SelectTrigger id="role">
                                 <SelectValue placeholder="Select a role"/>
@@ -193,9 +303,29 @@ export const UserManagementForm: React.FC<FormProps> = (user) => {
 
                     <Button className="mt-7 w-full" type="submit">
                         {
-                            user.current ? "Apply Changes" : "Create User"
+                            current ? "Apply Changes" : "Create User"
                         }
                     </Button>
+                    {
+                        current && (
+                            <Button
+                                variant="destructive"
+                                className="w-full "
+                                onClick={ () => {
+                                    void deleteUser()
+                                }
+                                }
+                            >
+                                Delete User
+                            </Button>
+                        )
+                    }
+
+                    { statusState.operationStatus && (
+                        <div className={`mt-2 text-center ${ statusState.operationStatus.includes("Error") ? "text-red-500" : "text-green-500"}`}>
+                            { statusState.operationStatus}
+                        </div>
+                    )}
                 </form>
             </CardContent>
         </Card>

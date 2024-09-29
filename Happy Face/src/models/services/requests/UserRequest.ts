@@ -1,7 +1,6 @@
 import {Role} from "@/models/enums/Role.ts";
 
-export interface GetUserResponse {
-    id: number;
+export interface UserRequest {
     username: string;
     password: string;
     name: string;
