@@ -9,32 +9,61 @@ import {AccountManagementService} from "@/services/accountManagementService.ts";
 
 const AdminDashboard: React.FC = () => {
     const {user} = useAuth ();
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [error, setError] = useState<string | null>(null);
+
+    const [dashboardState, setDashboardState] = useState({
+        users: [] as User[],
+        selectedUser: null as User | null,
+        loading: true,
+        error: null as string | null,
+    });
+
+
 
     const handleUserSelect = (user: User | null) => {
-        setSelectedUser(user);
+        setDashboardState(prevState => ({
+            ...prevState,
+            selectedUser: user,
+        }));
     };
 
     const fetchUsers = async () => {
-        setLoading(true); // Start loading
-        setError(null); // Reset previous errors
+        setDashboardState(prevState => ({
+            ...prevState,
+            loading: true,
+        }));
+        setDashboardState(prevState => ({
+            ...prevState,
+            error: null,
+        }));
         try {
             const fetchedUsersResponse: User[] = await AccountManagementService.Instance.getUsers();
-            setUsers(fetchedUsersResponse);
+            setDashboardState(prevState => ({
+                ...prevState,
+                users: fetchedUsersResponse,
+            }));
         } catch (err) {
             // Handle errors (assuming handleApiError returns a string message)
             if (typeof err === 'string') {
-                setError(err);
+                setDashboardState(prevState => ({
+                    ...prevState,
+                    error: err,
+                }));
             } else if (err instanceof Error) {
-                setError(err.message);
+                setDashboardState(prevState => ({
+                    ...prevState,
+                    error: err.message,
+                }));
             } else {
-                setError('An unexpected error occurred.');
+                setDashboardState(prevState => ({
+                    ...prevState,
+                    error: 'An unexpected error occurred.',
+                }));
             }
         } finally {
-            setLoading(false); // End loading
+            setDashboardState(prevState => ({
+                ...prevState,
+                loading: false,
+            }));
         }
     };
 
@@ -45,10 +74,13 @@ const AdminDashboard: React.FC = () => {
 
     const handleUserUpdated = () => {
         void fetchUsers();
-        setSelectedUser(null); // Clear the selected user after an operation
+        setDashboardState(prevState => ({
+            ...prevState,
+            selectedUser: null,
+        }));
     };
 
-    if (loading) {
+    if (dashboardState.loading) {
         return <p>Loading...</p>;
     }
 
@@ -62,17 +94,17 @@ const AdminDashboard: React.FC = () => {
             left={
                 <div className="flex flex-col justify-center items-center h-full">
                     <UserList
-                        users={users}
-                        selectedUser={selectedUser}
+                        users={dashboardState.users}
+                        selectedUser={dashboardState.selectedUser}
                         onUserSelect={handleUserSelect}
                     />
-                    {error && <p className="text-red-600">{error}</p>}
+                    {dashboardState.error && <p className="text-red-600">{dashboardState.error}</p>}
                 </div>
             }
             right={
                 <div className="flex flex-col justify-center items-center h-full">
                     <UserManagementForm
-                        current={selectedUser}
+                        current={dashboardState.selectedUser}
                         onUserUpdated={handleUserUpdated}
                     />
                 </div>
