@@ -26,7 +26,7 @@ export const UserList: React.FC<UserListProps> = ({users, selectedUser, onUserSe
 
     const [currentPage, setCurrentPage] = useState(1);
 
-    const itemsPerPage = 10;
+    const itemsPerPage = 12;
 
     const totalPages = Math.ceil(users.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage
@@ -80,31 +80,35 @@ export const UserList: React.FC<UserListProps> = ({users, selectedUser, onUserSe
                     </TableBody>
                 </Table>
             </CardContent>
-            <CardFooter className="flex justify-between">
-                <div className="text-sm test-muted-foregroud">
-                    Page {currentPage} of {totalPages}
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        size="sm"
-                        onClick={() => {
-                            setCurrentPage((prev) => Math.max(prev - 1, 1));
-                        }}
-                        disabled={currentPage === 1}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        size="sm"
-                        onClick={() => {
-                            setCurrentPage((prev) => Math.max(prev + 1, totalPages));
-                        }}
-                        disabled={currentPage === totalPages}
-                    >
-                        Next
-                    </Button>
-                </div>
-            </CardFooter>
+            {
+                users.length > itemsPerPage &&
+                (<CardFooter className="flex justify-between">
+                    <div className="text-sm test-muted-foregroud">
+                        Page {currentPage} of {totalPages}
+                    </div>
+                    <div className="space-x-2">
+                        <Button
+                            size="sm"
+                            onClick={() => {
+                                setCurrentPage((prev) => Math.max(prev - 1, 1));
+                            }}
+                            disabled={currentPage === 1}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            size="sm"
+                            onClick={() => {
+                                setCurrentPage((prev) => Math.max(prev + 1, totalPages));
+                            }}
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </CardFooter>)
+            }
+
         </Card>
     );
 }
