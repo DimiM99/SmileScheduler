@@ -119,7 +119,7 @@ public class Mailer {
                 </body>
                 </html>
                 """;
-        String managementLink = "http://localhost:8080/patient-schedule?pID=" + appointment.getPatient().getId();
+        String managementLink = "http://localhost:5173/patient-schedule?pID=" + appointment.getPatient().getId();
         return mailTemplate
                 .replace("{patientName}", appointment.getPatient().getName())
                 .replace("{appointmentDate}", appointment.getStart().toLocalDate().toString())
