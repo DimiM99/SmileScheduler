@@ -1,19 +1,21 @@
-import {format, parseISO} from 'date-fns'
-import {Calendar as CalendarIcon, Loader2} from 'lucide-react'
-import {cn, handleAsyncErrors} from "@/lib/utils"
+import {format, parseISO, startOfYear, eachMonthOfInterval, getDaysInMonth, addMonths} from 'date-fns'
+import {Loader2} from 'lucide-react'
+import {handleAsyncErrors} from "@/lib/utils"
 import {Button} from "@/components/ui/button"
-import {Calendar} from "@/components/ui/calendar"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {useState, useEffect} from "react";
 import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
 import {PatientScheduleService} from "@/services/PatientScheduleService.ts";
 import useQuery from "@/hooks/useQuery.ts";
+import {AxiosError} from "axios";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 const AppointmentCard = ({appointment}: { appointment: AppointmentResponse }) => (
     <Card className="mb-4 last:mb-0">
@@ -34,7 +36,9 @@ const AppointmentCard = ({appointment}: { appointment: AppointmentResponse }) =>
 )
 
 export default function PatDashboard() {
-    const [dateOfBirth, setDateOfBirth] = useState<Date> ()
+    const [year, setYear] = useState<number>(new Date().getFullYear())
+    const [month, setMonth] = useState<number>(new Date().getMonth())
+    const [day, setDay] = useState<number>(new Date().getDate())
     const [loading, setLoading] = useState (false)
     const [appointments, setAppointments] = useState<{
         nextAppointment: AppointmentResponse | null,
@@ -43,33 +47,41 @@ export default function PatDashboard() {
     const [showDateSelector, setShowDateSelector] = useState (true)
     const [currentPatientName, setCurrentPatientName] = useState<string> ("")
     const [patientID, setPatientID] = useState<number | null> (null)
-    const [patientIDError, setPatientIDError] = useState<string | null> (null)
+    const [error, setError] = useState<string | null> (null)
 
-    const query = useQuery();
+    const years = Array.from({ length: 100 }, (_, i) => year - i)
+    const months = eachMonthOfInterval({
+        start: startOfYear(new Date(year, 0, 1)),
+        end: addMonths(startOfYear(new Date(year, 0, 1)), 11)
+    })
+    const days = Array.from({ length: getDaysInMonth(new Date(year, month)) }, (_, i) => i + 1)
+
+    const query = useQuery ();
 
     const patientScheduleService = new PatientScheduleService ();
-    const pID: string | null = query.get("pID");
+    const pID: string | null = query.get ("pID");
 
     useEffect (() => {
         if (pID) {
             const parsedID = parseInt (pID, 10);
             if (!isNaN (parsedID)) {
                 setPatientID (parsedID);
-                setPatientIDError (null);
+                setError (null);
             } else {
-                setPatientIDError ("Invalid patient ID provided.");
+                setError ("Invalid patient ID provided.");
             }
         } else {
-            setPatientIDError ("No patient ID provided.");
+            setError ("No patient ID provided.");
         }
     }, [pID]);
 
     const handleContinue = async () => {
-        if (!dateOfBirth || patientID === null) return
+        const selectedDate = new Date(year, month, day)
+        if (patientID === null) return
         setLoading (true)
         setShowDateSelector (false)
         try {
-            const result: AppointmentResponse[] = await patientScheduleService.fetchAppointments (dateOfBirth, patientID)
+            const result: AppointmentResponse[] = await patientScheduleService.fetchAppointments (selectedDate, patientID)
 
             const sortedAppointments = result.sort ((a, b) =>
                 new Date (a.start).getTime () - new Date (b.start).getTime ()
@@ -86,8 +98,15 @@ export default function PatDashboard() {
                 nextAppointment,
                 upcomingAppointments
             });
-        } catch (error) {
-            console.error ("Error fetching appointments:", error);
+        } catch (reqError) {
+            console.error ("Error fetching appointments:", reqError);
+            console.log (reqError)
+            if (reqError instanceof AxiosError) {
+                // this is an inescapable error can't be fixed
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                setError (reqError.response?.data || "An error occurred while fetching appointments.");
+            }
+
         } finally {
             setLoading (false)
         }
@@ -97,14 +116,21 @@ export default function PatDashboard() {
         await handleContinue ()
     })
 
-    if (patientIDError) {
+    if (error) {
         return (
             <div className="container mx-auto p-4 min-h-screen flex flex-col items-center justify-center">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4">Error</h2>
-                    <p className="text-red-500">{patientIDError}</p>
-                    <p className="mt-4">Please check the URL and try again.</p>
-                </div>
+                <Card className="text-center p-4">
+                    <CardHeader>
+                        <CardTitle className="text-2xl font-bold mb-4">Error</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-red-500">{error}</p>
+                        <p className="mt-4">Please try again. If the error persists please call us</p>
+                        <Button onClick={() => {
+                            window.location.reload ();
+                        }} className="mt-4">Try again</Button>
+                    </CardContent>
+                </Card>
             </div>
         )
     }
@@ -114,30 +140,39 @@ export default function PatDashboard() {
             {showDateSelector ? (
                 <div className="space-y-4 text-center">
                     <h2 className="text-2xl font-bold mb-4">Verify Your Birth Date to continue</h2>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant={"outline"}
-                                className={cn (
-                                    "w-[280px] justify-start text-left font-normal",
-                                    !dateOfBirth && "text-muted-foreground"
-                                )}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4"/>
-                                {dateOfBirth ? format (dateOfBirth, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar
-                                mode="single"
-                                selected={dateOfBirth}
-                                onSelect={setDateOfBirth}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
-                    <Button onClick={onClick} disabled={!dateOfBirth || loading || patientID === null}
-                            className="w-[280px]">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <Select value={year.toString ()} onValueChange={(value) => { setYear (parseInt (value)); }}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Year"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {years.map ((y) => (
+                                    <SelectItem key={y} value={y.toString ()}>{y}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select value={month.toString ()} onValueChange={(value) => { setMonth (parseInt (value)); }}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Month"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {months.map ((m, index) => (
+                                    <SelectItem key={index} value={index.toString ()}>{format (m, 'MMMM')}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select value={day.toString ()} onValueChange={(value) => { setDay (parseInt (value)); }}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Day"/>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {days.map ((d) => (
+                                    <SelectItem key={d} value={d.toString ()}>{d}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <Button onClick={onClick} disabled={loading} className="w-[280px]">
                         {loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
