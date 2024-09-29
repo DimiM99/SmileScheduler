@@ -11,6 +11,7 @@ import de.vd40xu.smilebase.repository.AppointmentRepository;
 import de.vd40xu.smilebase.repository.PatientRepository;
 import de.vd40xu.smilebase.repository.UserRepository;
 import de.vd40xu.smilebase.service.interfaces.IAppointmentService;
+import de.vd40xu.smilebase.service.utility.Mailer;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
@@ -121,7 +122,13 @@ public class AppointmentService implements IAppointmentService {
             )
         );
         }
-        return appointmentRepository.save(appointment);
+        Appointment res = appointmentRepository.save(appointment);
+        try {
+            Mailer.sendAppointmentConfirmation(res, true);
+        } catch (Exception e) {
+            System.out.println("Failed to send email: " + e.getMessage());
+        }
+        return res;
     }
 
     @Override
@@ -146,7 +153,13 @@ public class AppointmentService implements IAppointmentService {
         if (appointmentDTO.getDoctorId() != null) {
             checkForDoctor(appointment, appointmentDTO.getDoctorId());
         }
-        return appointmentRepository.save(appointment);
+        Appointment res = appointmentRepository.save(appointment);
+        try {
+            Mailer.sendAppointmentConfirmation(res, false);
+        } catch (Exception e) {
+            System.out.println("Failed to send email: " + e.getMessage());
+        }
+        return res;
     }
 
     @Override

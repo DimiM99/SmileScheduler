@@ -3,7 +3,9 @@ POSTGRES_PASSWORD=set_me_up
 POSTGRES_DB=set_me_up
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
+RES_API_KEY=set_me_up
+PS_KEY=set_me_up
+PS_TOKEN=set_me_up
 BE_PORT=8080
 JWT_SECRET_KEY=set_me_up # Gen: SHA-256/Hex --> https://www.devglan.com/online-tools/hmac-sha256-online?ref=blog.tericcabrel.com
 VITE_CRYPTO_SECRET=SecretEncriptionPassword
-
