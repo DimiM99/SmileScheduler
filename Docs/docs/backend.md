@@ -566,7 +566,7 @@ Response Body Schema (Patient)
 
 #### Get Patient Schedule (open)
 
-* Method: GET
+* Method: POST
 * URL: `/api/patient-schedule`
 * Requset Body: PatientScheduleRequestDTO object
 * Responses:

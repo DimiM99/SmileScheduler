@@ -5,7 +5,7 @@ import de.vd40xu.smilebase.service.PatientScheduleService;
 import de.vd40xu.smilebase.service.interfaces.IPatientScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
@@ -20,7 +20,7 @@ public class PatientScheduleController {
         this.patientScheduleService = patientScheduleService;
     }
 
-    @GetMapping("/patient-schedule")
+    @PostMapping("/patient-schedule")
     public ResponseEntity<Object> getPatientSchedule(
             @RequestBody PatientScheduleRequestDTO requestDTO
     ) {

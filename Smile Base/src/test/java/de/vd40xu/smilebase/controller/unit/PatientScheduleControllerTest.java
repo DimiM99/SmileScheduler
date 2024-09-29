@@ -47,7 +47,7 @@ class PatientScheduleControllerTest {
     @DisplayName("Unit > test getting patient schedule")
     void test1() throws Exception {
         when(patientScheduleService.getPatientSchedule(any(PatientScheduleRequestDTO.class))).thenReturn(List.of());
-        mockMvc.perform(get("/api/patient-schedule")
+        mockMvc.perform(post("/api/patient-schedule")
                 .content(objectMapper.writeValueAsString(new PatientScheduleRequestDTO()))
                 .contentType("application/json"))
                 .andExpect(status().isOk());
@@ -57,7 +57,7 @@ class PatientScheduleControllerTest {
     @DisplayName("Unit > test getting patient schedule with invalid request")
     void test2() throws Exception {
         when(patientScheduleService.getPatientSchedule(any(PatientScheduleRequestDTO.class))).thenThrow(new IllegalArgumentException("Invalid request"));
-        mockMvc.perform(get("/api/patient-schedule")
+        mockMvc.perform(post("/api/patient-schedule")
                 .content(objectMapper.writeValueAsString(new PatientScheduleRequestDTO()))
                 .contentType("application/json"))
                 .andExpect(status().isBadRequest());

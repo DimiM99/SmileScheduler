@@ -5,7 +5,6 @@ import RecDashboard from "@/pages/RecDashboard.tsx";
 import DocDashboard from "@/pages/DocDashboard.tsx";
 import PatDashboard from "@/pages/PatDashboard.tsx";
 import ProtectedRoute from './ProtectedRoute';
-import TokenProtectedRoute from './TokenProtectedRoute';
 import AdminDashboard from "@/pages/AdminDashboard.tsx";
 
 const AppRouter: React.FC = () => {
@@ -32,12 +31,9 @@ const AppRouter: React.FC = () => {
                     </ProtectedRoute>
                 }/>
 
-                <Route path="/patient-dashboard" element={
-                    <TokenProtectedRoute>
-                        <PatDashboard/>
-                    </TokenProtectedRoute>
+                <Route path="/patient-schedule" element={
+                    <PatDashboard/>
                 }/>
-
                 <Route path="*" element={<Navigate to="/login" replace/>}/>
             </Routes>
         </Router>
