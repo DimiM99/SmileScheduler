@@ -16,22 +16,6 @@ const handleDeleteAppointment = () => {
     console.log("Delete appointment clicked");
 };
 
-// New handlers for ADMIN
-const handleRegisterUser = () => {
-    console.log("Register user clicked");
-};
-
-const handleManageUsers = () => {
-    console.log("Manage users clicked");
-};
-
-const handleViewSystemLogs = () => {
-    console.log("View system logs clicked");
-};
-
-const handleSystemSettings = () => {
-    console.log("System settings clicked");
-};
 
 
 type MenuGeneratorType = (role: Role) => Menu[];
