@@ -36,6 +36,14 @@ public class Appointment {
     @Setter
     private LocalDateTime end;
 
+    @Column
+    @Setter
+    private String reasonForAppointment;
+
+    @Column
+    @Setter
+    private String notes;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doctor_id", nullable = false)
     @Setter

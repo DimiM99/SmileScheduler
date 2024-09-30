@@ -15,4 +15,6 @@ public class AppointmentDTO {
     private Long doctorId;
     private LocalDateTime start;
     private AppointmentType appointmentType;
+    private String reasonForAppointment;
+    private String notes;
 }

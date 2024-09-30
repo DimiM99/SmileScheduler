@@ -78,7 +78,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 LocalDateTime.now().plusDays(1).withHour(10).withMinute(0),
                 AppointmentType.QUICKCHECK,
                 new PatientDTO(patient.getId(), patient.getName(), patient.getBirthdate(),
-                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail(), patient.getPhoneNumber())
+                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail(), patient.getPhoneNumber(), patient.getAllergies(), patient.getMedicalHistory())
         );
 
         mockMvc.perform(post("/api/appointments")
@@ -114,7 +114,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 null,
                 null,
                 null,
-                appointment.getAppointmentType()
+                appointment.getAppointmentType(),
+                null,
+                null
         );
 
         mockMvc.perform(put("/api/appointments")
@@ -181,7 +183,7 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 LocalDateTime.now().plusDays(1).withHour(7).withMinute(30),
                 AppointmentType.QUICKCHECK,
                 new PatientDTO(patient.getId(), patient.getName(), patient.getBirthdate(),
-                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail() , patient.getPhoneNumber())
+                               patient.getInsuranceNumber(), patient.getInsuranceProvider(), patient.getEmail() , patient.getPhoneNumber(), patient.getAllergies(), patient.getMedicalHistory())
         );
 
         mockMvc.perform(post("/api/appointments")
@@ -215,7 +217,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 appointment.getPatient().getId(),
                 appointment.getDoctor().getId(),
                 appointment.getStart(),
-                AppointmentType.EXTENSIVE
+                AppointmentType.EXTENSIVE,
+                null,
+                null
         );
 
         mockMvc.perform(put("/api/appointments")
@@ -239,7 +243,9 @@ class AppointmentControllerTest extends ControllerIntegrationTest {
                 appointment.getPatient().getId(),
                 doctor.getId(),
                 appointment.getStart(),
-                appointment.getAppointmentType()
+                appointment.getAppointmentType(),
+                null,
+                null
         );
 
         mockMvc.perform(put("/api/appointments")

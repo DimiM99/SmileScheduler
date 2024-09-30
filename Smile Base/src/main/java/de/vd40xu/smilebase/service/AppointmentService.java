@@ -117,11 +117,15 @@ public class AppointmentService implements IAppointmentService {
                         appointmentDTO.getPatient().getInsuranceNumber(),
                         appointmentDTO.getPatient().getInsuranceProvider(),
                         appointmentDTO.getPatient().getEmail(),
-                        appointmentDTO.getPatient().getPhoneNumber()
+                        appointmentDTO.getPatient().getPhoneNumber(),
+                        appointmentDTO.getPatient().getAllergies(),
+                        appointmentDTO.getPatient().getMedicalHistory()
                 )
             )
         );
         }
+        appointment.setNotes(appointmentDTO.getNotes());
+        appointment.setReasonForAppointment(appointmentDTO.getReasonForAppointment());
         Appointment res = appointmentRepository.save(appointment);
         try {
             Mailer.sendAppointmentConfirmation(res, true);
@@ -152,6 +156,12 @@ public class AppointmentService implements IAppointmentService {
         }
         if (appointmentDTO.getDoctorId() != null) {
             checkForDoctor(appointment, appointmentDTO.getDoctorId());
+        }
+        if (appointmentDTO.getNotes() != null) {
+            appointment.setNotes(appointmentDTO.getNotes());
+        }
+        if (appointmentDTO.getReasonForAppointment() != null) {
+            appointment.setReasonForAppointment(appointmentDTO.getReasonForAppointment());
         }
         Appointment res = appointmentRepository.save(appointment);
         try {

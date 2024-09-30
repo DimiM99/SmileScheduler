@@ -153,7 +153,9 @@ class AppointmentServiceTest {
             2L,
             2L,
             updatedStart,
-            AppointmentType.EXTENSIVE
+            AppointmentType.EXTENSIVE,
+            null,
+            null
         );
 
         Appointment existingAppointment = new Appointment("Original Appointment", LocalDateTime.now(fixedClock).minusDays(1), AppointmentType.QUICKCHECK);
@@ -266,7 +268,9 @@ class AppointmentServiceTest {
             "INS123",
             "Provider A",
             "john@example.com",
-            "+49 911 3456 7890"
+            "+49 911 3456 7890",
+            null,
+                null
         );
         NewAppointmentDTO appointmentDTO = new NewAppointmentDTO(
             "New Test Appointment",
@@ -358,7 +362,9 @@ class AppointmentServiceTest {
             2L,
             2L,
             LocalDateTime.now(),
-            AppointmentType.QUICKCHECK
+            AppointmentType.QUICKCHECK,
+            null,
+            null
         );
         Appointment existingAppointment = new Appointment("Original Appointment", LocalDateTime.now(fixedClock).minusDays(1), AppointmentType.QUICKCHECK);
 
@@ -379,7 +385,9 @@ class AppointmentServiceTest {
             2L,
             2L,
             LocalDateTime.now(),
-            AppointmentType.QUICKCHECK
+            AppointmentType.QUICKCHECK,
+            null,
+            null
         );
         Appointment existingAppointment = new Appointment("Original Appointment", LocalDateTime.now(fixedClock).minusDays(1), AppointmentType.QUICKCHECK);
 
