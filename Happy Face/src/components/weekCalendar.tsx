@@ -249,10 +249,18 @@ function DoctorAppointmentSelector({ doctors, selectedDoctor, onDoctorChange }: 
         return null
     } else {
         return (
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises,@typescript-eslint/no-non-null-assertion
-            <Select onValueChange={(value) => { onDoctorChange(doctors.find(d => d.id.toString() === value)!); }}>
+             
+            <Select 
+                value={selectedDoctor ? selectedDoctor.id.toString() : ''}
+                onValueChange={(value) => {
+                    const doctor = doctors.find(d => d.id.toString() === value);
+                    if (doctor) {
+                        onDoctorChange(doctor);
+                    }
+                }}
+            >
                 <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={selectedDoctor ? selectedDoctor.name : 'Select a doctor'}/>
+                    <SelectValue placeholder="Select a doctor" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>

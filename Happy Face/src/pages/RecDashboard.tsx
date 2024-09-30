@@ -3,15 +3,17 @@ import {useAuth} from "@/hooks/useAuth.ts";
 import Layout from "@/components/layout.tsx";
 import {AppointmentForm, FormValues} from "@/components/appointmentForm.tsx";
 import {AppointmentRequest, Doctor} from "@/models";
-import {format} from "date-fns";
+import {addMinutes, format} from "date-fns";
 import {AppointmentUpdateRequest} from "@/models/services/requests/AppointmentUpdateRequest.ts";
 import WeekCalendar from "@/components/weekCalendar.tsx";
 import {useAppointmentStore} from "@/hooks/zustand/useAppointmentStore.ts";
 import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
+import {appointmentDurations, AppointmentType} from "@/models/enums/AppointmentType.ts";
 
 const RecDashboard: React.FC = () => {
     const {user} = useAuth();
     const [selectedAppointment, setSelectedAppointment] = useState<AppointmentResponse | null>(null);
+    const [createOrEditMode, setCreateOrEditMode] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(true);
     const {
         doctors,
@@ -24,6 +26,9 @@ const RecDashboard: React.FC = () => {
         createAppointment,
         updateAppointment,
         fetchAppointments,
+        setEvents,
+        fetchAvailableSlots,
+        availableSlots
     } = useAppointmentStore();
 
     useEffect(() => {
@@ -37,6 +42,35 @@ const RecDashboard: React.FC = () => {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         initializeData();
     }, [user, fetchDoctors]);
+
+    useEffect(() => {
+        fetchAvailableSlots(
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            selectedDoctor.id,
+            currentDate,
+            selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK
+        ).then(
+            () => {
+                availableSlots.forEach( (slot) => {
+                    setEvents(
+                        [...events,
+                            {
+                                id: events.length + 1,
+                                title: `Free slot for ${selectedDoctor.name}`,
+                                start: slot,
+                                end: addMinutes(new Date(slot), appointmentDurations[selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK]).toString(),
+                                appointmentType: selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK,
+                                doctor: selectedDoctor,
+                                patient: selectedAppointment.patient,
+                            }
+                        ]
+                    );
+                    }
+                );
+            }
+        );
+    }, [createOrEditMode]);
 
     const handleAppointmentSubmit = useCallback((data: FormValues, creation: boolean) => {
         if (creation) {
@@ -83,7 +117,6 @@ const RecDashboard: React.FC = () => {
     }
 
     const handleDoctorChange = useCallback(async (doctor: Doctor) => {
-        console.log(doctor);
         setSelectedDoctor(doctor);
         await fetchAppointments();
     }, [setSelectedDoctor, fetchAppointments]);
@@ -95,6 +128,7 @@ const RecDashboard: React.FC = () => {
 
     const handleEventSelect = useCallback((event: AppointmentResponse) => {
         setSelectedAppointment(event);
+        setCreateOrEditMode(true);
     }, []);
 
     if (!user) {
@@ -111,7 +145,7 @@ const RecDashboard: React.FC = () => {
             left={
                 <WeekCalendar
                     events={events}
-                    isBookingMode={false}
+                    isBookingMode={createOrEditMode}
                     onDoctorChange={handleDoctorChange}
                     onDateChange={handleDateChange}
                     onEventSelect={handleEventSelect}
@@ -128,7 +162,8 @@ const RecDashboard: React.FC = () => {
                     currentlySelectedDoctor={selectedDoctor}
                     // eslint-disable-next-line @typescript-eslint/no-misused-promises
                     newDoctorSelected={handleDoctorChange}
-                    dropSelectedAppointment={() => { setSelectedAppointment(null); }}
+                    dropSelectedAppointment={() => { setSelectedAppointment(null); setCreateOrEditMode(false) }}
+                    currentDateChange={handleDateChange}
                 />
             }
             leftWeight={3}

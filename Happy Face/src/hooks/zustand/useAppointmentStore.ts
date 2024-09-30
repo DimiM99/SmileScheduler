@@ -20,6 +20,7 @@ interface AppointmentState {
     createAppointment: (appointment: AppointmentRequest) => Promise<void>;
     updateAppointment: (appointment: AppointmentUpdateRequest) => Promise<void>;
     fetchAvailableSlots: (doctorId: number, date: Date, appointmentType: AppointmentType) => Promise<void>;
+    setEvents: (events: AppointmentResponse[]) => void;
 }
 
 const appointmentService = new AppointmentService();
@@ -76,5 +77,7 @@ export const useAppointmentStore = create<AppointmentState>((set, get) => ({
         );
         set({availableSlots: slots});
     },
+
+    setEvents: (events) => { set({events}); }
 }));
 

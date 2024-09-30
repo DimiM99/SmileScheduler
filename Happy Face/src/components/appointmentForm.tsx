@@ -51,6 +51,7 @@ interface AppointmentFormProps {
     currentlySelectedDoctor: Doctor | null;
     dropSelectedAppointment: () => void;
     newDoctorSelected: (docktor: Doctor) => void;
+    currentDateChange: (date: Date) => Promise<void>;
 }
 
 export function AppointmentForm({
@@ -59,8 +60,9 @@ export function AppointmentForm({
                                     onSubmit,
                                     currentlySelectedDoctor,
                                     dropSelectedAppointment,
-                                    newDoctorSelected
-                                }: AppointmentFormProps) {
+                                    newDoctorSelected,
+                                    currentDateChange
+}: AppointmentFormProps) {
 
     const {availableSlots, fetchAvailableSlots} = useAppointmentStore();
 
@@ -70,7 +72,7 @@ export function AppointmentForm({
             date: new Date(),
             startTime: "",
             endTime: "",
-            appointmentType: AppointmentType.QUICKCHECK,
+            appointmentType: AppointmentType.EXTENSIVE,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
             patientEmail: "",
@@ -86,6 +88,7 @@ export function AppointmentForm({
         const appointmentType = form.getValues('appointmentType');
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (date && appointmentType) {
+            console.log('Updating available slots', doctorId, date, appointmentType);
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             fetchAvailableSlots(doctorId, date, appointmentType);
         }
@@ -106,6 +109,8 @@ export function AppointmentForm({
 
     const constDateChange = (date: Date) => {
         form.setValue('date', date);
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        currentDateChange(date);
         updateAvailableSlots(form.getValues('doctorId'));
     }
 
@@ -117,27 +122,25 @@ export function AppointmentForm({
 
     useEffect(() => {
         if (selectedAppointment) {
-            const startDate = new Date(selectedAppointment.start);
-            console.log(selectedAppointment.start);
-            form.reset({
-                date: startDate,
-                startTime: selectedAppointment.start,
-                endTime: "",
-                appointmentType: selectedAppointment.appointmentType,
-                patientId: selectedAppointment.patient.id,
-                doctorId: selectedAppointment.doctor.id,
-                patientName: selectedAppointment.patient.name,
-                patientEmail: selectedAppointment.patient.email,
-                patientBirthdate: new Date(selectedAppointment.patient.birthdate),
-                patientInsuranceProvider: selectedAppointment.patient.insuranceProvider,
-                patientInsuranceNumber: selectedAppointment.patient.insuranceNumber,
-                patientPhoneNumber: selectedAppointment.patient.phoneNumber,
-            });
-        } else if (currentlySelectedDoctor) {
-            form.setValue('doctorId', currentlySelectedDoctor.id);
-            updateAvailableSlots(currentlySelectedDoctor.id);
+            try {
+                form.setValue('date', new Date(selectedAppointment.start));
+                form.setValue('startTime', selectedAppointment.start);
+                form.setValue('endTime', selectedAppointment.end);
+                form.setValue('appointmentType', selectedAppointment.appointmentType);
+                form.setValue('doctorId', selectedAppointment.doctor.id);
+                form.setValue('patientId', selectedAppointment.patient.id);
+                form.setValue('patientName', selectedAppointment.patient.name);
+                form.setValue('patientEmail', selectedAppointment.patient.email);
+                form.setValue('patientBirthdate', new Date(selectedAppointment.patient.birthdate));
+                form.setValue('patientInsuranceProvider', selectedAppointment.patient.insuranceProvider);
+                form.setValue('patientInsuranceNumber', selectedAppointment.patient.insuranceNumber);
+                form.setValue('patientPhoneNumber', selectedAppointment.patient.phoneNumber);
+                updateAvailableSlots(selectedAppointment.doctor.id);
+            } catch (error) {
+                console.error('Error parsing appointment:', error);
+            }
         }
-    }, [selectedAppointment, currentlySelectedDoctor, form]);
+    }, [selectedAppointment]);
 
     function resetFrom() {
         dropSelectedAppointment();
@@ -145,7 +148,7 @@ export function AppointmentForm({
             date: new Date(),
             startTime: "",
             endTime: "",
-            appointmentType: AppointmentType.QUICKCHECK,
+            appointmentType: AppointmentType.EXTENSIVE,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
             patientEmail: "",
@@ -153,7 +156,7 @@ export function AppointmentForm({
             patientInsuranceProvider: "",
             patientInsuranceNumber: "",
             patientPhoneNumber: "",
-        }, {keepValues: false});
+        });
     }
 
     return (
@@ -226,6 +229,13 @@ export function AppointmentForm({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
+                                                    {
+                                                        selectedAppointment && (
+                                                            <SelectItem key={selectedAppointment.start} value={selectedAppointment.start}>
+                                                                {format(selectedAppointment.start, 'HH:mm')}
+                                                            </SelectItem>
+                                                        )
+                                                    }
                                                     {availableSlots.map((slot) => (
                                                         <SelectItem key={slot} value={slot}>
                                                             {format(new Date(slot), 'HH:mm')}
@@ -456,7 +466,7 @@ export function AppointmentForm({
                         </div>
                         <div className="flex flex-row m-1">
                             <Button type="submit" className="w-full">
-                                {selectedAppointment ? 'Create Appointment' : 'Update Appointment'}
+                                {!selectedAppointment ? 'Create Appointment' : 'Update Appointment'}
                             </Button>
                             <Button variant="secondary" type="reset" className="w-full" onClick={resetFrom}>
                                 Cancel
