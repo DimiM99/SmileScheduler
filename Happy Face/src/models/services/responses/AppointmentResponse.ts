@@ -10,4 +10,6 @@ export interface AppointmentResponse {
     appointmentType: AppointmentType;
     doctor: Doctor;
     patient: Patient;
+    reasonForAppointment?: string;
+    notes?: string;
 }
