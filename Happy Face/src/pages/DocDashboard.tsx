@@ -120,7 +120,7 @@ const DocDashboard: React.FC = () => {
                 leftWeight={2.5}
                 rightWeight={3}
             />
-            <Toaster className=""/>
+            <Toaster position="top-left"/>
         </>
 
     );

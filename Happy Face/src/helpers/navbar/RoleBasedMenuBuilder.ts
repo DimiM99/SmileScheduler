@@ -1,22 +1,44 @@
-
 import {Menu} from "@/models/components/navbar/Menu.ts";
 import {Role} from "@/models/enums/Role.ts";
-import { toast } from "sonner"
+import {toast} from "sonner"
 
 // Placeholder functions for menu items
 
 const handleNewAppointment = () => {
-    console.log("New appointment clicked");
+    toast("Sorry", {
+        description: "Not available currently.",
+        action: {
+            label: "Ok",
+            onClick: () => {
+                console.log("Undo");
+            },
+        }
+    })
 };
 
 const handleViewAppointments = () => {
-    console.log("View all appointments clicked");
+    toast("Sorry", {
+        description: "Not available currently.",
+        action: {
+            label: "Ok",
+            onClick: () => {
+                console.log("Undo");
+            },
+        }
+    })
 };
 
 const handleDeleteAppointment = () => {
-    console.log("Delete appointment clicked");
+    toast("Sorry", {
+        description: "Not available currently.",
+        action: {
+            label: "Ok",
+            onClick: () => {
+                console.log("Undo");
+            },
+        }
+    })
 };
-
 
 
 type MenuGeneratorType = (role: Role) => Menu[];
@@ -30,36 +52,81 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
                 {
                     name: "Appointment",
                     items: [
-                        { label: "New Appointment", shortcut: "⌘N", onClick: handleNewAppointment },
-                        { label: "Edit Appointment", shortcut: "⌘E" },
-                        { label: "View All Appointments", shortcut: "⌘L", onClick: handleViewAppointments },
+                        {label: "New Appointment", shortcut: "⌘N", onClick: handleNewAppointment},
+                        {label: "Edit Appointment", shortcut: "⌘E",
+                            onClick: () => {
+                                toast("Sorry", {
+                                    description: "The appointment is not editable currently.",
+                                    action: {
+                                        label: "Ok",
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    }
+                                })
+                            }
+                        },
+                        {label: "View All Appointments", shortcut: "⌘L", onClick: handleViewAppointments},
                         'separator',
-                        { label: "Reschedule Appointment", shortcut: "⌘R" },
-                        { label: "Delete Appointment", shortcut: "⌘D", onClick: handleDeleteAppointment },
+                        {label: "Reschedule Appointment", shortcut: "⌘R",
+                            onClick: () => {
+                                toast("Sorry", {
+                                    description: "The appointment is not reschedulable currently.",
+                                    action: {
+                                        label: "Ok",
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    }
+                                })
+                            }
+                        },
+                        {label: "Delete Appointment", shortcut: "⌘D", onClick: handleDeleteAppointment},
                     ],
                 },
                 {
                     name: 'Patient',
                     items: [
-                        { label: "Add New Patient", shortcut: "⌘P" },
-                        { label: "View Patient List", shortcut: "⌘V" },
+                        {label: "Add New Patient", shortcut: "⌘P",
+                            onClick: () => {
+                                toast("Sorry", {
+                                    description: "The patient is not addable currently.",
+                                    action: {
+                                        label: "Ok",
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    }
+                                })
+                            }
+                        },
+                        {label: "View Patient List", shortcut: "⌘V",
+                            onClick: () => {
+                                toast("Sorry", {
+                                    description: "The patient list is not viewable currently.",
+                                    action: {
+                                        label: "Ok",
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    }
+                                })
+                            }
+                        },
                         'separator',
-                        { label: "View Patient Profile", shortcut: "⌘O" },
-                    ],
-                },
-                {
-                    name: "Doctor Schedules",
-                    items: [
-                        { label: "View Doctor Availability", shortcut: "⌘A" },
-                        { label: "Block Doctor Time", shortcut: "⌘T" },
-                    ],
-                },
-                {
-                    name: "Billing & Payments",
-                    items: [
-                        { label: "Generate Invoice", shortcut: "⌘I" },
-                        { label: "View Payment Status", shortcut: "⌘Y" },
-                        { label: "View Payment History", shortcut: "⌘H" },
+                        {label: "View Patient Profile", shortcut: "⌘O",
+                            onClick: () => {
+                                toast("Sorry", {
+                                    description: "The patient profile is not viewable currently.",
+                                    action: {
+                                        label: "Ok",
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    }
+                                })
+                            }
+                        },
                     ],
                 },
             ];
@@ -109,14 +176,16 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
                     items: [
                         {
                             label: "Edit Office Hours",
-                            shortcut: "⌘O" ,
+                            shortcut: "⌘O",
                             onClick: () => {
                                 toast("Sorry", {
-                                      description: "The Office Hours are not editable currently.",
-                                      action: {
+                                    description: "The Office Hours are not editable currently.",
+                                    action: {
                                         label: "Ok",
-                                        onClick: () => { console.log("Undo"); },
-                                      },
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    },
                                 })
                             }
                         },
