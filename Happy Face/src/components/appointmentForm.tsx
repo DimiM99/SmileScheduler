@@ -1,7 +1,7 @@
 import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import {addMinutes, format} from 'date-fns'
+import {format} from 'date-fns'
 import {CalendarIcon, Search} from 'lucide-react'
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
@@ -13,21 +13,19 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {useEffect, useState} from "react";
 import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
 import {Doctor, Patient} from "@/models";
-import {appointmentDurations, AppointmentType} from "@/models/enums/AppointmentType.ts";
+import {AppointmentType} from "@/models/enums/AppointmentType.ts";
 import {Separator} from "@/components/ui/separator.tsx";
 import {useAppointmentStore} from "@/hooks/zustand/useAppointmentStore.ts";
 import {PatientService} from "@/services/PatientService.ts";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
 
 const formSchema = z.object({
+    appointmentId: z.number().optional(),
     date: z.date({
         required_error: "Appointment date is required",
     }),
     startTime: z.string({
         required_error: "Start time is required",
-    }),
-    endTime: z.string({
-        required_error: "End time is required",
     }),
     appointmentType: z.nativeEnum(AppointmentType),
     doctorId: z.number({
@@ -42,6 +40,8 @@ const formSchema = z.object({
     patientInsuranceProvider: z.string().min(2, "Insurance provider name must be at least 2 characters"),
     patientInsuranceNumber: z.string().regex(/^\d{6,}$/, "Insurance number must contain at least 6 digits"),
     patientPhoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
+    reasonForAppointment: z.string({}).optional(),
+    notes: z.string({}).optional(),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -100,6 +100,7 @@ export function AppointmentForm({
         form.setValue('patientInsuranceNumber', patient.insuranceNumber)
         form.setValue('patientPhoneNumber', patient.phoneNumber)
         setIsSearchDialogOpen(false)
+        form.clearErrors();
         //returnAppointment(form.getValues())
       }
 
@@ -109,7 +110,6 @@ export function AppointmentForm({
         defaultValues: {
             date: new Date(),
             startTime: "",
-            endTime: "",
             appointmentType: AppointmentType.EXTENSIVE,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
@@ -161,9 +161,9 @@ export function AppointmentForm({
     useEffect(() => {
         if (selectedAppointment) {
             try {
+                form.setValue('appointmentId', selectedAppointment.id);
                 form.setValue('date', new Date(selectedAppointment.start));
                 form.setValue('startTime', selectedAppointment.start);
-                form.setValue('endTime', selectedAppointment.end);
                 form.setValue('appointmentType', selectedAppointment.appointmentType);
                 form.setValue('doctorId', selectedAppointment.doctor.id);
                 form.setValue('patientId', selectedAppointment.patient.id);
@@ -185,7 +185,6 @@ export function AppointmentForm({
         form.reset({
             date: new Date(),
             startTime: "",
-            endTime: "",
             appointmentType: AppointmentType.EXTENSIVE,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
@@ -288,35 +287,6 @@ export function AppointmentForm({
 
                                 <FormField
                                     control={form.control}
-                                    name="endTime"
-                                    render={() => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                End Time
-                                                <FormMessage/>
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    disabled={true}
-                                                    type="time"
-                                                    value={
-                                                        form.watch('startTime') ?
-                                                            format(
-                                                                addMinutes(
-                                                                    form.getValues('startTime'),
-                                                                    appointmentDurations[form.watch('appointmentType')]
-                                                                ),
-                                                                'HH:mm'
-                                                            ) : ''
-                                                    }
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
                                     name="appointmentType"
                                     render={({field}) => (
                                         <FormItem>
@@ -377,6 +347,36 @@ export function AppointmentForm({
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="reasonForAppointment"
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                Reason for Appointment
+                                                <FormMessage/>
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="notes"
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                Notes
+                                                <FormMessage/>
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
+                                            </FormControl>
                                         </FormItem>
                                     )}
                                 />

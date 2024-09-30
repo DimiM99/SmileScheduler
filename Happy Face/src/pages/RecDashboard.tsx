@@ -122,6 +122,8 @@ const RecDashboard: React.FC = () => {
                 insuranceProvider: formValues.patientInsuranceProvider,
                 phoneNumber: formValues.patientPhoneNumber,
             },
+            reasonForAppointment : formValues.reasonForAppointment? formValues.reasonForAppointment : '',
+            notes: formValues.notes ? formValues.notes : '',
         };
     }
 
@@ -129,7 +131,7 @@ const RecDashboard: React.FC = () => {
         return {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
-            id: selectedAppointment.id,
+            id: data.appointmentId,
             title: `Appointment for ${data.patientName}`,
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
