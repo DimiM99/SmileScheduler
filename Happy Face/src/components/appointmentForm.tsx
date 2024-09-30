@@ -2,7 +2,7 @@ import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import {addMinutes, format} from 'date-fns'
-import {CalendarIcon} from 'lucide-react'
+import {CalendarIcon, Search} from 'lucide-react'
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
@@ -10,12 +10,14 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Calendar} from "@/components/ui/calendar"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/Form";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
-import {Doctor} from "@/models";
+import {Doctor, Patient} from "@/models";
 import {appointmentDurations, AppointmentType} from "@/models/enums/AppointmentType.ts";
 import {Separator} from "@/components/ui/separator.tsx";
 import {useAppointmentStore} from "@/hooks/zustand/useAppointmentStore.ts";
+import {PatientService} from "@/services/PatientService.ts";
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
 
 const formSchema = z.object({
     date: z.date({
@@ -64,9 +66,42 @@ export function AppointmentForm({
                                     newDoctorSelected,
                                     currentDateChange
                                     //returnAppointment
-}: AppointmentFormProps) {
+                                }: AppointmentFormProps) {
 
     const {availableSlots, fetchAvailableSlots} = useAppointmentStore();
+
+    const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false)
+    const [searchResult, setSearchResult] = useState<Patient | null>(null)
+    const [isSearching, setIsSearching] = useState(false)
+
+    const patientService = new PatientService();
+
+    const handleSearch = async () => {
+        const insuranceNumber = form.getValues('patientInsuranceNumber')
+        setIsSearching(true)
+        try {
+            const patient = await patientService.getPatientByInsuranceNumber(insuranceNumber)
+            setSearchResult(patient)
+        } catch (error) {
+            console.error('Error searching for patient:', error)
+            setSearchResult(null)
+        } finally {
+            setIsSearching(false)
+            setIsSearchDialogOpen(true)
+        }
+    }
+
+    const handleSelectPatient = (patient: Patient) => {
+        form.setValue('patientId', patient.id)
+        form.setValue('patientName', patient.name)
+        form.setValue('patientEmail', patient.email)
+        form.setValue('patientBirthdate', new Date(patient.birthdate))
+        form.setValue('patientInsuranceProvider', patient.insuranceProvider)
+        form.setValue('patientInsuranceNumber', patient.insuranceNumber)
+        form.setValue('patientPhoneNumber', patient.phoneNumber)
+        setIsSearchDialogOpen(false)
+      }
+
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -84,12 +119,6 @@ export function AppointmentForm({
             patientPhoneNumber: "",
         },
     });
-
-    // const formWatcher = form.watch(['date', "startTime"]);
-    //
-    // useEffect(() => {
-    //     returnAppointment(form.getValues());
-    // }, [formWatcher]);
 
     const updateAvailableSlots = (doctorId: number) => {
         const date = form.getValues('date');
@@ -239,7 +268,8 @@ export function AppointmentForm({
                                                 <SelectContent>
                                                     {
                                                         selectedAppointment && (
-                                                            <SelectItem key={selectedAppointment.start} value={selectedAppointment.start}>
+                                                            <SelectItem key={selectedAppointment.start}
+                                                                        value={selectedAppointment.start}>
                                                                 {format(selectedAppointment.start, 'HH:mm')}
                                                             </SelectItem>
                                                         )
@@ -294,12 +324,12 @@ export function AppointmentForm({
                                                 <FormMessage/>
                                             </FormLabel>
                                             <Select onValueChange={
-                                                    (value) => {
-                                                        field.onChange(value);
-                                                        updateAvailableSlots(form.getValues('doctorId'));
-                                                    }
+                                                (value) => {
+                                                    field.onChange(value);
+                                                    updateAvailableSlots(form.getValues('doctorId'));
                                                 }
-                                                value={field.value}>
+                                            }
+                                                    value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select type"/>
@@ -451,6 +481,10 @@ export function AppointmentForm({
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
+                                            <Button type="button" onClick={handleSearch} disabled={isSearching}>
+                                              <Search className="h-4 w-4 mr-2" />
+                                              {isSearching ? 'Searching...' : 'Search'}
+                                            </Button>
                                         </FormItem>
                                     )}
                                 />
@@ -483,6 +517,31 @@ export function AppointmentForm({
                     </form>
                 </Form>
             </CardContent>
+            <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Search Results</DialogTitle>
+                    </DialogHeader>
+                    {searchResult ? (
+                        <div className="space-y-4">
+                            <p><strong>Name:</strong> {searchResult.name}</p>
+                            <p><strong>Birthdate:</strong> {searchResult.birthdate}</p>
+                            <p><strong>Email:</strong> {searchResult.email}</p>
+                            <p><strong>Insurance Number:</strong> {searchResult.insuranceNumber}</p>
+                            <p><strong>Insurance Provider:</strong> {searchResult.insuranceProvider}</p>
+                            <p><strong>Phone Number:</strong> {searchResult.phoneNumber}</p>
+                            {searchResult.medicalHistory &&
+                                <p><strong>Medical History:</strong> {searchResult.medicalHistory}</p>}
+                            {searchResult.allergies && <p><strong>Allergies:</strong> {searchResult.allergies}</p>}
+                            <Button onClick={() => handleSelectPatient(searchResult)} className="w-full">
+                                Select Patient
+                            </Button>
+                        </div>
+                    ) : (
+                        <p>No patient found with the given insurance number.</p>
+                    )}
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 }
