@@ -100,6 +100,7 @@ export function AppointmentForm({
         form.setValue('patientInsuranceNumber', patient.insuranceNumber)
         form.setValue('patientPhoneNumber', patient.phoneNumber)
         setIsSearchDialogOpen(false)
+        //returnAppointment(form.getValues())
       }
 
 
@@ -481,6 +482,7 @@ export function AppointmentForm({
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
+                                            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises*/}
                                             <Button type="button" onClick={handleSearch} disabled={isSearching}>
                                               <Search className="h-4 w-4 mr-2" />
                                               {isSearching ? 'Searching...' : 'Search'}
@@ -533,7 +535,7 @@ export function AppointmentForm({
                             {searchResult.medicalHistory &&
                                 <p><strong>Medical History:</strong> {searchResult.medicalHistory}</p>}
                             {searchResult.allergies && <p><strong>Allergies:</strong> {searchResult.allergies}</p>}
-                            <Button onClick={() => handleSelectPatient(searchResult)} className="w-full">
+                            <Button onClick={() => { handleSelectPatient(searchResult); }} className="w-full">
                                 Select Patient
                             </Button>
                         </div>
