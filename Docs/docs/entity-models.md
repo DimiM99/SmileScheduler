@@ -6,9 +6,9 @@ based on the requirements, the following entities are identified:
 
 * Patient
 * Appointment
-* AppointmentType
-* Doctor
 * User
+* Enum Role
+* Enum AppointmentType
 
 ## Entity Details
 
@@ -20,36 +20,43 @@ based on the requirements, the following entities are identified:
     * email: string
     * phone: string
     * dateOfBirth: date
+    * allergies: string
+    * medicalHistory: string
 
-### AppointmentType
-
-* Attributes:
-    * id: string
-    * name: string
-    * duration: number
 
 ### Appointment
 
 * Attributes:
     * id: string
+    * title: string
     * patientId: string
     * doctorId: string
-    * appointmentTypeId: string
-    * date: date
-    * time: time
+    * appointmentType: AppointmentType
+    * start: datetime
+    * end: datetime
+    * reasonForAppointment: string
+    * notes: string
 
-### Doctor
-
-* Attributes:
-    * id: string
-    * name: string
-    * email: string
-    * phone: string
 
 ### User
 
 * Attributes:
     * id: string
     * username: string
+    * email: string
     * password: string
-    * role: string
+    * role: Role
+    * active: bool
+
+### Enum Role
+
+* Attributes:
+    RECEPTIONIST, DOCTOR, ADMIN, PATIENT
+
+    
+### Enum AppointmentType
+
+* Attributes:
+   QUICKCHECK -> 30
+   EXTENSIVE -> 60
+   SURGERY -> 120
