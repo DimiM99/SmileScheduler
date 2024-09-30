@@ -71,11 +71,18 @@ for version control, continuous integration, and an organized project management
 ### Tools and Technologies
 - **Version Control**: Git, GitHub
 - **Project Management**: GitHub Projects
-- **CI Pipeline**: Custom pipeline with ESLint and automated tests
+- **CI Pipelines**: Custom GitHub Actions Workflow (some screenshots below, demonstrating the process: checks and integration into pr management)
+      - **Dev-CI**: checks for pull requests to the development branch (run selectively based on what was worked on)
+         - **Readiness Check**: checks if the PR is ready for review (has to have a label `PR - for review` or `PR - reviewed - ready`). Also check for PR review statuses and changes requested and and can skipp the workflow entirely
+         - **Backend**: buil and test (unit and integration totaling aroud 90% coverage with 180 tests)
+         - **Frontend**: build, lint and test (no tests due to time constraints)
+      - **CI Workflow**: checks for pull requests to the master branch - run all time
+         - **Backend**: buil and test (unit and integration totaling aroud 90% coverage with 180 tests)
+         - **Frontend**: build, lint and test (no tests due to time constraints)
 - **Documentation**: MkDocs for project documentation
 - **Testing**:
-  - **Backend**: Full unit and integration tests
-  - **Frontend**: No tests due to time constraints
+      - **Backend**: Full unit and integration tests (JUnit5, Mockito, Testcontainers)
+      - **Frontend**: No tests due to time constraints
 
 ### Time Management and Constraints
 - The project was started as soon as it was assigned, but due to other responsibilities, 
@@ -91,9 +98,7 @@ are planned for future development stages.
 
 ### Screenshots out of development
 
-![Component development process](./files/DocDashboard-DevPic01.PNG)
-
----
+#### End App Screenshots
 
 ![Component development process](./files/DocDashboard-DevPic02.PNG)
 
@@ -117,7 +122,7 @@ are planned for future development stages.
 
 ![Rec Component development process](./files/RecDashboard-DevPic05.png)
 
----
+#### CI Process Screenshots (collaboration, project management etc.)
 
 ![CI process](./files/collab1.png)
 
@@ -127,10 +132,18 @@ are planned for future development stages.
 
 ---
 
+![CI process](./files/collab4.png)
+
+---
+
+![CI process](./files/collab5.png)
+
+---
+
 ![CI process](./files/collab3.png)
 
 ---
 
-![CI process](./files/collab4.png)
+![CI process](./files/collab7.png)
 
 

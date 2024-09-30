@@ -29,8 +29,8 @@ based on the requirements, the following entities are identified:
 * Attributes:
     * id: string
     * title: string
-    * patientId: string
-    * doctorId: string
+    * patientId: string (relation to Patient)
+    * doctorId: string (relation to User)
     * appointmentType: AppointmentType
     * start: datetime
     * end: datetime
