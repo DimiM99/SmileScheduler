@@ -66,7 +66,7 @@ export class AppointmentService implements IAppointmentService {
 
     async updateAppointment(appointmentRequest: AppointmentUpdateRequest): Promise<AppointmentResponse> {
         try {
-            const response: AxiosResponse<AppointmentResponse> = await api.put(`/api/appointments/`, appointmentRequest);
+            const response: AxiosResponse<AppointmentResponse> = await api.put(`/api/appointments`, appointmentRequest);
             return response.data;
         } catch (error) {
             throw handleApiError(error);

@@ -173,6 +173,8 @@ export function AppointmentForm({
                 form.setValue('patientInsuranceProvider', selectedAppointment.patient.insuranceProvider);
                 form.setValue('patientInsuranceNumber', selectedAppointment.patient.insuranceNumber);
                 form.setValue('patientPhoneNumber', selectedAppointment.patient.phoneNumber);
+                form.setValue('reasonForAppointment', selectedAppointment.reasonForAppointment);
+                form.setValue('notes', selectedAppointment.notes);
                 updateAvailableSlots(selectedAppointment.doctor.id);
             } catch (error) {
                 console.error('Error parsing appointment:', error);

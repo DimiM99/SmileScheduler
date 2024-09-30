@@ -139,6 +139,8 @@ const RecDashboard: React.FC = () => {
             doctorId: data.doctorId,
             start: data.startTime,
             appointmentType: data.appointmentType,
+            notes: data.notes? data.notes : '',
+            reasonForAppointment: data.reasonForAppointment? data.reasonForAppointment : '',
         };
     }
 

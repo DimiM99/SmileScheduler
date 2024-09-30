@@ -7,4 +7,6 @@ export interface AppointmentUpdateRequest {
     doctorId: number;
     start: string;
     appointmentType: AppointmentType;
+    notes: string;
+    reasonForAppointment: string;
 }
