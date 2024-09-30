@@ -109,7 +109,9 @@ class AppointmentControllerTest {
                 1L,
                 1L,
                 LocalDateTime.of(2023, 6, 1, 10, 0),
-                AppointmentType.EXTENSIVE
+                AppointmentType.EXTENSIVE,
+                null,
+                null
         );
         Appointment updatedAppointment = new Appointment("Updated Check-up", LocalDateTime.of(2023, 6, 1, 10, 0), AppointmentType.EXTENSIVE);
         when(appointmentService.updateAppointment(any(AppointmentDTO.class))).thenReturn(updatedAppointment);

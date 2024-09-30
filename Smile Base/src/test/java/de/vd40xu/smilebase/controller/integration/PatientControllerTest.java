@@ -76,7 +76,9 @@ class PatientControllerTest extends ControllerIntegrationTest {
                 patient.getInsuranceNumber(),
                 patient.getInsuranceProvider(),
                 patient.getEmail(),
-                patient.getPhoneNumber()
+                patient.getPhoneNumber(),
+                null,
+                null
         );
         mockMvc.perform(put("/api/patients")
                 .header("Authorization", "Bearer " + authToken)
@@ -97,7 +99,9 @@ class PatientControllerTest extends ControllerIntegrationTest {
                 "INS999",
                 "Test",
                 "Test",
-                "Test"
+                "Test",
+                null,
+                null
         );
         mockMvc.perform(put("/api/patients")
                 .header("Authorization", "Bearer " + authToken)
