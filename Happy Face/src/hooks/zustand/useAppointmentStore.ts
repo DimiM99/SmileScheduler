@@ -49,7 +49,8 @@ export const useAppointmentStore = create<AppointmentState>((set, get) => ({
         if (selectedDoctor) {
             const events = await appointmentService.getAppointmentsForDoctor(
                 selectedDoctor.id,
-                format(currentDate, 'yyyy-MM-dd')
+                format(currentDate, 'yyyy-MM-dd'),
+                true
             );
             set({events});
         }
