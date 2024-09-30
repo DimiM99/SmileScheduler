@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { format } from "date-fns";
 import {Appointment} from "@/models/Appointment";
-
 interface AppointmentDetailCardProps {
     appointment: Appointment
     onClose: () => void;
@@ -67,10 +66,10 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
                             </li>
                             <li>
                                 <span className="font-semibold">Medical History:</span>{" "}
-                                {appointment.patient.medicalHistory ? appointment.patient.medicalHistory : "No Record"}
+                                {(appointment.patient.medicalHistory && appointment.patient.medicalHistory != "") ? appointment.patient.medicalHistory : "No Record"}
                             </li>
                             <li>
-                                <span className="font-semibold">Allergies:</span> {appointment.patient.allergies ? appointment.patient.allergies : "No Record"}
+                                <span className="font-semibold">Allergies:</span> {(appointment.patient.allergies && appointment.patient.allergies != "") ? appointment.patient.allergies : "No Record"}
                             </li>
                         </ul>
                     </div>
@@ -79,14 +78,14 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
                 <div className="mt-6">
                     <h3 className="text-lg font-medium text-gray-700">Appointment Reason</h3>
                     <p className="mt-2 text-gray-600">{
-                        appointment.reasonForAppointment ? appointment.reasonForAppointment : "No reason provided."
+                        (appointment.reasonForAppointment && appointment.reasonForAppointment != "") ? appointment.reasonForAppointment : "No reason provided."
                     }</p>
                 </div>
 
                 <div className="mt-4">
                     <h3 className="text-lg font-medium text-gray-700">Notes</h3>
                     <p className="mt-2 text-gray-600">{
-                        appointment.notes ? appointment.notes : "No notes provided."
+                        (appointment.notes && appointment.notes != "") ? appointment.notes : "No notes provided."
                     }</p>
                 </div>
             </CardContent>
