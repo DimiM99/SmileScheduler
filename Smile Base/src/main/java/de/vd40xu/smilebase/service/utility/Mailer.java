@@ -4,20 +4,31 @@ import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 import de.vd40xu.smilebase.model.Appointment;
+import jakarta.annotation.PostConstruct;
 import lombok.Generated;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Generated
+@Component
 public class Mailer {
 
-    private static Resend resend = new Resend("re_123456789"); //TODO: Add api key reference
+    @Value("${resend.api.key}")
+    private String apiKey;
 
-    public Mailer () { throw new IllegalStateException("Utility class"); }
+    private static Resend resend;
 
-    public static void sendAppointmentConfirmation(Appointment appointment) throws MailerException {
+    @PostConstruct
+    public void init() {
+        resend = new Resend(apiKey);
+    }
+
+    public static void sendAppointmentConfirmation(Appointment appointment, boolean creating) throws MailerException {
+        String subject = creating ? "Appointment Confirmation at Smile Scheduler" : "Appointment Rescheduled at Smile Scheduler";
         CreateEmailOptions params = CreateEmailOptions.builder()
                 .from("Smile Scheduler <no_reply@smilescheduler.de>")
                 .to(appointment.getPatient().getEmail())
-                .subject("Appointment Confirmation at Smile Scheduler")
+                .subject(subject)
                 .html(customiseTheHtmlTemplate(appointment))
                 .build();
         try {
@@ -108,13 +119,14 @@ public class Mailer {
                 </body>
                 </html>
                 """;
+        String managementLink = "http://localhost:5173/patient-schedule?pID=" + appointment.getPatient().getId();
         return mailTemplate
                 .replace("{patientName}", appointment.getPatient().getName())
                 .replace("{appointmentDate}", appointment.getStart().toLocalDate().toString())
                 .replace("{appointmentTime}", appointment.getStart().toLocalTime().toString())
                 .replace("{doctorName}", appointment.getDoctor().getName())
                 .replace("{appointmentType}", appointment.getAppointmentType().toString())
-                .replace("{appointmentManagementLink}", "Wait For it"); // TODO: Implement the link
+                .replace("{appointmentManagementLink}", managementLink);
     }
 
     public static class MailerException extends RuntimeException {

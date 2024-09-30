@@ -2,18 +2,86 @@ import React, {useEffect, useState} from 'react';
 import {useAuth} from "@/hooks/useAuth.ts";
 import Layout from "@/components/layout.tsx";
 import {UserManagementForm} from "@/components/userManagementForm.tsx";
+import {User} from "@/models";
+import {UserList} from "@/components/userList.tsx";
+import {AccountManagementService} from "@/services/accountManagementService.ts";
+import {Toaster} from "@/components/ui/sonner.tsx";
+
 
 const AdminDashboard: React.FC = () => {
     const {user} = useAuth ();
 
-    const [loading, setLoading] = useState<boolean>(true);
+    const [dashboardState, setDashboardState] = useState({
+        users: [] as User[],
+        selectedUser: null as User | null,
+        loading: true,
+        error: null as string | null,
+    });
+
+
+
+    const handleUserSelect = (user: User | null) => {
+        setDashboardState(prevState => ({
+            ...prevState,
+            selectedUser: user,
+        }));
+    };
+
+    const fetchUsers = async () => {
+        setDashboardState(prevState => ({
+            ...prevState,
+            loading: true,
+        }));
+        setDashboardState(prevState => ({
+            ...prevState,
+            error: null,
+        }));
+        try {
+            const fetchedUsersResponse: User[] = await AccountManagementService.Instance.getUsers();
+            setDashboardState(prevState => ({
+                ...prevState,
+                users: fetchedUsersResponse,
+            }));
+        } catch (err) {
+            // Handle errors (assuming handleApiError returns a string message)
+            if (typeof err === 'string') {
+                setDashboardState(prevState => ({
+                    ...prevState,
+                    error: err,
+                }));
+            } else if (err instanceof Error) {
+                setDashboardState(prevState => ({
+                    ...prevState,
+                    error: err.message,
+                }));
+            } else {
+                setDashboardState(prevState => ({
+                    ...prevState,
+                    error: 'An unexpected error occurred.',
+                }));
+            }
+        } finally {
+            setDashboardState(prevState => ({
+                ...prevState,
+                loading: false,
+            }));
+        }
+    };
 
     useEffect (() => {
-        setLoading(true);
-        setLoading(false);
+
+        void fetchUsers();
     }, [user]);
 
-    if (loading) {
+    const handleUserUpdated = () => {
+        void fetchUsers();
+        setDashboardState(prevState => ({
+            ...prevState,
+            selectedUser: null,
+        }));
+    };
+
+    if (dashboardState.loading) {
         return <p>Loading...</p>;
     }
 
@@ -22,24 +90,32 @@ const AdminDashboard: React.FC = () => {
     }
 
     return (
-        <Layout
-            user={user}
-            left={
-                <div className="flex flex-col items-center">
-                    <h2>Registered Users</h2>
-                    <p>Here is a list of registered users</p>
-                </div>
-            }
-            right={
-                <div className="flex flex-col items-center">
-                    <h2>Edit Users</h2>
-                    <p>This is the content for the right section.</p>
-                    <UserManagementForm current={null}/>
-                </div>
-            }
-            leftWeight={2}
-            rightWeight={3}
-        />
+        <div>
+            <Layout
+                user={user}
+                left={
+                    <div className="flex flex-col justify-center items-center h-full">
+                        <UserList
+                            users={dashboardState.users}
+                            selectedUser={dashboardState.selectedUser}
+                            onUserSelect={handleUserSelect}
+                        />
+                        {dashboardState.error && <p className="text-red-600">{dashboardState.error}</p>}
+                    </div>
+                }
+                right={
+                    <div className="flex flex-col justify-center items-center h-full">
+                        <UserManagementForm
+                            current={dashboardState.selectedUser}
+                            onUserUpdated={handleUserUpdated}
+                        />
+                    </div>
+                }
+                leftWeight={4}
+                rightWeight={2}>
+            </Layout>
+            <Toaster position="top-left"/>
+        </div>
     );
 };
 

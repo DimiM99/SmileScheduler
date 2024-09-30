@@ -289,6 +289,8 @@ Response Body Schema (List of Appointment ojects)
             "start": "string (ISO datetime)",
             "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
             "end": "string (ISO datetime)",
+            "reasonForAppointment": "string",
+            "notes": "string",
             "doctor": {
                 "id": "long",
                 "username": "string",
@@ -304,7 +306,9 @@ Response Body Schema (List of Appointment ojects)
                 "insuranceNumber": "string",
                 "insuranceProvider": "string",
                 "email": "string",
-                "phoneNumer": "string"
+                "phoneNumer": "string",
+                "allergies": "string",
+                "medicalHistory": "string"
             }
         },
         // ... more appointment objects
@@ -325,6 +329,8 @@ Request Body Schema (NewAppointmentDTO)
     "doctorId": "long",
     "start": "string (ISO datetime)",
     "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
+    "reasonForAppointment": "string",
+    "notes": "string",
     "patient": {
         "id": "long (optional)", // If the patient is already in the system if not set, the patient will be created
         "name": "string",
@@ -332,7 +338,9 @@ Request Body Schema (NewAppointmentDTO)
         "insuranceNumber": "string",
         "insuranceProvider": "string",
         "email": "string",
-        "phoneNumer": "string"
+        "phoneNumer": "string",
+        "allergies": "string",
+        "medicalHistory": "string"
     }
 }
 ```
@@ -351,6 +359,8 @@ Response Body Schema (Appointment)
     "start": "string (ISO datetime)",
     "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
     "end": "string (ISO datetime)",
+    "reasonForAppointment": "string",
+    "notes": "string",
     "doctor": {
         "id": "long",
         "username": "string",
@@ -366,7 +376,9 @@ Response Body Schema (Appointment)
         "insuranceNumber": "string",
         "insuranceProvider": "string",
         "email": "string",
-        "phoneNumer": "string"
+        "phoneNumer": "string",
+        "allergies": "string",
+        "medicalHistory": "string"
     }
 }
 ```
@@ -391,6 +403,8 @@ Response Body Schema (Appointment)
     "start": "string (ISO datetime)",
     "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
     "end": "string (ISO datetime)",
+    "reasonForAppointment": "string",
+    "notes": "string",
     "doctor": {
         "id": "long",
         "username": "string",
@@ -406,7 +420,9 @@ Response Body Schema (Appointment)
         "insuranceNumber": "string",
         "insuranceProvider": "string",
         "email": "string",
-        "phoneNumer": "string"
+        "phoneNumer": "string",
+        "allergies": "string",
+        "medicalHistory": "string"
     }
 }
 ```
@@ -426,6 +442,8 @@ Request Body Schema (AppointmentDTO) // for optional fields - if set to null, th
     "patientId": "long", // makes no difference
     "doctorId": "long", // optional
     "start": "string (ISO datetime)", // optional
+    "reasonForAppointment": "string",
+    "notes": "string",
     "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)" // optional
 }
 
@@ -447,6 +465,8 @@ Response Body Schema (Appointment)
     "start": "string (ISO datetime)",
     "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
     "end": "string (ISO datetime)",
+    "reasonForAppointment": "string",
+    "notes": "string",
     "doctor": {
         "id": "long",
         "username": "string",
@@ -462,7 +482,9 @@ Response Body Schema (Appointment)
         "insuranceNumber": "string",
         "insuranceProvider": "string",
         "email": "string",
-        "phoneNumer": "string"
+        "phoneNumer": "string",
+        "allergies": "string",
+        "medicalHistory": "string"
     }
 }
 ```
@@ -511,7 +533,9 @@ Response Body Schema (Patient)
     "insuranceNumber": "string",
     "insuranceProvider": "string",
     "email": "string",
-    "phoneNumer": "string"
+    "phoneNumer": "string",
+    "allergies": "string",
+    "medicalHistory": "string"
 }
 ```
 
@@ -537,7 +561,9 @@ Request Body Schema (PatientDTO)
     "insuranceNumber": "string",
     "insuranceProvider": "string",
     "email": "string",
-    "phoneNumer": "string"
+    "phoneNumer": "string",
+    "allergies": "string",
+    "medicalHistory": "string"
 }
 ```
 
@@ -550,7 +576,9 @@ Response Body Schema (Patient)
     "insuranceNumber": "string",
     "insuranceProvider": "string",
     "email": "string",
-    "phoneNumer": "string"
+    "phoneNumer": "string",
+    "allergies": "string",
+    "medicalHistory": "string"
 }
 ```
 
@@ -566,7 +594,7 @@ Response Body Schema (Patient)
 
 #### Get Patient Schedule (open)
 
-* Method: GET
+* Method: POST
 * URL: `/api/patient-schedule`
 * Requset Body: PatientScheduleRequestDTO object
 * Responses:
@@ -594,6 +622,8 @@ Response Body Schema (List of Appointment objects)
             "start": "string (ISO datetime)",
             "appointmentType": "string (QUICKCHECK, EXTENSIVE, SURGERY)",
             "end": "string (ISO datetime)",
+            "reasonForAppointment": "string",
+            "notes": "string",
             "doctor": {
                 "id": "long",
                 "username": "string",
@@ -609,7 +639,9 @@ Response Body Schema (List of Appointment objects)
                 "insuranceNumber": "string",
                 "insuranceProvider": "string",
                 "email": "string",
-                "phoneNumer": "string"
+                "phoneNumer": "string",
+                "allergies": "string",
+                "medicalHistory": "string"
             }
         },
         // ... more appointment objects

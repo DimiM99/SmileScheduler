@@ -11,6 +11,7 @@ import de.vd40xu.smilebase.repository.AppointmentRepository;
 import de.vd40xu.smilebase.repository.PatientRepository;
 import de.vd40xu.smilebase.repository.UserRepository;
 import de.vd40xu.smilebase.service.interfaces.IAppointmentService;
+import de.vd40xu.smilebase.service.utility.Mailer;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
@@ -116,12 +117,22 @@ public class AppointmentService implements IAppointmentService {
                         appointmentDTO.getPatient().getInsuranceNumber(),
                         appointmentDTO.getPatient().getInsuranceProvider(),
                         appointmentDTO.getPatient().getEmail(),
-                        appointmentDTO.getPatient().getPhoneNumber()
+                        appointmentDTO.getPatient().getPhoneNumber(),
+                        appointmentDTO.getPatient().getAllergies(),
+                        appointmentDTO.getPatient().getMedicalHistory()
                 )
             )
         );
         }
-        return appointmentRepository.save(appointment);
+        appointment.setNotes(appointmentDTO.getNotes());
+        appointment.setReasonForAppointment(appointmentDTO.getReasonForAppointment());
+        Appointment res = appointmentRepository.save(appointment);
+        try {
+            Mailer.sendAppointmentConfirmation(res, true);
+        } catch (Exception e) {
+            System.out.println("Failed to send email: " + e.getMessage());
+        }
+        return res;
     }
 
     @Override
@@ -146,12 +157,31 @@ public class AppointmentService implements IAppointmentService {
         if (appointmentDTO.getDoctorId() != null) {
             checkForDoctor(appointment, appointmentDTO.getDoctorId());
         }
-        return appointmentRepository.save(appointment);
+        if (appointmentDTO.getNotes() != null) {
+            appointment.setNotes(appointmentDTO.getNotes());
+        }
+        if (appointmentDTO.getReasonForAppointment() != null) {
+            appointment.setReasonForAppointment(appointmentDTO.getReasonForAppointment());
+        }
+        Appointment res = appointmentRepository.save(appointment);
+        try {
+            Mailer.sendAppointmentConfirmation(res, false);
+        } catch (Exception e) {
+            System.out.println("Failed to send email: " + e.getMessage());
+        }
+        return res;
     }
 
     @Override
     public void deleteAppointment(Long id) {
         appointmentRepository.deleteById(id);
+    }
+
+    @Override
+    public List<User> getDoctors() {
+        return userRepository.findAllWithRoleReceptionistOrDoctor().stream().filter(
+                user -> user.getRole().equals(UserRole.DOCTOR)
+        ).toList();
     }
 
     @Setter

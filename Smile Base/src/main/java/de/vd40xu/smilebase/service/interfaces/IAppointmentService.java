@@ -3,6 +3,7 @@ package de.vd40xu.smilebase.service.interfaces;
 import de.vd40xu.smilebase.dto.AppointmentDTO;
 import de.vd40xu.smilebase.dto.NewAppointmentDTO;
 import de.vd40xu.smilebase.model.Appointment;
+import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
 
 import java.time.LocalDate;
@@ -16,4 +17,5 @@ public interface IAppointmentService {
     Appointment getAppointmentById(Long id);
     Appointment updateAppointment(AppointmentDTO appointment);
     void deleteAppointment(Long id);
+    List<User> getDoctors();
 }

@@ -73,8 +73,6 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
                             </Avatar>
                         </MenubarTrigger>
                         <MenubarContent>
-                            <MenubarItem >Account Settings</MenubarItem>
-
                             <MenubarItem onClick={handleLogout}>Logout</MenubarItem>
                         </MenubarContent>
                     </MenubarMenu>
