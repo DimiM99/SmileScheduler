@@ -14,10 +14,6 @@ export class AccountManagementService implements IAccountManagementService {
         return this._instance ?? (this._instance = new this());
     }
 
-    private constructor() {
-
-    }
-
     async createUser(user: UserRequest): Promise<UserResponse> {
         try {
             const response: AxiosResponse<UserResponse> = await api.post('/account-management/user', user);

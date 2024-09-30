@@ -114,7 +114,7 @@ const AdminDashboard: React.FC = () => {
                 leftWeight={4}
                 rightWeight={2}>
             </Layout>
-            <Toaster/>
+            <Toaster position="top-left"/>
         </div>
     );
 };

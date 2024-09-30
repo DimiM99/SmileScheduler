@@ -44,3 +44,12 @@ The project is structured as follows:
 * `Docs/` --> Contains the documentation for the project (you are here)
 * `Happy Face/` --> Contains the frontend code
 * `Smile Base/` --> Contains the backend code
+
+## Login Credentials For admin
+
+currently the admin is created on application startup with the following credentials:
+
+- username: adminUser
+- password: q2e13drR23e!
+
+in future we want to inherit the values from the env file.

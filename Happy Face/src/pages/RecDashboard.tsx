@@ -9,6 +9,7 @@ import WeekCalendar from "@/components/weekCalendar.tsx";
 import {useAppointmentStore} from "@/hooks/zustand/useAppointmentStore.ts";
 import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
 import {appointmentDurations, AppointmentType} from "@/models/enums/AppointmentType.ts";
+import {Toaster} from "sonner";
 
 const RecDashboard: React.FC = () => {
     const {user} = useAuth();
@@ -58,34 +59,34 @@ const RecDashboard: React.FC = () => {
             selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK
         ).then(
             () => {
-                availableSlots.forEach( (slot) => {
-                    setEvents(
-                                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                // @ts-expect-error
-                        [...events,
-                            {
-                                id: events.length + 1,
-                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                // @ts-expect-error
-                                title: `Free slot for ${selectedDoctor.name}`,
-                                start: slot,
-                                end: addMinutes(new Date(slot), appointmentDurations[selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK]).toString(),
-                                appointmentType: selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK,
-                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                // @ts-expect-error
-                                doctor: selectedDoctor,
-                                patient: {
-                                    id: 0,
-                                    name: 'Free Slot',
-                                    birthdate: '',
-                                    email: '',
-                                    insuranceNumber: '',
-                                    insuranceProvider: '',
-                                    phoneNumber: '',
-                                },
-                            }
-                        ]
-                    );
+                availableSlots.forEach((slot) => {
+                        setEvents(
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-expect-error
+                            [...events,
+                                {
+                                    id: events.length + 1,
+                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                    // @ts-expect-error
+                                    title: `Free slot for ${selectedDoctor.name}`,
+                                    start: slot,
+                                    end: addMinutes(new Date(slot), appointmentDurations[selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK]).toString(),
+                                    appointmentType: selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK,
+                                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                    // @ts-expect-error
+                                    doctor: selectedDoctor,
+                                    patient: {
+                                        id: 0,
+                                        name: 'Free Slot',
+                                        birthdate: '',
+                                        email: '',
+                                        insuranceNumber: '',
+                                        insuranceProvider: '',
+                                        phoneNumber: '',
+                                    },
+                                }
+                            ]
+                        );
                     }
                 );
             }
@@ -122,6 +123,8 @@ const RecDashboard: React.FC = () => {
                 insuranceProvider: formValues.patientInsuranceProvider,
                 phoneNumber: formValues.patientPhoneNumber,
             },
+            reasonForAppointment: formValues.reasonForAppointment ? formValues.reasonForAppointment : '',
+            notes: formValues.notes ? formValues.notes : '',
         };
     }
 
@@ -129,7 +132,7 @@ const RecDashboard: React.FC = () => {
         return {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
-            id: selectedAppointment.id,
+            id: data.appointmentId,
             title: `Appointment for ${data.patientName}`,
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
@@ -137,6 +140,8 @@ const RecDashboard: React.FC = () => {
             doctorId: data.doctorId,
             start: data.startTime,
             appointmentType: data.appointmentType,
+            notes: data.notes ? data.notes : '',
+            reasonForAppointment: data.reasonForAppointment ? data.reasonForAppointment : '',
         };
     }
 
@@ -172,36 +177,43 @@ const RecDashboard: React.FC = () => {
     }
 
     return (
-        <Layout
-            user={user}
-            left={
-                <WeekCalendar
-                    events={events}
-                    isBookingMode={createOrEditMode}
-                    onDoctorChange={handleDoctorChange}
-                    onDateChange={handleDateChange}
-                    onEventSelect={handleEventSelect}
-                    doctors={doctors}
-                    selectedDoctor={selectedDoctor}
-                    currentlySelectedDate={currentDate}
-                />
-            }
-            right={
-                <AppointmentForm
-                    selectedAppointment={selectedAppointment}
-                    doctors={doctors}
-                    onSubmit={handleAppointmentSubmit}
-                    currentlySelectedDoctor={selectedDoctor}
-                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                    newDoctorSelected={handleDoctorChange}
-                    dropSelectedAppointment={() => { setSelectedAppointment(null); setCreateOrEditMode(false) }}
-                    currentDateChange={handleDateChange}
-                    returnAppointment={prepareSelectedAppointment}
-                />
-            }
-            leftWeight={3}
-            rightWeight={2}
-        />
+        <div>
+
+            <Layout
+                user={user}
+                left={
+                    <WeekCalendar
+                        events={events}
+                        isBookingMode={createOrEditMode}
+                        onDoctorChange={handleDoctorChange}
+                        onDateChange={handleDateChange}
+                        onEventSelect={handleEventSelect}
+                        doctors={doctors}
+                        selectedDoctor={selectedDoctor}
+                        currentlySelectedDate={currentDate}
+                    />
+                }
+                right={
+                    <AppointmentForm
+                        selectedAppointment={selectedAppointment}
+                        doctors={doctors}
+                        onSubmit={handleAppointmentSubmit}
+                        currentlySelectedDoctor={selectedDoctor}
+                        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                        newDoctorSelected={handleDoctorChange}
+                        dropSelectedAppointment={() => {
+                            setSelectedAppointment(null);
+                            setCreateOrEditMode(false)
+                        }}
+                        currentDateChange={handleDateChange}
+                        returnAppointment={prepareSelectedAppointment}
+                    />
+                }
+                leftWeight={3}
+                rightWeight={2}
+            />
+            <Toaster position="top-left"/>
+        </div>
     );
 };
 

@@ -1,13 +1,15 @@
 import {AppointmentType} from "@/models/enums/AppointmentType.ts";
-import {Patient} from "@/models";
+import {Doctor} from "@/models/Doctor.ts";
+import {Patient} from "@/models/Patient.ts";
 
-
-export interface AppointmentRequest {
+export interface Appointment {
+    id: number;
     title: string;
-    doctorId: number;
     start: string;
+    end: string;
     appointmentType: AppointmentType;
     reasonForAppointment: string;
     notes: string;
+    doctor: Doctor;
     patient: Patient;
 }

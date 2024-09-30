@@ -9,6 +9,12 @@ import {Doctor} from "@/models";
 import {AppointmentUpdateRequest} from "@/models/services/requests/AppointmentUpdateRequest.ts";
 
 export class AppointmentService implements IAppointmentService {
+    private static _instance?: AppointmentService;
+
+    public static get Instance() {
+        return this._instance ?? (this._instance = new this());
+    }
+
 
     async getFreeSlots(doctorId: number, date: string, appointmentType: AppointmentType, weekView?: boolean): Promise<string[]> {
         try {
@@ -60,7 +66,7 @@ export class AppointmentService implements IAppointmentService {
 
     async updateAppointment(appointmentRequest: AppointmentUpdateRequest): Promise<AppointmentResponse> {
         try {
-            const response: AxiosResponse<AppointmentResponse> = await api.put(`/api/appointments/`, appointmentRequest);
+            const response: AxiosResponse<AppointmentResponse> = await api.put(`/api/appointments`, appointmentRequest);
             return response.data;
         } catch (error) {
             throw handleApiError(error);
