@@ -89,3 +89,26 @@ for further development and is scalable.
 - Further enhancements to the appointment system, such as **automated doctor rescheduling**, 
 are planned for future development stages.
 
+### Screenshots out of development
+
+![Component development process](./files/DocDashboard-DevPic01.PNG)
+
+---
+
+![Component development process](./files/DocDashboard-DevPic02.PNG)
+
+---
+
+![CI process](./files/collab1.png)
+
+---
+
+![CI process](./files/collab2.png)
+
+---
+
+![CI process](./files/collab3.png)
+
+---
+
+![CI process](./files/collab4.png)
