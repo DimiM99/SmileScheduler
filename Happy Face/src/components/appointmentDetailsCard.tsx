@@ -8,12 +8,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { format } from "date-fns";
+import {Appointment} from "@/models/Appointment";
 
 interface AppointmentDetailCardProps {
+    appointment: Appointment
     onClose: () => void;
 }
 
 export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
+                                                                                appointment,
                                                                                 onClose
                                                                             }) => {
     const mockData = {
@@ -50,7 +53,7 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
         <Card className="w-full h-4/5 max-w-2xl p-6 shadow-lg bg-white rounded-lg">
             <CardHeader className="flex justify-between items-center border-b pb-4">
                 <CardTitle className="text-2xl font-semibold text-gray-800">
-                    {mockData.title}
+                    {appointment.title}
                 </CardTitle>
 
                 <Button
@@ -70,18 +73,18 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
                         <h3 className="text-lg font-medium text-gray-700">Appointment Details</h3>
                         <ul className="mt-2 space-y-1">
                             <li>
-                                <span className="font-semibold">Type:</span> {mockData.appointmentType}
+                                <span className="font-semibold">Type:</span> {appointment.appointmentType}
                             </li>
                             <li>
                                 <span className="font-semibold">Start:</span>{" "}
-                                {format(new Date(mockData.start), "PPpp")}
+                                {format(new Date(appointment.start), "PPpp")}
                             </li>
                             <li>
                                 <span className="font-semibold">End:</span>{" "}
-                                {format(new Date(mockData.end), "PPpp")}
+                                {format(new Date(appointment.end), "PPpp")}
                             </li>
                             <li>
-                                <span className="font-semibold">Doctor:</span> {mockData.doctor.name}
+                                <span className="font-semibold">Doctor:</span> {appointment.doctor.name}
                             </li>
                         </ul>
                     </div>
@@ -90,14 +93,14 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
                         <h3 className="text-lg font-medium text-gray-700">Patient Information</h3>
                         <ul className="mt-2 space-y-1">
                             <li>
-                                <span className="font-semibold">Name:</span> {mockData.patient.name}
+                                <span className="font-semibold">Name:</span> {appointment.patient.name}
                             </li>
                             <li>
                                 <span className="font-semibold">Medical History:</span>{" "}
-                                {mockData.patient.medicalHistory}
+                                {appointment.patient.medicalHistory}
                             </li>
                             <li>
-                                <span className="font-semibold">Allergies:</span> {mockData.patient.allergies}
+                                <span className="font-semibold">Allergies:</span> {appointment.patient.allergies}
                             </li>
                         </ul>
                     </div>
@@ -105,12 +108,12 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
 
                 <div className="mt-6">
                     <h3 className="text-lg font-medium text-gray-700">Appointment Reason</h3>
-                    <p className="mt-2 text-gray-600">{mockData.reasonForAppointment}</p>
+                    <p className="mt-2 text-gray-600">{appointment.reasonForAppointment}</p>
                 </div>
 
                 <div className="mt-4">
                     <h3 className="text-lg font-medium text-gray-700">Notes</h3>
-                    <p className="mt-2 text-gray-600">{mockData.notes}</p>
+                    <p className="mt-2 text-gray-600">{appointment.notes}</p>
                 </div>
             </CardContent>
 
