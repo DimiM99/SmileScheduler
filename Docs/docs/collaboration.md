@@ -99,6 +99,26 @@ are planned for future development stages.
 
 ---
 
+![Rec Component development process](./files/RecDashboard-DevPic01.png)
+
+---
+
+![Rec Component development process](./files/RecDashboard-DevPic02.png)
+
+---
+
+![Rec Component development process](./files/RecDashboard-DevPic03.png)
+
+---
+
+![Rec Component development process](./files/RecDashboard-DevPic04.png)
+
+---
+
+![Rec Component development process](./files/RecDashboard-DevPic05.png)
+
+---
+
 ![CI process](./files/collab1.png)
 
 ---
@@ -112,3 +132,5 @@ are planned for future development stages.
 ---
 
 ![CI process](./files/collab4.png)
+
+
