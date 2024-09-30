@@ -16,4 +16,6 @@ public class NewAppointmentDTO {
     private LocalDateTime start;
     private AppointmentType appointmentType;
     private PatientDTO patient;
+    private String reasonForAppointment;
+    private String notes;
 }
