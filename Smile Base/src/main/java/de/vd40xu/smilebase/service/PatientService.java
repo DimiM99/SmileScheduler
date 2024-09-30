@@ -40,7 +40,9 @@ public class PatientService implements IPatientService {
                 patientDTO.getInsuranceNumber(),
                 patientDTO.getInsuranceProvider(),
                 patientDTO.getEmail(),
-                patientDTO.getPhoneNumber()
+                patientDTO.getPhoneNumber(),
+                null,
+                null
         );
         return patientRepository.save(patient);
     }
