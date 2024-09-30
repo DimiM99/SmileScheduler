@@ -80,6 +80,15 @@ export const AppointmentList: React.FC<AppointmentListProps> = ({
                                 <TableCell>{appointment.appointmentType}</TableCell>
                             </TableRow>
                         ))}
+
+                        {currentPageAppointments.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={3} className="text-center">
+                                    No appointments found.
+                                </TableCell>
+                            </TableRow>
+                        )}
+
                     </TableBody>
                 </Table>
             </CardContent>
