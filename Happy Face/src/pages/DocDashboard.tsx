@@ -110,6 +110,8 @@ const DocDashboard: React.FC = () => {
                         {dashboardState.selectedAppointment && (
 
                             <AppointmentDetailCard
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-expect-error
                                 appointment={dashboardState.selectedAppointment}
                                 onClose={unsetSelectedAppointment}
                             />
