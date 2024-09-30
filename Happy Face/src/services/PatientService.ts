@@ -6,9 +6,9 @@ import {AxiosResponse} from "axios";
 
 export class PatientService implements IPatientService {
 
-    public async getPatientByInsuranceNumber(number: number): Promise<Patient> {
+    public async getPatientByInsuranceNumber(number: string): Promise<Patient> {
         try {
-            const response: AxiosResponse<Patient> = await api.get(`/api/patients/search?insuranceNumber=${number.toString()}`);
+            const response: AxiosResponse<Patient> = await api.get(`/api/patients/search?insuranceNumber=${number}`);
             return response.data;
         } catch (error) {
             throw handleApiError(error);
