@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {useAuth} from "@/hooks/useAuth.ts";
-import Layout from "@/components/layout.tsx";
-import {AppointmentList} from "@/components/appointmentList.tsx";
-import {AppointmentService} from "@/services/appointmentService.ts";
-import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
-import {AppointmentDetailCard} from "@/components/appointmentDetailsCard.tsx";
+import {useAuth} from "@/hooks/useAuth";
+import Layout from "@/components/layout";
+import {AppointmentList} from "@/components/appointmentList";
+import {AppointmentService} from "@/services/appointmentService";
+import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse";
+import {AppointmentDetailCard} from "@/components/appointmentDetailsCard";
 
 interface DashboardState {
     appointments: AppointmentResponse[];
@@ -39,8 +39,8 @@ const DocDashboard: React.FC = () => {
         try {
             const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
             const appointments = await AppointmentService.Instance.getAppointmentsForDoctor(
-                24,
-                "2024-10-07",
+                user.id,
+                currentDate,
                 true
             );
 
@@ -49,11 +49,15 @@ const DocDashboard: React.FC = () => {
                 appointments,
                 loading: false,
             }));
-        } catch (error: any) {
+        } catch (error: unknown) {
+            let errorMessage = 'Failed to fetch appointments.';
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
             setDashboardState(prev => ({
                 ...prev,
                 loading: false,
-                error: error.message || 'Failed to fetch appointments.',
+                error: errorMessage,
             }));
         }
     };
@@ -102,6 +106,7 @@ const DocDashboard: React.FC = () => {
                     {dashboardState.selectedAppointment && (
 
                         <AppointmentDetailCard
+                            appointment={dashboardState.selectedAppointment}
                             onClose={unsetSelectedAppointment}
                         />
 
