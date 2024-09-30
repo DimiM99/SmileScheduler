@@ -42,6 +42,8 @@ class PatientServiceTest {
                 "Provider 1",
                 "email@tes.de",
                 "+49 911 3456 7890",
+                null,
+                null,
                 new HashSet<>()
         );
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
@@ -62,6 +64,8 @@ class PatientServiceTest {
                 "Provider 1",
                 "email@tets.de",
                 "+49 911 3456 7890",
+                null,
+                null,
                 new HashSet<>()
         );
         when(patientRepository.findByInsuranceNumber("123456789")).thenReturn(Optional.of(patient));
@@ -82,6 +86,8 @@ class PatientServiceTest {
                 "Provider 1",
                 "email@tets.de",
                 "+49 911 3456 7890",
+                null,
+                null,
                 new HashSet<>()
         );
         when(patientRepository.findByEmail("email@test.de")).thenReturn(Optional.of(patient));
@@ -110,6 +116,8 @@ class PatientServiceTest {
                 "Provider 1",
                 "email@tets.de",
                 "+49 911 3456 7890",
+                null,
+                null,
                 new HashSet<>()
         );
 
@@ -145,6 +153,8 @@ class PatientServiceTest {
                 "Provider 1",
                 "email@tets.de",
                 "+49 911 3456 7890",
+                null,
+                null,
                 new HashSet<>()
         );
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
@@ -167,6 +177,8 @@ class PatientServiceTest {
                                         "123456790",
                                         null,
                                         null,
+                                        null,
+                                        null,
                                         null)
                         )
                 ),
@@ -178,6 +190,8 @@ class PatientServiceTest {
                                         LocalDate.of(1990, 1, 1),
                                         null,
                                         "provider 2",
+                                        null,
+                                        null,
                                         null,
                                         null)
                         )
@@ -191,6 +205,8 @@ class PatientServiceTest {
                                         null,
                                         null,
                                         "newEmail@test.de",
+                                        null,
+                                        null,
                                         null)
                         )
                 ),
@@ -203,6 +219,8 @@ class PatientServiceTest {
                                         "1234123",
                                         "Provider 3",
                                         "newEmail@test.de",
+                                        null,
+                                        null,
                                         null)
                         )
                 ),
@@ -215,7 +233,9 @@ class PatientServiceTest {
                                         null,
                                         null,
                                         null,
-                                        "+49 911 3456 8888")
+                                        "+49 911 3456 8888",
+                                        null,
+                                        null)
                         )
                 )
         );

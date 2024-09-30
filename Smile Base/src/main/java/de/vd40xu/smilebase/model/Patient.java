@@ -25,6 +25,7 @@ public class Patient {
     private Long id;
 
     @Column(nullable = false)
+    @Setter
     private String name;
 
     @Column(nullable = false)
@@ -46,6 +47,14 @@ public class Patient {
     @Setter
     private String phoneNumber;
 
+    @Column
+    @Setter
+    private String allergies;
+
+    @Column
+    @Setter
+    private String medicalHistory;
+
     @JsonIgnore
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Appointment> appointments = new HashSet<>();
@@ -58,6 +67,26 @@ public class Patient {
     public void removeAppointment(Appointment appointment) {
         appointments.remove(appointment);
         appointment.setPatient(null);
+    }
+
+    public Patient(
+        String name,
+        LocalDate birthdate,
+        String insuranceNumber,
+        String insuranceProvider,
+        String email,
+        String phoneNumber,
+        String allergies,
+        String medicalHistory
+    ) {
+        this.name = name;
+        this.birthdate = birthdate;
+        this.insuranceNumber = insuranceNumber;
+        this.insuranceProvider = insuranceProvider;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.allergies = allergies;
+        this.medicalHistory = medicalHistory;
     }
 
     public Patient(

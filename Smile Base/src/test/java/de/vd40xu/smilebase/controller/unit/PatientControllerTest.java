@@ -78,7 +78,9 @@ class PatientControllerTest {
                 "12451341",
                 "Provider",
                 "testpatione@emial.de",
-                "+49123456789"
+                "+49123456789",
+                null,
+                null
         );
         Patient patient = new Patient(
                 1L,
@@ -88,6 +90,8 @@ class PatientControllerTest {
                 "Provider",
                 "testpatione@emial.de",
                 "+49123456789",
+                null,
+                null,
                 new HashSet<>()
         );
         when(
@@ -110,7 +114,9 @@ class PatientControllerTest {
                 "12451341",
                 "Provider",
                 "testpatione@emial.de",
-                "+49123456789"
+                "+49123456789",
+                null,
+                null
         );
         when(
           patientService.updatePatient(any(PatientDTO.class))

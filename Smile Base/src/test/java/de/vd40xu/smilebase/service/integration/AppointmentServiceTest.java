@@ -150,7 +150,9 @@ class AppointmentServiceTest extends AuthContextConfiguration {
             existingAppointment.getPatient().getId(),
             newDoctor.getId(),
             freeSlot,
-            AppointmentType.EXTENSIVE
+            AppointmentType.EXTENSIVE,
+            null,
+            null
         );
 
         Appointment result = appointmentService.updateAppointment(appointmentDTO);
@@ -188,6 +190,8 @@ class AppointmentServiceTest extends AuthContextConfiguration {
             null,
             null,
             null,
+            null,
+            null,
             null
         );
 
@@ -215,6 +219,8 @@ class AppointmentServiceTest extends AuthContextConfiguration {
             null,
             null,
             existingAppointment.getStart().plusMinutes(30),
+            null,
+            null,
             null
         );
 
@@ -248,7 +254,9 @@ class AppointmentServiceTest extends AuthContextConfiguration {
             null,
             null,
             null,
-            newType
+            newType,
+            null,
+            null
         );
 
         Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
@@ -282,6 +290,8 @@ class AppointmentServiceTest extends AuthContextConfiguration {
                 null,
                 null,
                 newDoctor.getId(),
+                null,
+                null,
                 null,
                 null
         );
@@ -343,7 +353,9 @@ class AppointmentServiceTest extends AuthContextConfiguration {
                     existingAppointment.getPatient().getInsuranceNumber(),
                     existingAppointment.getPatient().getInsuranceProvider(),
                     existingAppointment.getPatient().getEmail(),
-                    existingAppointment.getPatient().getPhoneNumber()
+                    existingAppointment.getPatient().getPhoneNumber(),
+                    null,
+                    null
                 )
         );
 
@@ -353,7 +365,9 @@ class AppointmentServiceTest extends AuthContextConfiguration {
                 existingAppointment.getPatient().getId(),
                 existingAppointment.getDoctor().getId(),
                 anotherAppointment.getStart().minusMinutes(15),
-                existingAppointment.getAppointmentType()
+                existingAppointment.getAppointmentType(),
+                null,
+                null
         );
 
         IllegalArgumentException eCreate = assertThrows(IllegalArgumentException.class, () -> appointmentService.scheduleAppointment(newAppointmentDTO));

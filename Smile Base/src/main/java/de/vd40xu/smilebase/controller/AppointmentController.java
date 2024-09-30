@@ -3,6 +3,7 @@ package de.vd40xu.smilebase.controller;
 import de.vd40xu.smilebase.dto.AppointmentDTO;
 import de.vd40xu.smilebase.dto.NewAppointmentDTO;
 import de.vd40xu.smilebase.model.Appointment;
+import de.vd40xu.smilebase.model.User;
 import de.vd40xu.smilebase.model.emuns.AppointmentType;
 import de.vd40xu.smilebase.service.AppointmentService;
 import de.vd40xu.smilebase.service.interfaces.IAppointmentService;
@@ -42,6 +43,12 @@ public class AppointmentController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/appointments/doctors")
+    public ResponseEntity<Object> getDoctors() {
+        List<User> doctors = appointmentService.getDoctors();
+        return ResponseEntity.ok(doctors);
     }
 
     @PostMapping("/appointments")
