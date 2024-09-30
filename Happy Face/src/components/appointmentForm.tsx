@@ -10,36 +10,36 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Calendar} from "@/components/ui/calendar"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/Form";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
 import {Doctor} from "@/models";
 import {appointmentDurations, AppointmentType} from "@/models/enums/AppointmentType.ts";
-import {AppointmentService} from "@/services/appointmentService.ts";
 import {Separator} from "@/components/ui/separator.tsx";
+import {useAppointmentStore} from "@/hooks/zustand/useAppointmentStore.ts";
 
-const formSchema = z.object ({
-    date: z.date ({
+const formSchema = z.object({
+    date: z.date({
         required_error: "Appointment date is required",
     }),
-    startTime: z.string ({
+    startTime: z.string({
         required_error: "Start time is required",
     }),
-    endTime: z.string ({
+    endTime: z.string({
         required_error: "End time is required",
     }),
-    appointmentType: z.nativeEnum (AppointmentType),
-    doctorId: z.number ({
+    appointmentType: z.nativeEnum(AppointmentType),
+    doctorId: z.number({
         required_error: "Doctor selection is required",
     }),
-    patientId: z.number ().optional(),
-    patientName: z.string ().min (2, "Name must be at least 2 characters"),
-    patientEmail: z.string ().email ("Invalid email address"),
-    patientBirthdate: z.date ({
+    patientId: z.number().optional(),
+    patientName: z.string().min(2, "Name must be at least 2 characters"),
+    patientEmail: z.string().email("Invalid email address"),
+    patientBirthdate: z.date({
         required_error: "Birthdate is required",
     }),
-    patientInsuranceProvider: z.string ().min (2, "Insurance provider name must be at least 2 characters"),
-    patientInsuranceNumber: z.string ().regex (/^\d{6,}$/, "Insurance number must contain at least 6 digits"),
-    patientPhoneNumber: z.string ().regex (/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
+    patientInsuranceProvider: z.string().min(2, "Insurance provider name must be at least 2 characters"),
+    patientInsuranceNumber: z.string().regex(/^\d{6,}$/, "Insurance number must contain at least 6 digits"),
+    patientPhoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number"),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -49,56 +49,49 @@ interface AppointmentFormProps {
     doctors: Doctor[];
     onSubmit: (data: FormValues, isCreate: boolean) => void;
     currentlySelectedDoctor: Doctor | null;
-    newDoctorSelected: (doctor: Doctor) => Promise<void>;
     dropSelectedAppointment: () => void;
+    newDoctorSelected: (docktor: Doctor) => void;
 }
 
 export function AppointmentForm({
-    selectedAppointment,
-    doctors,
-    onSubmit,
-    currentlySelectedDoctor,
-    newDoctorSelected,
-    dropSelectedAppointment,
-}: AppointmentFormProps) {
+                                    selectedAppointment,
+                                    doctors,
+                                    onSubmit,
+                                    currentlySelectedDoctor,
+                                    dropSelectedAppointment,
+                                    newDoctorSelected
+                                }: AppointmentFormProps) {
 
-    const [createMode, setCreateMode] = useState(true);
-    const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+    const {availableSlots, fetchAvailableSlots} = useAppointmentStore();
 
-    const appointmentService = new AppointmentService();
-
-    const form = useForm<FormValues> ({
-        resolver: zodResolver (formSchema),
+    const form = useForm<FormValues>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
-            date: new Date (),
+            date: new Date(),
             startTime: "",
             endTime: "",
             appointmentType: AppointmentType.QUICKCHECK,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
             patientEmail: "",
-            patientBirthdate: new Date (),
+            patientBirthdate: new Date(),
             patientInsuranceProvider: "",
             patientInsuranceNumber: "",
             patientPhoneNumber: "",
         },
     });
 
-    const docChange = (value: string) => {
-        form.setValue('doctorId', parseInt(value));
-        updateAvailableSlots(parseInt(value));
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        newDoctorSelected(doctors.find ((doc) => doc.id === parseInt (value)) as Doctor);
-    }
-
-    const updateAvailableSlots = (docId: number) => {
-        void appointmentService.getFreeSlots(docId, format(form.getValues('date'), 'yyyy-MM-dd'), form.getValues('appointmentType'))
-            .then((slots) => {
-                setAvailableSlots(slots);
-            });
+    const updateAvailableSlots = (doctorId: number) => {
+        const date = form.getValues('date');
+        const appointmentType = form.getValues('appointmentType');
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (date && appointmentType) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            fetchAvailableSlots(doctorId, date, appointmentType);
+        }
     };
 
-    const parseAppointmentType =(type: string) => {
+    const parseAppointmentType = (type: string) => {
         switch (type) {
             case 'QUICKCHECK':
                 return 'Quick Check';
@@ -118,15 +111,15 @@ export function AppointmentForm({
 
     const handleSubmit = (data: FormValues) => {
         console.log(data);
-        onSubmit(data, createMode);
+        onSubmit(data, !selectedAppointment);
         form.reset();
     }
 
-    useEffect (() => {
+    useEffect(() => {
         if (selectedAppointment) {
             const startDate = new Date(selectedAppointment.start);
             console.log(selectedAppointment.start);
-            form.reset ({
+            form.reset({
                 date: startDate,
                 startTime: selectedAppointment.start,
                 endTime: "",
@@ -140,43 +133,43 @@ export function AppointmentForm({
                 patientInsuranceNumber: selectedAppointment.patient.insuranceNumber,
                 patientPhoneNumber: selectedAppointment.patient.phoneNumber,
             });
-            setCreateMode(false)
-        } else {
-            setCreateMode(true);
-            if (currentlySelectedDoctor) {
-                form.setValue('doctorId', currentlySelectedDoctor.id);
-                updateAvailableSlots(currentlySelectedDoctor.id);
-            }
+        } else if (currentlySelectedDoctor) {
+            form.setValue('doctorId', currentlySelectedDoctor.id);
+            updateAvailableSlots(currentlySelectedDoctor.id);
         }
-    }, [selectedAppointment, form, currentlySelectedDoctor]);
+    }, [selectedAppointment, currentlySelectedDoctor, form]);
 
     function resetFrom() {
         dropSelectedAppointment();
         form.reset({
-            date: new Date (),
+            date: new Date(),
             startTime: "",
             endTime: "",
             appointmentType: AppointmentType.QUICKCHECK,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
             patientEmail: "",
-            patientBirthdate: new Date (),
+            patientBirthdate: new Date(),
             patientInsuranceProvider: "",
             patientInsuranceNumber: "",
             patientPhoneNumber: "",
         }, {keepValues: false});
-        setCreateMode(true);
     }
 
     return (
         <Card className="w-full max-w-3xl mx-auto">
             <CardHeader>
-                <CardTitle className="text-lg font-semibold">{selectedAppointment ? 'Edit Appointment' : 'Create Appointment'}</CardTitle>
+                <CardTitle
+                    className="text-lg font-semibold">{selectedAppointment ? 'Edit Appointment' : 'Create Appointment'}</CardTitle>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
                     {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-                    <form onSubmit={form.handleSubmit((e) => {handleSubmit(e)}, (errors, event) => {console.log("hui ", errors, event)})} className="space-y-8">
+                    <form onSubmit={form.handleSubmit((e) => {
+                        handleSubmit(e)
+                    }, (errors, event) => {
+                        console.log("hui ", errors, event)
+                    })} className="space-y-8">
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
@@ -195,7 +188,7 @@ export function AppointmentForm({
                                                             /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition,@typescript-eslint/restrict-template-expressions */
                                                                 className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"}`}>
                                                             <CalendarIcon className="mr-2 h-4 w-4"/>
-                                                            {(field.value as Date | undefined) ? format (field.value, "PPP") :
+                                                            {(field.value as Date | undefined) ? format(field.value, "PPP") :
                                                                 <span>Pick a date</span>}
                                                         </Button>
                                                     </FormControl>
@@ -206,9 +199,9 @@ export function AppointmentForm({
                                                         selected={field.value}
                                                         //eslint-disable-next-line @typescript-eslint/ban-ts-comment
                                                         onSelect={(date) => { // @ts-expect-error
-                                                            constDateChange (date);
+                                                            constDateChange(date);
                                                         }}
-                                                        disabled={(date) => date < new Date ()}
+                                                        disabled={(date) => date < new Date()}
                                                         initialFocus
                                                     />
                                                 </PopoverContent>
@@ -233,9 +226,9 @@ export function AppointmentForm({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {availableSlots.map ((slot) => (
+                                                    {availableSlots.map((slot) => (
                                                         <SelectItem key={slot} value={slot}>
-                                                            {format (new Date (slot), 'HH:mm')}
+                                                            {format(new Date(slot), 'HH:mm')}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -258,11 +251,11 @@ export function AppointmentForm({
                                                     disabled={true}
                                                     type="time"
                                                     value={
-                                                        form.watch ('startTime') ?
-                                                            format (
-                                                                addMinutes (
-                                                                    form.getValues ('startTime'),
-                                                                    appointmentDurations[form.watch ('appointmentType')]
+                                                        form.watch('startTime') ?
+                                                            format(
+                                                                addMinutes(
+                                                                    form.getValues('startTime'),
+                                                                    appointmentDurations[form.watch('appointmentType')]
                                                                 ),
                                                                 'HH:mm'
                                                             ) : ''
@@ -282,16 +275,22 @@ export function AppointmentForm({
                                                 Appointment Type
                                                 <FormMessage/>
                                             </FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value}>
+                                            <Select onValueChange={
+                                                    (value) => {
+                                                        field.onChange(value);
+                                                        updateAvailableSlots(form.getValues('doctorId'));
+                                                    }
+                                                }
+                                                value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select type"/>
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {Object.values (AppointmentType).map ((type) => (
+                                                    {Object.values(AppointmentType).map((type) => (
                                                         <SelectItem key={type} value={type}>
-                                                            {parseAppointmentType (type)}
+                                                            {parseAppointmentType(type)}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -311,10 +310,10 @@ export function AppointmentForm({
                                             </FormLabel>
                                             <Select
                                                 onValueChange={(value) => {
-                                                    field.onChange (parseInt (value));
-                                                    docChange (value);
+                                                    field.onChange(parseInt(value));
+                                                    newDoctorSelected(doctors.find((doctor) => doctor.id === parseInt(value)) as Doctor);
                                                 }}
-                                                value={field.value.toString ()}
+                                                value={field.value.toString()}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
@@ -322,8 +321,8 @@ export function AppointmentForm({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {doctors.map ((doctor) => (
-                                                        <SelectItem key={doctor.id} value={doctor.id.toString ()}>
+                                                    {doctors.map((doctor) => (
+                                                        <SelectItem key={doctor.id} value={doctor.id.toString()}>
                                                             {doctor.name}
                                                         </SelectItem>
                                                     ))}
@@ -387,7 +386,7 @@ export function AppointmentForm({
                                                             /* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition,@typescript-eslint/restrict-template-expressions */
                                                                 className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"}`}>
                                                             <CalendarIcon className="mr-2 h-4 w-4"/>
-                                                            {(field.value as Date | undefined) ? format (field.value, "PPP") :
+                                                            {(field.value as Date | undefined) ? format(field.value, "PPP") :
                                                                 <span>Pick a date</span>}
                                                         </Button>
                                                     </FormControl>
@@ -397,7 +396,7 @@ export function AppointmentForm({
                                                         mode="single"
                                                         selected={field.value}
                                                         onSelect={field.onChange}
-                                                        disabled={(date) => date > new Date ()}
+                                                        disabled={(date) => date > new Date()}
                                                         initialFocus
                                                     />
                                                 </PopoverContent>
@@ -457,7 +456,7 @@ export function AppointmentForm({
                         </div>
                         <div className="flex flex-row m-1">
                             <Button type="submit" className="w-full">
-                                {createMode ? 'Create Appointment' : 'Update Appointment'}
+                                {selectedAppointment ? 'Create Appointment' : 'Update Appointment'}
                             </Button>
                             <Button variant="secondary" type="reset" className="w-full" onClick={resetFrom}>
                                 Cancel
@@ -467,5 +466,5 @@ export function AppointmentForm({
                 </Form>
             </CardContent>
         </Card>
-);
+    );
 }

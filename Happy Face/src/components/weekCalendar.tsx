@@ -124,6 +124,7 @@ export default function WeekCalendar({
                         <DoctorAppointmentSelector 
                             doctors={doctors}
                             selectedDoctor={selectedDoctor}
+                            // eslint-disable-next-line @typescript-eslint/no-misused-promises
                             onDoctorChange={onDoctorChange}
                         />
                     </div>
@@ -240,7 +241,7 @@ function getWeekNumber(date: Date): number {
 interface DoctorAppointmentSelectorProps {
     doctors: Doctor[]
     selectedDoctor: Doctor | null
-    onDoctorChange: (doctor: Doctor) => Promise<void>
+    onDoctorChange: (doctor: Doctor) => void
 }
 
 function DoctorAppointmentSelector({ doctors, selectedDoctor, onDoctorChange }: DoctorAppointmentSelectorProps) {
