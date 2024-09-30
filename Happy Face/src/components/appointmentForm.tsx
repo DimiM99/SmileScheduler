@@ -2,7 +2,7 @@ import {useForm} from 'react-hook-form'
 import {zodResolver} from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import {addMinutes, format} from 'date-fns'
-import {CalendarIcon} from 'lucide-react'
+import {CalendarIcon, Search} from 'lucide-react'
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Input} from "@/components/ui/input"
@@ -10,12 +10,14 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import {Calendar} from "@/components/ui/calendar"
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/Form";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {AppointmentResponse} from "@/models/services/responses/AppointmentResponse.ts";
-import {Doctor} from "@/models";
+import {Doctor, Patient} from "@/models";
 import {appointmentDurations, AppointmentType} from "@/models/enums/AppointmentType.ts";
 import {Separator} from "@/components/ui/separator.tsx";
 import {useAppointmentStore} from "@/hooks/zustand/useAppointmentStore.ts";
+import {PatientService} from "@/services/PatientService.ts";
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog.tsx";
 
 const formSchema = z.object({
     date: z.date({
@@ -51,6 +53,8 @@ interface AppointmentFormProps {
     currentlySelectedDoctor: Doctor | null;
     dropSelectedAppointment: () => void;
     newDoctorSelected: (docktor: Doctor) => void;
+    currentDateChange: (date: Date) => Promise<void>;
+    returnAppointment: (data: FormValues) => void;
 }
 
 export function AppointmentForm({
@@ -59,10 +63,46 @@ export function AppointmentForm({
                                     onSubmit,
                                     currentlySelectedDoctor,
                                     dropSelectedAppointment,
-                                    newDoctorSelected
+                                    newDoctorSelected,
+                                    currentDateChange
+                                    //returnAppointment
                                 }: AppointmentFormProps) {
 
     const {availableSlots, fetchAvailableSlots} = useAppointmentStore();
+
+    const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false)
+    const [searchResult, setSearchResult] = useState<Patient | null>(null)
+    const [isSearching, setIsSearching] = useState(false)
+
+    const patientService = new PatientService();
+
+    const handleSearch = async () => {
+        const insuranceNumber = form.getValues('patientInsuranceNumber')
+        setIsSearching(true)
+        try {
+            const patient = await patientService.getPatientByInsuranceNumber(insuranceNumber)
+            setSearchResult(patient)
+        } catch (error) {
+            console.error('Error searching for patient:', error)
+            setSearchResult(null)
+        } finally {
+            setIsSearching(false)
+            setIsSearchDialogOpen(true)
+        }
+    }
+
+    const handleSelectPatient = (patient: Patient) => {
+        form.setValue('patientId', patient.id)
+        form.setValue('patientName', patient.name)
+        form.setValue('patientEmail', patient.email)
+        form.setValue('patientBirthdate', new Date(patient.birthdate))
+        form.setValue('patientInsuranceProvider', patient.insuranceProvider)
+        form.setValue('patientInsuranceNumber', patient.insuranceNumber)
+        form.setValue('patientPhoneNumber', patient.phoneNumber)
+        setIsSearchDialogOpen(false)
+        //returnAppointment(form.getValues())
+      }
+
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -70,7 +110,7 @@ export function AppointmentForm({
             date: new Date(),
             startTime: "",
             endTime: "",
-            appointmentType: AppointmentType.QUICKCHECK,
+            appointmentType: AppointmentType.EXTENSIVE,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
             patientEmail: "",
@@ -86,6 +126,7 @@ export function AppointmentForm({
         const appointmentType = form.getValues('appointmentType');
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         if (date && appointmentType) {
+            console.log('Updating available slots', doctorId, date, appointmentType);
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             fetchAvailableSlots(doctorId, date, appointmentType);
         }
@@ -106,6 +147,8 @@ export function AppointmentForm({
 
     const constDateChange = (date: Date) => {
         form.setValue('date', date);
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        currentDateChange(date);
         updateAvailableSlots(form.getValues('doctorId'));
     }
 
@@ -117,27 +160,25 @@ export function AppointmentForm({
 
     useEffect(() => {
         if (selectedAppointment) {
-            const startDate = new Date(selectedAppointment.start);
-            console.log(selectedAppointment.start);
-            form.reset({
-                date: startDate,
-                startTime: selectedAppointment.start,
-                endTime: "",
-                appointmentType: selectedAppointment.appointmentType,
-                patientId: selectedAppointment.patient.id,
-                doctorId: selectedAppointment.doctor.id,
-                patientName: selectedAppointment.patient.name,
-                patientEmail: selectedAppointment.patient.email,
-                patientBirthdate: new Date(selectedAppointment.patient.birthdate),
-                patientInsuranceProvider: selectedAppointment.patient.insuranceProvider,
-                patientInsuranceNumber: selectedAppointment.patient.insuranceNumber,
-                patientPhoneNumber: selectedAppointment.patient.phoneNumber,
-            });
-        } else if (currentlySelectedDoctor) {
-            form.setValue('doctorId', currentlySelectedDoctor.id);
-            updateAvailableSlots(currentlySelectedDoctor.id);
+            try {
+                form.setValue('date', new Date(selectedAppointment.start));
+                form.setValue('startTime', selectedAppointment.start);
+                form.setValue('endTime', selectedAppointment.end);
+                form.setValue('appointmentType', selectedAppointment.appointmentType);
+                form.setValue('doctorId', selectedAppointment.doctor.id);
+                form.setValue('patientId', selectedAppointment.patient.id);
+                form.setValue('patientName', selectedAppointment.patient.name);
+                form.setValue('patientEmail', selectedAppointment.patient.email);
+                form.setValue('patientBirthdate', new Date(selectedAppointment.patient.birthdate));
+                form.setValue('patientInsuranceProvider', selectedAppointment.patient.insuranceProvider);
+                form.setValue('patientInsuranceNumber', selectedAppointment.patient.insuranceNumber);
+                form.setValue('patientPhoneNumber', selectedAppointment.patient.phoneNumber);
+                updateAvailableSlots(selectedAppointment.doctor.id);
+            } catch (error) {
+                console.error('Error parsing appointment:', error);
+            }
         }
-    }, [selectedAppointment, currentlySelectedDoctor, form]);
+    }, [selectedAppointment]);
 
     function resetFrom() {
         dropSelectedAppointment();
@@ -145,7 +186,7 @@ export function AppointmentForm({
             date: new Date(),
             startTime: "",
             endTime: "",
-            appointmentType: AppointmentType.QUICKCHECK,
+            appointmentType: AppointmentType.EXTENSIVE,
             doctorId: currentlySelectedDoctor?.id || 0,
             patientName: "",
             patientEmail: "",
@@ -153,7 +194,7 @@ export function AppointmentForm({
             patientInsuranceProvider: "",
             patientInsuranceNumber: "",
             patientPhoneNumber: "",
-        }, {keepValues: false});
+        });
     }
 
     return (
@@ -226,6 +267,14 @@ export function AppointmentForm({
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
+                                                    {
+                                                        selectedAppointment && (
+                                                            <SelectItem key={selectedAppointment.start}
+                                                                        value={selectedAppointment.start}>
+                                                                {format(selectedAppointment.start, 'HH:mm')}
+                                                            </SelectItem>
+                                                        )
+                                                    }
                                                     {availableSlots.map((slot) => (
                                                         <SelectItem key={slot} value={slot}>
                                                             {format(new Date(slot), 'HH:mm')}
@@ -276,12 +325,12 @@ export function AppointmentForm({
                                                 <FormMessage/>
                                             </FormLabel>
                                             <Select onValueChange={
-                                                    (value) => {
-                                                        field.onChange(value);
-                                                        updateAvailableSlots(form.getValues('doctorId'));
-                                                    }
+                                                (value) => {
+                                                    field.onChange(value);
+                                                    updateAvailableSlots(form.getValues('doctorId'));
                                                 }
-                                                value={field.value}>
+                                            }
+                                                    value={field.value}>
                                                 <FormControl>
                                                     <SelectTrigger>
                                                         <SelectValue placeholder="Select type"/>
@@ -433,6 +482,11 @@ export function AppointmentForm({
                                             <FormControl>
                                                 <Input {...field} />
                                             </FormControl>
+                                            {/* eslint-disable-next-line @typescript-eslint/no-misused-promises*/}
+                                            <Button type="button" onClick={handleSearch} disabled={isSearching}>
+                                              <Search className="h-4 w-4 mr-2" />
+                                              {isSearching ? 'Searching...' : 'Search'}
+                                            </Button>
                                         </FormItem>
                                     )}
                                 />
@@ -456,7 +510,7 @@ export function AppointmentForm({
                         </div>
                         <div className="flex flex-row m-1">
                             <Button type="submit" className="w-full">
-                                {selectedAppointment ? 'Create Appointment' : 'Update Appointment'}
+                                {!selectedAppointment ? 'Create Appointment' : 'Update Appointment'}
                             </Button>
                             <Button variant="secondary" type="reset" className="w-full" onClick={resetFrom}>
                                 Cancel
@@ -465,6 +519,31 @@ export function AppointmentForm({
                     </form>
                 </Form>
             </CardContent>
+            <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Search Results</DialogTitle>
+                    </DialogHeader>
+                    {searchResult ? (
+                        <div className="space-y-4">
+                            <p><strong>Name:</strong> {searchResult.name}</p>
+                            <p><strong>Birthdate:</strong> {searchResult.birthdate}</p>
+                            <p><strong>Email:</strong> {searchResult.email}</p>
+                            <p><strong>Insurance Number:</strong> {searchResult.insuranceNumber}</p>
+                            <p><strong>Insurance Provider:</strong> {searchResult.insuranceProvider}</p>
+                            <p><strong>Phone Number:</strong> {searchResult.phoneNumber}</p>
+                            {searchResult.medicalHistory &&
+                                <p><strong>Medical History:</strong> {searchResult.medicalHistory}</p>}
+                            {searchResult.allergies && <p><strong>Allergies:</strong> {searchResult.allergies}</p>}
+                            <Button onClick={() => { handleSelectPatient(searchResult); }} className="w-full">
+                                Select Patient
+                            </Button>
+                        </div>
+                    ) : (
+                        <p>No patient found with the given insurance number.</p>
+                    )}
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 }
