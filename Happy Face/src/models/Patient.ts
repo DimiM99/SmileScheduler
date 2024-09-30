@@ -6,6 +6,6 @@ export interface Patient {
     insuranceNumber: string;
     insuranceProvider: string;
     phoneNumber: string;
-    medicalHistory: string;
-    allergies: string;
+    medicalHistory?: string;
+    allergies?: string;
 }
