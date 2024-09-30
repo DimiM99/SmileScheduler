@@ -22,6 +22,8 @@ const handleDeleteAppointment = () => {
 type MenuGeneratorType = (role: Role) => Menu[];
 
 export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
+
+
     switch (role) { // Ensure role comparison is case-insensitive
         case Role.RECEPTIONIST:
             return [
@@ -64,17 +66,39 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
         case Role.DOCTOR:
             return [
                 {
-                    name: "Appointment",
+                    name: "My Schedule",
                     items: [
-                        { label: "View All Appointments", shortcut: "⌘L", onClick: handleViewAppointments },
-                        'separator',
-                        { label: "Reschedule Appointment", shortcut: "⌘R" },
-                    ],
-                },
-                {
-                    name: "Doctor Schedules",
-                    items: [
-                        { label: "View Doctor Availability", shortcut: "⌘A" },
+                        {
+                            label: "Manage Availability",
+                            shortcut: "⌘A",
+                            onClick: () => {
+                                toast("Sorry", {
+                                    description: "The availability is not editable currently.",
+                                    action: {
+                                        label: "Ok",
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    }
+                                })
+                            }
+                        },
+
+                        {
+                            label: "Plan Vacation",
+                            shortcut: "⌘V",
+                            onClick: () => {
+                                toast("Sorry", {
+                                    description: "The vacation planner is not available currently.",
+                                    action: {
+                                        label: "Ok",
+                                        onClick: () => {
+                                            console.log("Undo");
+                                        },
+                                    }
+                                })
+                            }
+                        },
                     ],
                 },
             ];
@@ -93,7 +117,7 @@ export const RoleBasedMenuBuilder: MenuGeneratorType = (role: Role): Menu[] => {
                                         label: "Ok",
                                         onClick: () => { console.log("Undo"); },
                                       },
-                                    })
+                                })
                             }
                         },
                     ],
