@@ -88,4 +88,20 @@ public class Patient {
         this.medicalHistory = medicalHistory;
     }
 
+    public Patient(
+        String name,
+        LocalDate birthdate,
+        String insuranceNumber,
+        String insuranceProvider,
+        String email,
+        String phoneNumber
+    ) {
+        this.name = name;
+        this.birthdate = birthdate;
+        this.insuranceNumber = insuranceNumber;
+        this.insuranceProvider = insuranceProvider;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
 }
