@@ -8,10 +8,8 @@ export interface AppointmentResponse {
     start: string;
     end: string;
     appointmentType: AppointmentType;
-    reasonForAppointment: string;
-    notes: string;
-    doctor: Doctor;
-    patient: Patient;
     reasonForAppointment?: string;
     notes?: string;
+    doctor: Doctor;
+    patient: Patient;
 }
