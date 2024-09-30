@@ -5,6 +5,8 @@ import { AppointmentResponse } from '@/models/services/responses/AppointmentResp
 import { IAppointmentService } from '@/models/services/IAppointmentService';
 import { handleApiError } from './errorHandler';
 import {AppointmentType} from "@/models/enums/AppointmentType.ts";
+import {Doctor} from "@/models";
+import {AppointmentUpdateRequest} from "@/models/services/requests/AppointmentUpdateRequest.ts";
 
 export class AppointmentService implements IAppointmentService {
 
@@ -12,6 +14,15 @@ export class AppointmentService implements IAppointmentService {
         try {
             const response: AxiosResponse<string[]> = await api
                 .get(`/api/appointments/free-slots?doctorId=${doctorId.toString()}&appointmentType=${appointmentType}&date=${date}${weekView ? `&weekView=true`: ''}`);
+            return response.data;
+        } catch (error) {
+            throw handleApiError(error);
+        }
+    }
+
+    async fetchDoctors(): Promise<Doctor[]> {
+        try {
+            const response: AxiosResponse<Doctor[]> = await api.get('/api/appointments/doctors');
             return response.data;
         } catch (error) {
             throw handleApiError(error);
@@ -47,7 +58,7 @@ export class AppointmentService implements IAppointmentService {
         }
     }
 
-    async updateAppointment(appointmentRequest: AppointmentRequest): Promise<AppointmentResponse> {
+    async updateAppointment(appointmentRequest: AppointmentUpdateRequest): Promise<AppointmentResponse> {
         try {
             const response: AxiosResponse<AppointmentResponse> = await api.put(`/api/appointments/`, appointmentRequest);
             return response.data;

@@ -167,6 +167,13 @@ public class AppointmentService implements IAppointmentService {
         appointmentRepository.deleteById(id);
     }
 
+    @Override
+    public List<User> getDoctors() {
+        return userRepository.findAllWithRoleReceptionistOrDoctor().stream().filter(
+                user -> user.getRole().equals(UserRole.DOCTOR)
+        ).toList();
+    }
+
     @Setter
     private Clock clock = Clock.systemDefaultZone();
 
