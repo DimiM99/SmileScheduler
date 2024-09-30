@@ -1,14 +1,16 @@
 import { AxiosResponse } from 'axios';
 import { apiWithoutAuth } from './apiConfig';
 import { handleApiError } from './errorHandler';
-import {LoginResponse} from "@/models/services/responses/LoginResponse.ts";
-import {GetUserResponse} from "@/models/services/responses/GetUserResponse.ts";
+import {LoginResponse} from "@/models/services/responses/LoginResponse";
+import {GetUserResponse} from "@/models/services/responses/GetUserResponse";
 import CryptoJS from 'crypto-js';
-import { LoginRequest } from '@/models/services/requests/LoginRequest.ts';
-import {IAuthService} from "@/models/services/IAuthService.ts";
+import { LoginRequest } from '@/models/services/requests/LoginRequest';
+import {IAuthService} from "@/models/services/IAuthService";
+
 
 
 export class AuthService implements IAuthService {
+
     private secret = import.meta.env.VITE_CRYPTO_SECRET || "default";
 
     async login(req: LoginRequest): Promise<LoginResponse> {
