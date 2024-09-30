@@ -7,5 +7,7 @@ export interface AppointmentRequest {
     doctorId: number;
     start: string;
     appointmentType: AppointmentType;
+    reasonForAppointment: string;
+    notes: string;
     patient: Patient;
 }
