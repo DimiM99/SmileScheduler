@@ -19,36 +19,6 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
                                                                                 appointment,
                                                                                 onClose
                                                                             }) => {
-    const mockData = {
-        id: 21,
-        title: "Routine Dental Cleaning",
-        start: "2024-10-01T10:00:00",
-        end: "2024-10-01T11:00:00",
-        appointmentType: "Cleaning",
-        status: "Scheduled",
-        doctor: {
-            id: 23,
-            username: "doc",
-            name: "Dr. Doc",
-            email: "doc@example.com",
-            role: "DOCTOR",
-            active: true
-        },
-        patient: {
-            id: 7,
-            name: "Pat Pat2",
-            birthdate: "2018-09-25",
-            insuranceNumber: "123412341234",
-            insuranceProvider: "AOK",
-            email: "pat@example.com",
-            phoneNumber: "+49 1234123",
-            medicalHistory: "No known allergies. Previous fillings in upper molars.",
-            allergies: "Penicillin",
-        },
-        reasonForAppointment: "Routine check-up and cleaning.",
-        notes: "Patient prefers morning appointments. Use fluoride-free toothpaste if possible."
-    }
-
     return (
         <Card className="w-full h-4/5 max-w-2xl p-6 shadow-lg bg-white rounded-lg">
             <CardHeader className="flex justify-between items-center border-b pb-4">
@@ -97,10 +67,10 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
                             </li>
                             <li>
                                 <span className="font-semibold">Medical History:</span>{" "}
-                                {appointment.patient.medicalHistory}
+                                {appointment.patient.medicalHistory ? appointment.patient.medicalHistory : "No Record"}
                             </li>
                             <li>
-                                <span className="font-semibold">Allergies:</span> {appointment.patient.allergies}
+                                <span className="font-semibold">Allergies:</span> {appointment.patient.allergies ? appointment.patient.allergies : "No Record"}
                             </li>
                         </ul>
                     </div>
@@ -108,12 +78,16 @@ export const AppointmentDetailCard: React.FC<AppointmentDetailCardProps> = ({
 
                 <div className="mt-6">
                     <h3 className="text-lg font-medium text-gray-700">Appointment Reason</h3>
-                    <p className="mt-2 text-gray-600">{appointment.reasonForAppointment}</p>
+                    <p className="mt-2 text-gray-600">{
+                        appointment.reasonForAppointment ? appointment.reasonForAppointment : "No reason provided."
+                    }</p>
                 </div>
 
                 <div className="mt-4">
                     <h3 className="text-lg font-medium text-gray-700">Notes</h3>
-                    <p className="mt-2 text-gray-600">{appointment.notes}</p>
+                    <p className="mt-2 text-gray-600">{
+                        appointment.notes ? appointment.notes : "No notes provided."
+                    }</p>
                 </div>
             </CardContent>
 
