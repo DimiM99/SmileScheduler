@@ -55,6 +55,9 @@ public class PatientService implements IPatientService {
     @Override
     public Patient updatePatient(PatientDTO patientDTO) {
         Patient savedPatient = patientRepository.findById(patientDTO.getId()).orElseThrow();
+        if (patientDTO.getName() != null) {
+            savedPatient.setName(patientDTO.getName());
+        }
         if (patientDTO.getInsuranceNumber() != null) {
             savedPatient.setInsuranceNumber(patientDTO.getInsuranceNumber());
         }
@@ -66,6 +69,12 @@ public class PatientService implements IPatientService {
         }
         if (patientDTO.getPhoneNumber() != null) {
             savedPatient.setPhoneNumber(patientDTO.getPhoneNumber());
+        }
+        if (patientDTO.getMedicalHistory() != null) {
+            savedPatient.setMedicalHistory(patientDTO.getMedicalHistory());
+        }
+        if (patientDTO.getAllergies() != null) {
+            savedPatient.setAllergies(patientDTO.getAllergies());
         }
         return patientRepository.save(savedPatient);
     }

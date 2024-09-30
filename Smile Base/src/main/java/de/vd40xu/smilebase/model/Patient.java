@@ -25,6 +25,7 @@ public class Patient {
     private Long id;
 
     @Column(nullable = false)
+    @Setter
     private String name;
 
     @Column(nullable = false)
