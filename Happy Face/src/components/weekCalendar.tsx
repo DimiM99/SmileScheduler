@@ -38,7 +38,7 @@ export default function WeekCalendar({
     onEventSelect,
     doctors,
     selectedDoctor,
-    currentlySelectedDate,
+    currentlySelectedDate
 }: WeekCalendarProps) {
     const [currentDate, setCurrentDate] = useState(currentlySelectedDate)
     const [hoveredEvent, setHoveredEvent] = useState<number | null>(null)

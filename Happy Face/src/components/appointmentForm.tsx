@@ -52,6 +52,7 @@ interface AppointmentFormProps {
     dropSelectedAppointment: () => void;
     newDoctorSelected: (docktor: Doctor) => void;
     currentDateChange: (date: Date) => Promise<void>;
+    returnAppointment: (data: FormValues) => void;
 }
 
 export function AppointmentForm({
@@ -62,6 +63,7 @@ export function AppointmentForm({
                                     dropSelectedAppointment,
                                     newDoctorSelected,
                                     currentDateChange
+                                    //returnAppointment
 }: AppointmentFormProps) {
 
     const {availableSlots, fetchAvailableSlots} = useAppointmentStore();
@@ -82,6 +84,12 @@ export function AppointmentForm({
             patientPhoneNumber: "",
         },
     });
+
+    // const formWatcher = form.watch(['date', "startTime"]);
+    //
+    // useEffect(() => {
+    //     returnAppointment(form.getValues());
+    // }, [formWatcher]);
 
     const updateAvailableSlots = (doctorId: number) => {
         const date = form.getValues('date');

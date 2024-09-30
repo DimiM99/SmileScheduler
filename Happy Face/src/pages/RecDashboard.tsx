@@ -44,6 +44,12 @@ const RecDashboard: React.FC = () => {
     }, [user, fetchDoctors]);
 
     useEffect(() => {
+        if (selectedAppointment) {
+            triggerEditMode();
+        }
+    }, [createOrEditMode]);
+
+    function triggerEditMode() {
         fetchAvailableSlots(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
@@ -54,23 +60,41 @@ const RecDashboard: React.FC = () => {
             () => {
                 availableSlots.forEach( (slot) => {
                     setEvents(
+                                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-expect-error
                         [...events,
                             {
                                 id: events.length + 1,
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-expect-error
                                 title: `Free slot for ${selectedDoctor.name}`,
                                 start: slot,
                                 end: addMinutes(new Date(slot), appointmentDurations[selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK]).toString(),
                                 appointmentType: selectedAppointment?.appointmentType || AppointmentType.QUICKCHECK,
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-expect-error
                                 doctor: selectedDoctor,
-                                patient: selectedAppointment.patient,
+                                patient: {
+                                    id: 0,
+                                    name: 'Free Slot',
+                                    birthdate: '',
+                                    email: '',
+                                    insuranceNumber: '',
+                                    insuranceProvider: '',
+                                    phoneNumber: '',
+                                },
                             }
                         ]
                     );
                     }
                 );
             }
+        ).catch(
+            (error: unknown) => {
+                console.error('Error fetching available slots:', error);
+            }
         );
-    }, [createOrEditMode]);
+    };
 
     const handleAppointmentSubmit = useCallback((data: FormValues, creation: boolean) => {
         if (creation) {
@@ -139,6 +163,14 @@ const RecDashboard: React.FC = () => {
         return <p>Loading...</p>;
     }
 
+    function prepareSelectedAppointment(data: FormValues) {
+        const draft = formValuesToAppointmentRequest(data);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        setSelectedAppointment(draft);
+        setCreateOrEditMode(true);
+    }
+
     return (
         <Layout
             user={user}
@@ -164,6 +196,7 @@ const RecDashboard: React.FC = () => {
                     newDoctorSelected={handleDoctorChange}
                     dropSelectedAppointment={() => { setSelectedAppointment(null); setCreateOrEditMode(false) }}
                     currentDateChange={handleDateChange}
+                    returnAppointment={prepareSelectedAppointment}
                 />
             }
             leftWeight={3}
